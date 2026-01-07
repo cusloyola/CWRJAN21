@@ -172,3 +172,60 @@
   ```
 
 ## PROXY SERVER (NGINX)
+- Create an nginx.conf file in nginx directory
+  ```
+    # nginx/nginx.conf
+    events { }
+
+    http {
+        upstream frontend {
+            server nvrdm_frontend:3000;
+        }
+
+        upstream backend {
+            server nvrdm_backend:8000;
+        }
+
+        server {
+            listen 80;
+
+            # Route API requests to the Django backend
+            location /api/ {
+                proxy_pass http://backend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+
+            # Route all other requests to the Vite frontend
+            location / {
+                proxy_pass http://frontend;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+        }
+    }
+  ```
+ - In this configuration
+    ```
+     - API requests (e.g., http://localhost/api/) are routed to the Django backend.
+     - All other requests (e.g., /, /about, etc.) go to the Vite + React frontend.
+   ```
+
+ - Update Frontend to Use Proxy Path
+
+   In the frontend code, make sure API requests are pointed to /api instead of the backend’s direct URL. This will work with the reverse proxy to route requests correctly.
+
+   For example, in a file like src/api.js:
+   ```
+    const API_URL = "/api"; // No need for full URL, as Nginx handles routing
+
+    export const fetchData = async () => {
+      const response = await fetch(`${API_URL}/endpoint`);
+      return response.json();
+    };
+
+   ```
