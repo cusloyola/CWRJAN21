@@ -91,6 +91,20 @@
     pip freeze > requirements.txt
     ```
 
+- Setup Django Admin portal
+
+  - Migrate Database:
+      ```
+      python manage.py migrate
+      ```
+  - Create superuser (admin account):
+      ```
+      python manage.py createsuperuser
+      ```
+  - Super User
+      ```
+      mis/wallem1234
+      ```
 
 ## FRONTEND (VITE+REACT)
 - Create directory
@@ -229,3 +243,9 @@
     };
 
    ```
+## Accessing the Application
+- Frontend and Backend: Accessible through http://localhost
+  - **Frontend:** All routes except those prefixed with /api/
+  - **Backend API:** Routes prefixed with /api/
+
+ This setup provides a streamlined approach for routing requests to the appropriate service while keeping the frontend and backend isolated within their own containers.
