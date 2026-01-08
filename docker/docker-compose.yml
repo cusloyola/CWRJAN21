@@ -8,7 +8,7 @@ services:
     build:
       context: ..
       dockerfile: docker/db.Dockerfile
-    image: cwr_mariadb:latest
+    image: cwr_v1_mariadb:latest
     container_name: cwr_db
     restart: always
     ports:
@@ -59,8 +59,6 @@ services:
     container_name: cwr_backend
     environment:
       DB_HOST: db   # override host for Docker
-    depends_on:
-      - db
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
       - ../backend:/app
@@ -74,10 +72,10 @@ services:
   # Proxy Server - Nginx
   # --------------------------
   proxy:
-    image: nginx:alpine
+    build:
+      context: ..
+      dockerfile: docker/nginx.Dockerfile
     container_name: cwr_proxy
-    volumes:
-      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
     ports:
       - "80:80"  # Expose Nginx on port 80
     depends_on:

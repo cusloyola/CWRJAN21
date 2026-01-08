@@ -34,6 +34,19 @@
     ```
     pip install -r requirements.txt
     ```
+- Setup Django Admin portal
+
+  - Migrate Database:
+      ```
+      python manage.py migrate
+      ```
+  - Create superuser (admin account):
+      ```
+      python manage.py createsuperuser
+      ```
+  - Super User
+      ```
+      mis/wallem1234
 - Frontend Install
   - Change to frontend folder
     ```
