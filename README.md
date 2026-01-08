@@ -8,4 +8,10 @@ Boiler template for Vite+React, Django (REST) with MariaDB as Database and Nginx
 - Backend:  Python/Django 
 - Database: MariaDB
 - Proxy Server: Nginx
+- Django Rest Framework
+- JWT authentication
 
+## Installation Guide
+
+- [Setup Guide](docs/setup.md) 
+- [Cloning from Repo](cloning.md)
