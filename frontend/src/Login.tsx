@@ -1,0 +1,173 @@
+import { useState } from 'react'
+import type { FormEvent, ChangeEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import './Login.css'
+
+interface LoginFormData {
+    email: string
+    password: string
+}
+
+interface LoginErrors {
+    email?: string
+    password?: string
+    general?: string
+}
+
+function Login() {
+    const navigate = useNavigate()
+    const [formData, setFormData] = useState<LoginFormData>({
+        email: '',
+        password: '',
+    })
+    const [errors, setErrors] = useState<LoginErrors>({})
+    const [isLoading, setIsLoading] = useState(false)
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+
+    const validateForm = (): boolean => {
+        const newErrors: LoginErrors = {}
+
+        if (!formData.email) {
+            newErrors.email = 'Email is required'
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            newErrors.email = 'Please enter a valid email'
+        }
+
+        if (!formData.password) {
+            newErrors.password = 'Password is required'
+        } else if (formData.password.length < 6) {
+            newErrors.password = 'Password must be at least 6 characters'
+        }
+
+        setErrors(newErrors)
+        return Object.keys(newErrors).length === 0
+    }
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+        }))
+        // Clear error for this field when user starts typing
+        if (errors[name as keyof LoginErrors]) {
+            setErrors((prev) => ({
+                ...prev,
+                [name]: undefined,
+            }))
+        }
+    }
+
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+
+        if (!validateForm()) {
+            return
+        }
+
+        setIsLoading(true)
+
+        // Simulate login delay
+        setTimeout(() => {
+            // For now, accept any valid email/password (frontend only)
+            // Store demo token on local storage
+            localStorage.setItem('authToken', 'demo-token-' + Date.now())
+            localStorage.setItem('userEmail', formData.email)
+
+            /*    Redirect to dashboard
+                  navigate('/dashboard') */
+            console.log('Login successful (demo mode)')
+
+            setIsLoading(false)
+        }, 500)
+    }
+
+    return (
+        <div className="login-container">
+            <div className="login-box">
+                <div className="login-header">
+                    <h1>Wallem</h1>
+                    <p>Sign in to your account</p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="login-form">
+                    {errors.general && (
+                        <div className="error-message general-error">{errors.general}</div>
+                    )}
+
+                    <div className="form-group">
+                        <label htmlFor="email">Email Address</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            placeholder="you@example.com"
+                            className={errors.email ? 'input-error' : ''}
+                            disabled={isLoading}
+                        />
+                        {errors.email && (
+                            <span className="error-message">{errors.email}</span>
+                        )}
+                    </div>
+
+                    <div className="form-group">
+                        <div className="password-label">
+                            <label htmlFor="password">Password</label>
+                            <button
+                                type="button"
+                                className="toggle-password"
+                                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                                disabled={isLoading}
+                                aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
+                                style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', padding: 0 }}
+                            >
+                                {isPasswordVisible ? (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9.27-3.11-10.5-7.5a10.05 10.05 0 012.563-4.568m3.11-2.14A9.956 9.956 0 0112 5c5 0 9.27 3.11 10.5 7.5a9.956 9.956 0 01-4.198 5.568M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-.274.857-.67 1.673-1.176 2.414M15.5 15.5a5.978 5.978 0 01-3.5 1c-3.314 0-6-2.686-6-6" /></svg>
+                                )}
+                            </button>
+                        </div>
+                        <input
+                            type={isPasswordVisible ? 'text' : 'password'}
+                            id="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            placeholder="Enter your password"
+                            className={errors.password ? 'input-error' : ''}
+                            disabled={isLoading}
+                        />
+                        {errors.password && (
+                            <span className="error-message">{errors.password}</span>
+                        )}
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="login-button"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? 'Signing in...' : 'Sign In'}
+                    </button>
+                </form>
+
+                <div className="login-footer">
+                    <a href="#forgot-password" className="forgot-password">
+                        Forgot your password?
+                    </a>
+                    <div className="signup-link">
+                        Don't have an account?{' '}
+                        <a href="#signup" className="signup">
+                            Sign up
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default Login
