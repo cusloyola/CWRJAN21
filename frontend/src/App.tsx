@@ -1,12 +1,35 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import Login from './Login'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Profile from './pages/Profile'
+import WPSI from './pages/WPSI'
+import WMSI from './pages/WMSI'
+import WLPI from './pages/WLPI'
+import CFII from './pages/CFII'
+import BankWorkload from './pages/BankWorkload'
+import NotFound from './pages/NotFound'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
+  const location = useLocation()
+  const dashboardRoutes = ['/dashboard', '/profile', '/wpsi', '/wmsi', '/wlpi', '/cfii', '/bank-workload']
+  const isDashboardLayout = dashboardRoutes.includes(location.pathname)
+
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<Login />} />
-    </Routes>
+    <div className={isDashboardLayout ? 'dashboard-layout' : ''}>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/wpsi" element={<ProtectedRoute><WPSI /></ProtectedRoute>} />
+        <Route path="/wmsi" element={<ProtectedRoute><WMSI /></ProtectedRoute>} />
+        <Route path="/wlpi" element={<ProtectedRoute><WLPI /></ProtectedRoute>} />
+        <Route path="/cfii" element={<ProtectedRoute><CFII /></ProtectedRoute>} />
+        <Route path="/bank-workload" element={<ProtectedRoute><BankWorkload /></ProtectedRoute>} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
   )
 }
 

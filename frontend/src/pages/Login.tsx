@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { FormEvent, ChangeEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import './Login.css'
 
 interface LoginFormData {
@@ -16,6 +16,7 @@ interface LoginErrors {
 
 function Login() {
     const navigate = useNavigate()
+    const location = useLocation()
     const [formData, setFormData] = useState<LoginFormData>({
         email: '',
         password: '',
@@ -23,6 +24,17 @@ function Login() {
     const [errors, setErrors] = useState<LoginErrors>({})
     const [isLoading, setIsLoading] = useState(false)
     const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+    const [infoMessage, setInfoMessage] = useState<string>('')
+
+    useEffect(() => {
+        // Check if there's a message from the protected route
+        if (location.state?.message) {
+            setInfoMessage(location.state.message)
+            // Clear the message after 10 seconds
+            const timer = setTimeout(() => setInfoMessage(''), 10000)
+            return () => clearTimeout(timer)
+        }
+    }, [location])
 
     const validateForm = (): boolean => {
         const newErrors: LoginErrors = {}
@@ -74,9 +86,10 @@ function Login() {
             localStorage.setItem('authToken', 'demo-token-' + Date.now())
             localStorage.setItem('userEmail', formData.email)
 
-            /*    Redirect to dashboard
-                  navigate('/dashboard') */
+            //    Redirect to dashboard
+                  navigate('/dashboard') 
             console.log('Login successful (demo mode)')
+            console.log('Demo Auth Token:', localStorage.getItem('authToken'))
 
             setIsLoading(false)
         }, 500)
@@ -86,11 +99,24 @@ function Login() {
         <div className="login-container">
             <div className="login-box">
                 <div className="login-header">
-                    <h1>Wallem</h1>
+                    <h1 className="text-2xl font-semibold">Wallem</h1>
                     <p>Sign in to your account</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="login-form">
+                    {infoMessage && (
+                        <div className="info-message" style={{
+                            padding: '12px',
+                            marginBottom: '16px',
+                            backgroundColor: '#e3f2fd',
+                            color: '#1565c0',
+                            borderRadius: '8px',
+                            border: '1px solid #90caf9',
+                            fontSize: '14px'
+                        }}>
+                            {infoMessage}
+                        </div>
+                    )}
                     {errors.general && (
                         <div className="error-message general-error">{errors.general}</div>
                     )}
@@ -154,7 +180,7 @@ function Login() {
                     </button>
                 </form>
 
-                <div className="login-footer">
+{/*                 <div className="login-footer">
                     <a href="#forgot-password" className="forgot-password">
                         Forgot your password?
                     </a>
@@ -164,7 +190,7 @@ function Login() {
                             Sign up
                         </a>
                     </div>
-                </div>
+                </div> */}
             </div>
         </div>
     )
