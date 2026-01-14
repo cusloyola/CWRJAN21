@@ -1,0 +1,450 @@
+/* Used by CFII.tsx and WPSI.tsx */
+
+.wpsi-content {
+    min-height: 100vh;
+    background-color: var(--base-clr);
+}
+
+.wpsi-main {
+    padding: 2rem;
+    padding-bottom: 5rem;
+    margin: 0 auto;
+}
+
+.wpsi-card {
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.wpsi-card-review {
+    background-color: rgba(94, 99, 255, 0.1);
+}
+
+.wpsi-card-review:hover {
+    background-color: #e9d5ff;
+}
+
+.wpsi-card-transactions {
+    background-color: #f3f4f6;
+}
+
+.wpsi-card-transactions:hover {
+    background-color: #e5e7eb;
+}
+
+.wpsi-card-pending {
+    background-color: #fee2e2;
+}
+
+.wpsi-card-pending:hover {
+    background-color: #fecaca;
+}
+
+.wpsi-card-pending span,
+.wpsi-card-pending svg {
+    color: #dc2626;
+}
+
+@media (max-width: 767px) {
+    .wpsi-main {
+        padding: 1rem;
+        padding-bottom: 5rem;
+    }
+}
+
+.wpsi-count-box {
+    background-color: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.wpsi-count {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.wpsi-count-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.wpsi-section-header {
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #1f2937;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.wpsi-transaction-item {
+    background-color: white;
+    border-radius: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wpsi-transaction-item:hover {
+    background-color: #f9fafb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.wpsi-search-filter-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    align-items: stretch;
+}
+
+.wpsi-search-box {
+    display: flex;
+    align-items: center;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    gap: 0.5rem;
+    flex: 1;
+    margin-bottom: 0;
+}
+
+.wpsi-filter-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    cursor: pointer;
+    aspect-ratio: 1;
+    height: 2.75rem;
+    width: 2.75rem;
+
+}
+
+.wpsi-filter-box:hover {
+    background-color: #e5e7eb;
+}
+
+.wpsi-search-box {
+    display: flex;
+    align-items: center;
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0;
+    height: 2.75rem;
+    gap: 0.5rem;
+}
+
+.wpsi-search-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #9ca3af;
+}
+
+.wpsi-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.875rem;
+    color: #1f2937;
+}
+
+.wpsi-search-input::placeholder {
+    color: #9ca3af;
+}
+
+.wpsi-filter-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #9ca3af;
+    cursor: pointer;
+}
+
+.wpsi-filter-icon:hover {
+    color: #6b7280;
+}
+
+.wpsi-transaction-label {
+    font-size: 0.625rem;
+    font-weight: bold;
+    color: var(--accent-clr);
+    text-transform: uppercase;
+}
+
+.wpsi-transaction-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.wpsi-transaction-title {
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #1f2937;
+}
+
+.wpsi-transaction-amount {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.wpsi-chevron {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #9ca3af;
+}
+
+/* Transaction Modal Styles - Bottom Sheet */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+.modal-backdrop.closing {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+.transaction-modal {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    background-color: white;
+    border-radius: 1.5rem 1.5rem 0 0;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 101;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(100%);
+    animation: slideUp 0.3s ease forwards;
+}
+
+.transaction-modal.closing {
+    animation: slideDown 0.3s ease forwards;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(100%);
+    }
+}
+
+/* Drag handle */
+.modal-drag-handle {
+    width: 40px;
+    height: 4px;
+    background-color: #d1d5db;
+    border-radius: 2px;
+    margin: 12px auto;
+    cursor: grab;
+}
+
+.modal-drag-handle:active {
+    cursor: grabbing;
+}
+
+/* .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.25rem 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    justify-content: center;
+
+}
+
+.modal-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #1f2937;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    color: #6b7280;
+    transition: color 0.2s ease;
+    justify-content: right;
+} */
+
+.modal-header {
+    display: flex;
+    justify-content: center; /* Centers the title horizontally */
+    align-items: center;     /* Centers content vertically */
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    position: relative;      /* Provides the anchor for the button */
+    min-height: 3.5rem;      /* Optional: ensures a consistent header height */
+}
+
+.modal-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #1f2937;
+    margin: 0 auto;          /* Forces title to stay centered */
+}
+
+.modal-close {
+    position: absolute;
+    right: 1rem;             /* Distance from the right edge */
+    top: 50%;                /* Move down to 50% of the header height */
+    transform: translateY(-50%); /* Pull up by half its own height to center perfectly */
+    
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;         /* Increased hit area for easier clicking */
+    color: #6b7280;
+    display: flex;           /* Ensures the "X" icon inside is centered */
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-close:hover {
+    color: #1f2937;
+}
+
+.modal-content {
+    padding: 1.25rem;
+}
+
+.modal-section-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #7c3aed;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.modal-transaction-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.25rem 0;
+    line-height: 1.3;
+}
+
+.modal-ref-no {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0 0 1.5rem 0;
+}
+
+.modal-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.modal-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.modal-detail-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.modal-detail-value {
+    font-size: 0.875rem;
+    color: #1f2937;
+    font-weight: 500;
+    text-align: right;
+    max-width: 60%;
+    word-break: break-word;
+}
+
+.modal-section-header {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-top: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+/* Mobile adjustments for modal */
+@media (max-width: 480px) {
+    .transaction-modal {
+        width: 100%;
+        max-height: 90vh;
+        border-radius: 1.5rem 1.5rem 0 0;
+    }
+
+    .modal-transaction-title {
+        font-size: 1.1rem;
+    }
+
+    .modal-detail-row {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .modal-detail-value {
+        text-align: left;
+        max-width: 100%;
+    }
+}

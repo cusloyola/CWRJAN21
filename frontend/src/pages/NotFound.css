@@ -1,0 +1,137 @@
+@import "tailwindcss";
+
+.notfound-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    height: 100vh;
+    width: 100%;
+    padding: 20px;
+    background-color: #f0f2f5;
+    font-family: 'Poppins', Arial, sans-serif;
+}
+
+.notfound-content {
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.notfound-icon {
+    color: #007bff;
+    margin-bottom: 24px;
+}
+
+.notfound-title {
+    font-size: 120px;
+    font-weight: 700;
+    color: #007bff;
+    margin: 0;
+    line-height: 1;
+    letter-spacing: -4px;
+}
+
+.notfound-subtitle {
+    font-size: 28px;
+    font-weight: 600;
+    color: #333;
+    margin: 16px 0 12px;
+}
+
+.notfound-message {
+    font-size: 15px;
+    color: #666;
+    margin: 0 0 40px;
+    line-height: 1.5;
+}
+
+.notfound-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.notfound-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 28px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    font-family: inherit;
+}
+
+.notfound-btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.notfound-btn-primary:hover {
+    background: #0056b3;
+}
+
+.notfound-btn-secondary {
+    background: white;
+    color: #333;
+    border: 2px solid #ddd;
+}
+
+.notfound-btn-secondary:hover {
+    background: #f8f9fa;
+    border-color: #007bff;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .notfound-content {
+        padding: 30px 20px;
+    }
+
+    .notfound-title {
+        font-size: 72px;
+    }
+
+    title {
+        font-size: 90px;
+    }
+
+    .notfound-subtitle {
+        font-size: 24px;
+    }
+
+    .notfound-message {
+        font-size: 14px;
+    }
+
+    .notfound-actions {
+        flex-direction: column;
+    }
+
+    .notfound-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .notfound-icon svg {
+        width: 90px;
+        height: 90px;
+    }
+}
+
+@media (max-width: 480px) {
+    .notfound-title {
+        font-size: 72px;
+        letter-spacing: -2px;
+    }
+
+    .notfound-subtitle {
+        font-size: 20px;
+    }
+}

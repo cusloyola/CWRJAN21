@@ -1,34 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import Login from './pages/Login'
+import Dashboard from './pages/Dashboard'
+import Profile from './pages/Profile'
+import WPSI from './pages/WPSI'
+import WMSI from './pages/WMSI'
+import WLPI from './pages/WLPI'
+import CFII from './pages/CFII'
+import BankWorkload from './pages/BankWorkload'
+import NotFound from './pages/NotFound'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const location = useLocation()
+  const dashboardRoutes = ['/dashboard', '/profile', '/wpsi', '/wmsi', '/wlpi', '/cfii', '/bank-workload']
+  const isDashboardLayout = dashboardRoutes.includes(location.pathname)
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className={isDashboardLayout ? 'dashboard-layout' : ''}>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/wpsi" element={<ProtectedRoute><WPSI /></ProtectedRoute>} />
+        <Route path="/wmsi" element={<ProtectedRoute><WMSI /></ProtectedRoute>} />
+        <Route path="/wlpi" element={<ProtectedRoute><WLPI /></ProtectedRoute>} />
+        <Route path="/cfii" element={<ProtectedRoute><CFII /></ProtectedRoute>} />
+        <Route path="/bank-workload" element={<ProtectedRoute><BankWorkload /></ProtectedRoute>} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
   )
 }
 
