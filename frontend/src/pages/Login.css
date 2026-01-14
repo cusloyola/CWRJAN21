@@ -4,7 +4,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  
+
 }
 
 html {
@@ -23,13 +23,15 @@ html {
 }
 
 .login-box {
-/*   background: white;
- */  padding: 30px;
+  /*   background: white;
+ */
+  padding: 30px;
   border-radius: 8px;
-/*   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
- */  width: 100%;
+  /*   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+ */
+  width: 100%;
   max-width: 400px;
-  
+
 }
 
 .login-header {
@@ -66,23 +68,38 @@ html {
   font-weight: 500;
 }
 
-.password-label {
+.password-input-wrapper {
+  position: relative;
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
+.password-input-wrapper input {
+  width: 100%;
+  padding-right: 45px;
+  box-sizing: border-box;
+
+}
+
 .toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
-  color: #007bff;
-  font-size: 12px;
+  color: #666;
   cursor: pointer;
-  text-decoration: underline;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  z-index: 2;
+
 }
 
 .toggle-password:hover {
-  color: #0056b3;
+  color: #333;
 }
 
 .toggle-password:disabled {

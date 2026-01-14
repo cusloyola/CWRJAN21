@@ -9,7 +9,7 @@ const Sidebar = () => {
   const [activityLogOpen, setActivityLogOpen] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path && !mobileMoreOpen;
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -221,7 +221,7 @@ const Sidebar = () => {
               <span>Logout</span>
             </button>
           </li>
-          <li className="mobile-more-menu">
+          <li className={`mobile-more-menu ${mobileMoreOpen ? 'active' : ''}`}>
             <button
               onClick={toggleMobileMore}
               className={`dropdown-btn more-btn w-full text-left bg-transparent border-none cursor-pointer flex items-center gap-4 p-3.5 rounded-lg text-gray-900 transition-colors ${mobileMoreOpen ? 'rotate' : ''}`}

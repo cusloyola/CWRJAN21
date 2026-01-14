@@ -139,15 +139,24 @@ function Login() {
                     </div>
 
                     <div className="form-group">
-                        <div className="password-label">
-                            <label htmlFor="password">Password</label>
+                        <label htmlFor="password">Password</label>
+                        <div className="password-input-wrapper">
+                            <input
+                                type={isPasswordVisible ? 'text' : 'password'}
+                                id="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                placeholder="Enter your password"
+                                className={errors.password ? 'input-error' : ''}
+                                disabled={isLoading}
+                            />
                             <button
                                 type="button"
                                 className="toggle-password"
                                 onClick={() => setIsPasswordVisible(!isPasswordVisible)}
                                 disabled={isLoading}
                                 aria-label={isPasswordVisible ? 'Hide password' : 'Show password'}
-                                style={{ display: 'flex', alignItems: 'center', background: 'none', border: 'none', padding: 0 }}
                             >
                                 {isPasswordVisible ? (
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9.27-3.11-10.5-7.5a10.05 10.05 0 012.563-4.568m3.11-2.14A9.956 9.956 0 0112 5c5 0 9.27 3.11 10.5 7.5a9.956 9.956 0 01-4.198 5.568M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>
@@ -156,16 +165,6 @@ function Login() {
                                 )}
                             </button>
                         </div>
-                        <input
-                            type={isPasswordVisible ? 'text' : 'password'}
-                            id="password"
-                            name="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            placeholder="Enter your password"
-                            className={errors.password ? 'input-error' : ''}
-                            disabled={isLoading}
-                        />
                         {errors.password && (
                             <span className="error-message">{errors.password}</span>
                         )}

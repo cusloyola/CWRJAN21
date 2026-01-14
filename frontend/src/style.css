@@ -10,28 +10,6 @@
   --secondary-text-clr: #b0b3c1;
 }
 
-
-
-.theme-toggle {
-  width: 100%;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-clr);
-  transition: all 0.3s ease;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: left;
-  padding: .85em;
-  border-radius: .5em;
-  gap: 1em;
-}
-
-.theme-icon {
-  transition: transform 0.3s ease;
-}
-
 * {
   margin: 0;
   padding: 0;
@@ -139,7 +117,7 @@ body {
 
 #sidebar ul li.active a {
   color: var(--accent-clr);
-  background-color: rgba(94, 99, 255, 0.1);
+  /* ACTIVE COLOR BLUE */background-color: rgba(94, 99, 255, 0.1);
   font-weight: 600;
 }
 
@@ -162,14 +140,15 @@ body {
 }
 
 @media (max-width: 767px) {
-  #sidebar ul li.active a {
+  /* Only target direct child links, not submenu links */
+  #sidebar > ul > li.active > a {
     background-color: var(--hover-clr);
     position: relative;
     width: 70px;
     transition: all 0.3s ease;
   }
 
-  #sidebar ul li.active a::after {
+  #sidebar > ul > li.active > a::after {
     content: '';
     position: absolute;
     top: 0;
@@ -179,6 +158,69 @@ body {
     height: 3px;
     background-color: var(--accent-clr);
     border-radius: 0 0 3px 3px;
+  }
+
+  /* Default/inactive state for More button */
+  #sidebar ul li.mobile-more-menu .more-btn {
+    background-color: transparent;
+    color: var(--text-clr);
+    position: relative;
+  }
+
+  #sidebar ul li.mobile-more-menu .more-btn::after {
+    display: none;
+  }
+
+  #sidebar ul li.mobile-more-menu .more-btn svg {
+    fill: var(--text-clr);
+  }
+
+  /* Active state for More button when submenu is open */
+  #sidebar ul li.mobile-more-menu.active .more-btn {
+    background-color: var(--hover-clr);
+    color: var(--accent-clr);
+    position: relative;
+    width: 70px;
+    transition: all 0.3s ease;
+  }
+
+  #sidebar ul li.mobile-more-menu.active .more-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 3px;
+    background-color: var(--accent-clr);
+    border-radius: 0 0 3px 3px;
+  }
+
+  #sidebar ul li.mobile-more-menu.active .more-btn svg {
+    fill: var(--accent-clr);
+  }
+
+  #sidebar ul li.mobile-more-menu.active .more-btn span {
+    color: var(--accent-clr);
+  }
+
+  /* Reset styles for submenu links inside mobile-more-menu */
+  #sidebar ul li.mobile-more-menu.active .mobile-more-submenu a,
+  #sidebar ul li.mobile-more-menu.active .mobile-more-submenu button {
+    background-color: transparent;
+    color: var(--text-clr);
+    width: calc(100% - 24px);
+    position: static;
+  }
+
+  #sidebar ul li.mobile-more-menu.active .mobile-more-submenu a::after,
+  #sidebar ul li.mobile-more-menu.active .mobile-more-submenu button::after {
+    display: none;
+  }
+
+  #sidebar ul li.mobile-more-menu.active .mobile-more-submenu a svg,
+  #sidebar ul li.mobile-more-menu.active .mobile-more-submenu button svg {
+    fill: var(--text-clr);
   }
 }
 
