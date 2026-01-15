@@ -1,6 +1,6 @@
 import { useState, } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import "../style.css";
+import '../styles/style.css';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -211,7 +211,7 @@ const Sidebar = () => {
             </Link>
           </li>
           <li>
-            <button
+            <a
               onClick={handleLogout}
               className="w-full text-left bg-transparent border-none cursor-pointer flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors"
             >
@@ -219,7 +219,7 @@ const Sidebar = () => {
                 <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
               </svg>
               <span>Logout</span>
-            </button>
+            </a>
           </li>
           <li className={`mobile-more-menu ${mobileMoreOpen ? 'active' : ''}`}>
             <button

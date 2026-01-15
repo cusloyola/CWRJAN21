@@ -1,5 +1,5 @@
 import Sidebar from "./Sidebar";
-import "../style.css";
+import '../styles/style.css';
 
 const BankWorkload = () => {
   return (

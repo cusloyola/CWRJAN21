@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { FormEvent, ChangeEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import './Login.css'
+import '../styles/Login.css';
 
 interface LoginFormData {
     email: string

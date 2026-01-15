@@ -119,7 +119,7 @@ body {
 #sidebar ul li.active a {
   color: var(--accent-clr);
   /* ACTIVE COLOR BLUE */
-  background-color: rgba(94, 99, 255, 0.1);
+  background-color: rgba(94, 99, 255, 0.15);
   font-weight: 600;
 }
 
@@ -144,8 +144,11 @@ body {
 @media (max-width: 767px) {
 
   /* Only target direct child links, not submenu links */
-  #sidebar>ul>li.active>a {
-    background-color: var(--hover-clr);
+  #sidebar>ul>li.active>a,
+  #sidebar>ul>li.active>.dropdown-btn,
+  #sidebar>ul>li.active>.more-btn,
+  #sidebar>ul>li.active>.mobile-more-menu {
+    background-color: rgba(94, 99, 255, 0.15);
     position: relative;
     width: 70px;
     transition: all 0.3s ease;
@@ -154,7 +157,9 @@ body {
   /* Active state for navbar */
   #sidebar>ul>li.active>a::after,
   #sidebar>ul>li.active>.dropdown-btn::after,
-  #sidebar>ul>li.active>button::after {
+  #sidebar>ul>li.active>button::after,
+  #sidebar>ul>li.active>.more-btn::after,
+  #sidebar>ul>li.active>.mobile-more-menu::after {
     content: '';
     position: absolute;
     top: 0;
@@ -167,7 +172,7 @@ body {
   }
 
   /* Default/inactive state for More button */
-  #sidebar ul li.mobile-more-menu .more-btn {
+  /*   #sidebar ul li.mobile-more-menu .more-btn {
     background-color: transparent;
     color: var(--text-clr);
     position: relative;
@@ -179,10 +184,10 @@ body {
 
   #sidebar ul li.mobile-more-menu .more-btn svg {
     fill: var(--text-clr);
-  }
+  } */
 
   /* Active state for More button when submenu is open */
-  #sidebar ul li.mobile-more-menu.active .more-btn {
+  /*   #sidebar ul li.mobile-more-menu.active .more-btn {
     background-color: var(--hover-clr);
     color: var(--accent-clr);
     position: relative;
@@ -208,7 +213,7 @@ body {
 
   #sidebar ul li.mobile-more-menu.active .more-btn span {
     color: var(--accent-clr);
-  }
+  } */
 
   /* Reset styles for submenu links inside mobile-more-menu */
   #sidebar ul li.mobile-more-menu.active .mobile-more-submenu a,

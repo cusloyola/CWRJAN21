@@ -1,13 +1,13 @@
 import Sidebar from "./Sidebar";
-import "./WPSI.css";
+import '../styles/style.css';
 
 const WPSI = () => {
   // Sample data - replace with your actual data
   const transactions = [
     { id: 1, label: "LIQUIDATION", title: "RAUL GALOPE", amount: "PHP 31,529.94" },
-    { id: 2, label: "LIQUIDATION", title: "RAUL GALOPE", amount: "PHP 68,342.15" },
-    { id: 3, label: "LIQUIDATION", title: "RAUL GALOPE", amount: "PHP 13,418.12" },
-    { id: 4, label: "LIQUIDATION", title: "RAUL GALOPE", amount: "PHP 46,304.57" },
+    { id: 2, label: "LIQUIDATION", title: "JOHN MARCUS", amount: "PHP 68,342.15" },
+    { id: 3, label: "LIQUIDATION", title: "JAKE SULLY", amount: "PHP 13,418.12" },
+    { id: 4, label: "LIQUIDATION", title: "KOBE BRYANT", amount: "PHP 46,304.57" },
   ];
 
   return (
@@ -27,7 +27,7 @@ const WPSI = () => {
             {/* Count Box */}
             <div className="wpsi-count-box">
               <div className="wpsi-count">22</div>
-              <div className="wpsi-count-label">transaction/s</div>
+              <div className="wpsi-count-label">Transaction/s</div>
             </div>
 
             {/* List of Transactions Section */}
