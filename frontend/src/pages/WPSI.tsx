@@ -15,7 +15,7 @@ const WPSI = () => {
       <Sidebar />
       <div className="wpsi-content">
         <main className="wpsi-main">
-          <div>
+          <div className="wpsi-inner">
             {/* For Review Section */}
             <div className="wpsi-card wpsi-card-review">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

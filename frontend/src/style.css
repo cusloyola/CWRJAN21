@@ -26,6 +26,7 @@ body {
   background-color: var(--base-clr);
   color: var(--text-clr);
   transition: background-color 0.3s ease, color 0.3s ease;
+
 }
 
 .dashboard-layout {
@@ -117,7 +118,8 @@ body {
 
 #sidebar ul li.active a {
   color: var(--accent-clr);
-  /* ACTIVE COLOR BLUE */background-color: rgba(94, 99, 255, 0.1);
+  /* ACTIVE COLOR BLUE */
+  background-color: rgba(94, 99, 255, 0.1);
   font-weight: 600;
 }
 
@@ -140,15 +142,19 @@ body {
 }
 
 @media (max-width: 767px) {
+
   /* Only target direct child links, not submenu links */
-  #sidebar > ul > li.active > a {
+  #sidebar>ul>li.active>a {
     background-color: var(--hover-clr);
     position: relative;
     width: 70px;
     transition: all 0.3s ease;
   }
 
-  #sidebar > ul > li.active > a::after {
+  /* Active state for navbar */
+  #sidebar>ul>li.active>a::after,
+  #sidebar>ul>li.active>.dropdown-btn::after,
+  #sidebar>ul>li.active>button::after {
     content: '';
     position: absolute;
     top: 0;
@@ -187,7 +193,7 @@ body {
   #sidebar ul li.mobile-more-menu.active .more-btn::after {
     content: '';
     position: absolute;
-    top: 0;
+    top: 0; 
     left: 50%;
     transform: translateX(-50%);
     width: 30px;
@@ -330,6 +336,15 @@ main {
   padding: min(30px, 7%);
   position: relative;
   z-index: 1;
+  display: flex;
+  justify-content: center;
+  /* centers horizontally */
+  align-items: center;
+  /* centers vertically */
+  min-height: 100vh;
+  /* full viewport height */
+  width: 100%;
+  overflow-x: hidden;
 }
 
 main p {
@@ -345,7 +360,8 @@ main p {
 
   h2,
   p {
-    margin-top: 1em
+    margin-top: 1em;
+    display: flex;
   }
 }
 
@@ -689,6 +705,7 @@ main p {
     font-weight: 500;
     padding: 2px;
     display: block;
+    text-align: left;
   }
 
   #sidebar ul .mobile-more-submenu .dropdown-btn {
