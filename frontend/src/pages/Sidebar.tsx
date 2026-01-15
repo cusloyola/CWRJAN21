@@ -1,6 +1,7 @@
 import { useState, } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import '../styles/style.css';
+import LogoutModal from "./LogoutModal";
 
 const Sidebar = () => {
   const location = useLocation();
@@ -8,6 +9,10 @@ const Sidebar = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activityLogOpen, setActivityLogOpen] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
+
+  const openModal = () => setIsLogoutModalOpen(true);
+  const closeModal = () => setIsLogoutModalOpen(false);
 
   const isActive = (path: string) => location.pathname === path && !mobileMoreOpen;
 
@@ -212,7 +217,7 @@ const Sidebar = () => {
           </li>
           <li>
             <a
-              onClick={handleLogout}
+              onClick={() => setIsLogoutModalOpen(true)}
               className="w-full text-left bg-transparent border-none cursor-pointer flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
@@ -300,21 +305,23 @@ const Sidebar = () => {
                   </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={handleLogout}
+                  <a
+                    onClick={() => setIsLogoutModalOpen(true)}
                     className="w-full text-left bg-transparent border-none cursor-pointer flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                       <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
                     </svg>
                     <span>Logout</span>
-                  </button>
+                  </a>
                 </li>
               </div>
             </ul>
           </li>
         </ul>
       </nav>
+      <LogoutModal isOpen={isLogoutModalOpen} onConfirm={handleLogout} onCancel={() => setIsLogoutModalOpen(false)}
+      />
     </>
   );
 };

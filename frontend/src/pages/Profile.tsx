@@ -53,7 +53,9 @@ const Profile = () => {
         <main className="dashboard-main">
           {/* Add more dashboard content here */}
         </main>
+        
       </div>
+      
     </>
   );
 };
