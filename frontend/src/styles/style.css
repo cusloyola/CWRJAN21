@@ -6,7 +6,7 @@
   --line-clr: #42434a;
   --hover-clr: rgba(94, 99, 255, 0.1);
   --text-clr: #11121a;
-  --accent-clr: #007bff;
+  --accent-clr: #001c77;
   --secondary-text-clr: #b0b3c1;
 }
 
@@ -106,15 +106,17 @@ body {
   list-style: none;
 }
 
-#sidebar>ul>li:first-child {
+/* #sidebar>ul>li:first-child {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 16px;
 
   .logo {
     font-weight: 600;
+    height: 18px;
+    width: 100px;
   }
-}
+} */
 
 #sidebar ul li.active a {
   color: var(--accent-clr);

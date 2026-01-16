@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import type { FormEvent, ChangeEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import '../styles/Login.css';
+import logo from '../assets/wallemsquare.png';
+
 
 interface LoginFormData {
     email: string
@@ -87,7 +89,7 @@ function Login() {
             localStorage.setItem('userEmail', formData.email)
 
             //    Redirect to dashboard
-                  navigate('/dashboard') 
+            navigate('/dashboard')
             console.log('Login successful (demo mode)')
             console.log('Demo Auth Token:', localStorage.getItem('authToken'))
 
@@ -99,7 +101,9 @@ function Login() {
         <div className="login-container">
             <div className="login-box">
                 <div className="login-header">
-                    <h1 className="text-2xl font-semibold">Wallem</h1>
+                    <h1 className="text-2xl font-semibold">
+                        <img src={logo} alt="Wallem Logo" className="w-8 h-8" />
+                    </h1>                    
                     <p>Sign in to your account</p>
                 </div>
 
@@ -179,7 +183,7 @@ function Login() {
                     </button>
                 </form>
 
-{/*                 <div className="login-footer">
+                {/*                 <div className="login-footer">
                     <a href="#forgot-password" className="forgot-password">
                         Forgot your password?
                     </a>

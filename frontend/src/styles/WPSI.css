@@ -4,6 +4,11 @@
     box-sizing: border-box;
 } */
 
+.dashboard-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    height: 7rem;
+    transition: height 0.3s ease;
+}
 
 .wpsi-content {
     min-height: 100vh;
@@ -13,7 +18,7 @@
 .wpsi-main {
     /*     width: 100%;
     max-width: 100%; */
-    padding: 2rem;
+    padding: 1rem;
     padding-bottom: 5rem;
     margin: 0;
 }
@@ -26,10 +31,10 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    height: 60px;
     cursor: pointer;
     transition: background-color 0.2s ease;
     background-color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .wpsi-card:hover {
@@ -197,8 +202,7 @@
     border-radius: 1.5rem;
     border-bottom: 1px solid #e5e7eb;
     padding: 0.75rem 1rem;
-    margin-bottom: 0.75rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.25rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -299,7 +303,7 @@
 }
 
 .wpsi-transaction-title {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     font-weight: bold;
     color: #1f2937;
 }
@@ -480,35 +484,34 @@
     font-weight: 600;
     color: var(--accent-clr);
     text-transform: uppercase;
-    margin-bottom: 0.5rem;
 }
 
 .modal-transaction-title {
     font-size: 1.25rem;
     font-weight: 700;
     color: #1f2937;
-    margin: 0 0 0.25rem 0;
 }
 
 .modal-ref-no {
     font-size: 0.875rem;
     color: #6b7280;
-    margin: 0 0 1.5rem 0;
 }
 
 /* Modal Details */
 .modal-details {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+
 }
 
 .modal-detail-row {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f3f4f6;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .modal-detail-label {
@@ -518,7 +521,7 @@
 }
 
 .modal-detail-value {
-    font-size: 0.875rem;
+    font-size: 0.87rem;
     color: #1f2937;
     font-weight: 500;
     text-align: right;
@@ -536,7 +539,7 @@
 }
 
 /* Mobile adjustments for modal */
-@media (max-width: 480px) {
+/* @media (max-width: 480px) {
     .transaction-modal {
         width: 100%;
         max-height: 90vh;
@@ -556,4 +559,4 @@
         text-align: left;
         max-width: 100%;
     }
-}
+} */

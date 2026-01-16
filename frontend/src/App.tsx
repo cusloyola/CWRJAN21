@@ -8,11 +8,17 @@ import WLPI from './pages/WLPI'
 import CFII from './pages/CFII'
 import BankWorkload from './pages/BankWorkload'
 import NotFound from './pages/NotFound'
+import WPSICWR from './pages/WPSI-CWR'
+import WMSICWR from './pages/WMSI-CWR'
+import WLPICWR from './pages/WLPI-CWR'
+import CFIICWR from './pages/CFII-CWR'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   const location = useLocation()
-  const dashboardRoutes = ['/dashboard', '/profile', '/wpsi', '/wmsi', '/wlpi', '/cfii', '/bank-workload']
+  const dashboardRoutes = ['/dashboard', '/profile', '/wpsi', '/wmsi', '/wlpi',
+    '/cfii', '/bank-workload', '/activity-log/wpsi-cwr', '/activity-log/wmsi-cwr', '/activity-log/wlpi-cwr', 
+    '/activity-log/cfii-cwr']
   const isDashboardLayout = dashboardRoutes.includes(location.pathname)
 
   return (
@@ -27,6 +33,10 @@ function App() {
         <Route path="/wlpi" element={<ProtectedRoute><WLPI /></ProtectedRoute>} />
         <Route path="/cfii" element={<ProtectedRoute><CFII /></ProtectedRoute>} />
         <Route path="/bank-workload" element={<ProtectedRoute><BankWorkload /></ProtectedRoute>} />
+        <Route path="/activity-log/wpsi-cwr" element={<ProtectedRoute><WPSICWR /></ProtectedRoute>} />
+        <Route path="/activity-log/wmsi-cwr" element={<ProtectedRoute><WMSICWR /></ProtectedRoute>} />
+        <Route path="/activity-log/wlpi-cwr" element={<ProtectedRoute><WLPICWR /></ProtectedRoute>} />
+        <Route path="/activity-log/cfii-cwr" element={<ProtectedRoute><CFIICWR /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </div>

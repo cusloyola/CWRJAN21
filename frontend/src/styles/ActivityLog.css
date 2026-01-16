@@ -1,0 +1,137 @@
+/* Activity Log Styles - Refactored for consistency */
+
+/* Title */
+.activity-log-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Main Section */
+.wpsi-main {
+  padding: 2rem;
+  padding-bottom: 5rem;
+  margin: 0;
+}
+
+/* Card Container */
+.activity-card-container {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr; /* Single column by default */
+}
+
+/* Card */
+.activity-card {
+  border: 1px solid #e5e7eb;
+  border-color: #1f2937;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.activity-card:hover {
+  background-color: #f9fafb;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Header */
+.activity-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+/* Date */
+.activity-date {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Description */
+.activity-description {
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+/* Status Badge */
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+/* Badge Variants */
+.status-badge.completed {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #059669;
+}
+
+.status-badge.pending {
+  background-color: rgba(251, 191, 36, 0.15);
+  color: #b45309;
+}
+
+.status-badge.in-progress {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #1d4ed8;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+  /* Tablet and smaller screens */
+  .activity-card-container {
+    grid-template-columns: 1fr 1fr; /* Two columns for medium screens */
+  }
+  .activity-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Mobile screens */
+  .activity-card-container {
+    grid-template-columns: 1fr; /* Single column for small screens */
+  }
+  .activity-card {
+    padding: 0.75rem; /* Tighter padding for mobile */
+  }
+  .activity-description {
+    font-size: 0.8125rem; /* Slightly smaller for compact view */
+  }
+  .activity-log-title {
+    font-size: 1.125rem; /* Slightly smaller title for mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  /* Very small screens */
+  .activity-card {
+    padding: 0.5rem;
+  }
+  .activity-description {
+    font-size: 0.75rem; /* Even smaller text for very small screens */
+  }
+  .status-badge {
+    font-size: 0.7rem; /* Smaller badge text */
+    padding: 0.2rem 0.4rem; /* Smaller badge size */
+  }
+}
+
+@media (min-width: 1200px) {
+  /* Large screens (Desktops) */
+  .activity-card-container {
+    grid-template-columns: repeat(3, 1fr); /* Three columns for large screens */
+  }
+  .activity-card {
+    padding: 1.25rem; /* More spacious padding */
+  }
+}

@@ -16,7 +16,7 @@ const activities: Activity[] = [
   { id: 4, date: '2026-01-15', description: 'Updated database schema for the project management system.', status: 'Completed' },
 ];
 
-const WMSICWR: React.FC = () => {
+const WLPICWR: React.FC = () => {
   return (
     <>
       <Sidebar />
@@ -25,7 +25,7 @@ const WMSICWR: React.FC = () => {
           <div className="wpsi-inner">
 
             <div className="wpsi-section-header">
-              <h1>WMSI - CWR</h1>
+              <h1>WLPI - CWR</h1>
             </div>
 
             <div className="wpsi-wrapper px-4 sm:px-6">
@@ -54,4 +54,4 @@ const WMSICWR: React.FC = () => {
   );
 };
 
-export default WMSICWR;
+export default WLPICWR;
