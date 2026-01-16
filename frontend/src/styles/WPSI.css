@@ -114,7 +114,7 @@
     font-size: 0.875rem;
     font-weight: bold;
     color: #1f2937;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     margin-bottom: 0.75rem;
 }
 
@@ -247,6 +247,52 @@
 .wpsi-filter-box:hover {
     background-color: #e5e7eb;
 }
+
+/* === Dropdown Filter Styling === */
+
+.wpsi-dropdown {
+  appearance: none; /* remove default browser styles */
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 0.5rem;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 160px;
+}
+
+.wpsi-dropdown:hover {
+  border-color: var(--accent-clr);
+  background-color: #f3e8ff;
+  color: var(--accent-clr);
+}
+
+.wpsi-dropdown:focus {
+  outline: none;
+  border-color: var(--accent-clr);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+/* Optional: add a custom arrow */
+.wpsi-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.wpsi-dropdown-container::after {
+  content: "▼";
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
 
 /* .wpsi-search-box {
     display: flex;

@@ -1,5 +1,6 @@
 import Sidebar from "./Sidebar";
 import '../styles/Dashboard.css';
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   return (
@@ -33,26 +34,30 @@ const Dashboard = () => {
         <div className="dashboard-wrapper px-4 sm:px-6">
           <div className="stats-card">
             <span className="stats-value">22</span>
-            <span className="stats-label">WPSI</span>
+            <span className="stats-label"><Link to="/wpsi">WPSI</Link></span>
           </div>
         </div>
         <div className="dashboard-wrapper px-4 sm:px-6">
           <div className="stats-card">
             <span className="stats-value">2</span>
-            <span className="stats-label">WLPI</span>
+            <span className="stats-label"><Link to="/wmsi">WMSI</Link></span>
           </div>
         </div>
         <div className="dashboard-wrapper px-4 sm:px-6">
           <div className="stats-card">
             <span className="stats-value">19</span>
-            <span className="stats-label">CFII</span>
+            <span className="stats-label"><Link to="/wlpi">WLPI</Link></span>
+          </div>
+        </div>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">9</span>
+            <span className="stats-label"><Link to="/cfii">CFII</Link></span>
           </div>
         </div>
 
         {/* Main Content Area */}
-        <main className="dashboard-main">
           {/* Add more dashboard content here */}
-        </main>
       </div>
     </>
   );
