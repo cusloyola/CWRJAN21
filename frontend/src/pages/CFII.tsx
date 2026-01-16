@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
-import "./WPSI.css";
+import '../styles/WPSI.css';
 
 interface Transaction {
   id: number;
@@ -25,6 +25,8 @@ const CFII = () => {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [remarks, setRemarks] = useState('');
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   const transactions: Transaction[] = [
     {
@@ -106,7 +108,7 @@ const CFII = () => {
       <Sidebar />
       <div className="wpsi-content">
         <main className="wpsi-main">
-          <div>
+          <div className="wpsi-inner">
             {/* For Review Section */}
             <div className="wpsi-card wpsi-card-review">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,7 +118,7 @@ const CFII = () => {
             </div>
             <div className="wpsi-count-box">
               <div className="wpsi-count">3</div>
-              <div className="wpsi-count-label">transaction/s</div>
+              <div className="wpsi-count-label">Transaction/s</div>
             </div>
 
             {/* List of Transactions */}
@@ -137,10 +139,10 @@ const CFII = () => {
 
             {/* CFII-ACA Section */}
             <div className="wpsi-section-header">CFII-ACA</div>
-            
+
             {cfiiAcaTransactions.map((transaction) => (
-              <div 
-                key={transaction.id} 
+              <div
+                key={transaction.id}
                 className="wpsi-transaction-item"
                 onClick={() => openModal(transaction)}
               >
@@ -159,10 +161,10 @@ const CFII = () => {
 
             {/* CFII-OL REFUND (PHP) Section */}
             <div className="wpsi-section-header">CFII-OL REFUND (PHP)</div>
-            
+
             {cfiiOlTransactions.map((transaction) => (
-              <div 
-                key={transaction.id} 
+              <div
+                key={transaction.id}
                 className="wpsi-transaction-item"
                 onClick={() => openModal(transaction)}
               >
@@ -249,6 +251,46 @@ const CFII = () => {
               </div>
 
               <div className="modal-section-header">Supporting Docs</div>
+              {/* Remarks Section */}
+              <div className="modal-section-header">Remarks</div>
+              <div className="modal-remarks">
+                <textarea
+                  className="modal-remarks-input"
+                  placeholder="Optional"
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                />
+              </div>
+
+              {/* CFII CON Action */}
+              <div className="modal-section-header">CFII CON Action</div>
+              <div className="modal-con-actions">
+                {['Approve', 'Hold', 'Void', 'Cancel'].map((action) => (
+                  <button
+                    key={action}
+                    className={`modal-con-button ${selectedAction === action ? 'selected' : ''}`}
+                    onClick={() => setSelectedAction(action)}
+                  >
+                    {action}
+                  </button>
+                ))}
+              </div>
+
+              {/* Icon + Back */}
+              <div className="modal-con-footer">
+                <button className="modal-con-icon-button">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2m-4 0H7a2 2 0 01-2-2V10a2 2 0 012-2h6m0 0V4m0 4l-2-2m2 2l2-2" />
+                  </svg>
+                  Comment
+                </button>
+                <button className="modal-con-back-button" onClick={closeModal}>
+                  ← Back
+                </button>
+              </div>
+
+
+
             </div>
           </div>
         </>
