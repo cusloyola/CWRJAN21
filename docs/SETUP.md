@@ -51,7 +51,7 @@
     
     # Allow the frontend to access the backend API
     CORS_ALLOWED_ORIGINS = [
-        "http://localhost:5173",
+        "http://localhost:3000",
     ]
     ```
 - Set Time to local
@@ -105,6 +105,57 @@
       ```
       mis/wallem1234
       ```
+- Setup Django REST Framework + JWT
+  - Install required packages:
+    ```
+    pip install djangorestframework djangorestframework-simplejwt
+    ```
+  - Update INSTALLED_APPS:
+    ```
+    INSTALLED_APPS = [
+        # Django
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+
+        # Third-party
+        'corsheaders',
+        'rest_framework',
+        'django_extensions',
+
+        # Local
+        'api',
+    ]
+    ```
+  - DRF Global Configurations(Setting.py):
+    ```
+    from datetime import timedelta
+
+    REST_FRAMEWORK = {
+        'DEFAULT_AUTHENTICATION_CLASSES': (
+            'rest_framework_simplejwt.authentication.JWTAuthentication',
+        ),
+        'DEFAULT_PERMISSION_CLASSES': (
+            'rest_framework.permissions.IsAuthenticated',
+        ),
+    }
+
+    ```
+  - JWT Configuration (SimpleJWT)
+    ```
+    SIMPLE_JWT = {
+        'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+        'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+        'ROTATE_REFRESH_TOKENS': True,
+        'BLACKLIST_AFTER_ROTATION': True,
+
+        'AUTH_HEADER_TYPES': ('Bearer',),
+    }
+    ```
+
 
 ## FRONTEND (VITE+REACT)
 - Create directory
