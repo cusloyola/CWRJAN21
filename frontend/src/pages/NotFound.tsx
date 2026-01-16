@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import './NotFound.css';
+import '../styles/NotFound.css';
 
 function NotFound() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

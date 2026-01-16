@@ -1,15 +1,28 @@
 /* Used by CFII.tsx and WPSI.tsx */
 
+/* * {
+    box-sizing: border-box;
+} */
+
+.dashboard-header {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    height: 7rem;
+    transition: height 0.3s ease;
+}
+
 .wpsi-content {
     min-height: 100vh;
     background-color: var(--base-clr);
 }
 
 .wpsi-main {
-    padding: 2rem;
+    /*     width: 100%;
+    max-width: 100%; */
+    padding: 1rem;
     padding-bottom: 5rem;
-    margin: 0 auto;
+    margin: 0;
 }
+
 
 .wpsi-card {
     border-radius: 0.5rem;
@@ -18,8 +31,22 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    height: 60px;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    background-color: white;
+}
+
+.wpsi-card:hover {
+    background-color: #f9fafb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.wpsi-card svg {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    min-width: 2.5rem;
+    min-height: 2.5rem;
 }
 
 .wpsi-card-review {
@@ -51,10 +78,16 @@
     color: #dc2626;
 }
 
+.wpsi-inner {
+    width: 100%;
+}
+
+
 @media (max-width: 767px) {
     .wpsi-main {
         padding: 1rem;
         padding-bottom: 5rem;
+        width: 100%;
     }
 }
 
@@ -85,13 +118,91 @@
     margin-bottom: 0.75rem;
 }
 
+/* styling for remarks */
+.modal-con-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    justify-content: space-between;
+}
+
+.modal-remarks-input {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #333;
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-remarks-input:focus {
+    border-color: var(--accent-clr);
+    --accent-clr: #007bff;
+    outline: none;
+}
+
+
+.modal-con-button {
+    flex: 1 1 calc(25% - 8px);
+    padding: 10px 12px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    background-color: white;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.modal-con-button.selected {
+    border-color: var(--accent-clr);
+    background-color: #f3e8ff;
+    color: var(--accent-clr);
+}
+
+.modal-con-button:hover {
+    border-color: var(--accent-clr);
+    background-color: #f3e8ff;
+    color: var(--accent-clr);
+}
+
+/* Icon + Back row */
+.modal-con-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.modal-con-icon-button,
+.modal-con-back-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 2px solid var(--accent-clr);
+    border-radius: 6px;
+    color: var(--accent-clr);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* end for remarks */
+
 .wpsi-transaction-item {
     background-color: white;
     border-radius: 1.5rem;
     border-bottom: 1px solid #e5e7eb;
     padding: 0.75rem 1rem;
-    margin-bottom: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+    margin-bottom: 0.25rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -111,7 +222,7 @@
 .wpsi-search-box {
     display: flex;
     align-items: center;
-    background-color: #f3f4f6;
+    background-color: #e1e3e8;
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
     gap: 0.5rem;
@@ -123,7 +234,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f3f4f6;
+    background-color: #e1e3e8;
     border-radius: 0.5rem;
     padding: 0.75rem;
     cursor: pointer;
@@ -137,7 +248,7 @@
     background-color: #e5e7eb;
 }
 
-.wpsi-search-box {
+/* .wpsi-search-box {
     display: flex;
     align-items: center;
     background-color: #f3f4f6;
@@ -146,7 +257,7 @@
     margin-bottom: 0;
     height: 2.75rem;
     gap: 0.5rem;
-}
+} */
 
 .wpsi-search-icon {
     width: 1.25rem;
@@ -192,7 +303,7 @@
 }
 
 .wpsi-transaction-title {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     font-weight: bold;
     color: #1f2937;
 }
@@ -327,33 +438,34 @@
 
 .modal-header {
     display: flex;
-    justify-content: center; /* Centers the title horizontally */
-    align-items: center;     /* Centers content vertically */
+    justify-content: center;
+    /* Center the title */
+    align-items: center;
     padding: 1rem 1.25rem;
     border-bottom: 1px solid #e5e7eb;
-    position: relative;      /* Provides the anchor for the button */
-    min-height: 3.5rem;      /* Optional: ensures a consistent header height */
+    position: relative;
+    min-height: 3.5rem;
 }
 
 .modal-title {
     font-weight: 600;
     font-size: 1rem;
     color: #1f2937;
-    margin: 0 auto;          /* Forces title to stay centered */
+    margin: 0;
 }
 
+/* Close button */
 .modal-close {
     position: absolute;
-    right: 1rem;             /* Distance from the right edge */
-    top: 50%;                /* Move down to 50% of the header height */
-    transform: translateY(-50%); /* Pull up by half its own height to center perfectly */
-    
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0.5rem;         /* Increased hit area for easier clicking */
+    padding: 0.5rem;
     color: #6b7280;
-    display: flex;           /* Ensures the "X" icon inside is centered */
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -362,6 +474,7 @@
     color: #1f2937;
 }
 
+/* Content inside the modal */
 .modal-content {
     padding: 1.25rem;
 }
@@ -369,37 +482,36 @@
 .modal-section-label {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #7c3aed;
+    color: var(--accent-clr);
     text-transform: uppercase;
-    margin-bottom: 0.5rem;
 }
 
 .modal-transaction-title {
     font-size: 1.25rem;
     font-weight: 700;
     color: #1f2937;
-    margin: 0 0 0.25rem 0;
-    line-height: 1.3;
 }
 
 .modal-ref-no {
     font-size: 0.875rem;
     color: #6b7280;
-    margin: 0 0 1.5rem 0;
 }
 
+/* Modal Details */
 .modal-details {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+
 }
 
 .modal-detail-row {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    padding: 0.5rem 0;
-    border-bottom: 1px solid #f3f4f6;
+    padding: 0.2rem 0;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .modal-detail-label {
@@ -409,7 +521,7 @@
 }
 
 .modal-detail-value {
-    font-size: 0.875rem;
+    font-size: 0.87rem;
     color: #1f2937;
     font-weight: 500;
     text-align: right;
@@ -427,7 +539,7 @@
 }
 
 /* Mobile adjustments for modal */
-@media (max-width: 480px) {
+/* @media (max-width: 480px) {
     .transaction-modal {
         width: 100%;
         max-height: 90vh;
@@ -447,4 +559,4 @@
         text-align: left;
         max-width: 100%;
     }
-}
+} */

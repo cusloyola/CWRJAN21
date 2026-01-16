@@ -1,6 +1,8 @@
 import { useState, } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import "../style.css";
+import '../styles/style.css';
+import LogoutModal from "./LogoutModal";
+import logo from '../assets/wallemrectangle.png';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -8,6 +10,10 @@ const Sidebar = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activityLogOpen, setActivityLogOpen] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
+
+/*   const openModal = () => setIsLogoutModalOpen(true);
+  const closeModal = () => setIsLogoutModalOpen(false); */
 
   const isActive = (path: string) => location.pathname === path && !mobileMoreOpen;
 
@@ -63,12 +69,12 @@ const Sidebar = () => {
       <nav id="sidebar" className={sidebarClass}>
         <ul className="list-none">
           <li className="flex justify-between items-center">
-            <span className="logo font-semibold text-xl">Wallem</span>
-            <button onClick={toggleSidebar} id="toggle-btn" className={sidebarCollapsed ? "rotate-180" : ""}>
+            <span className="logo font-semibold text-xl"><img src={logo} alt="Wallem Square Logo" /></span>
+            {/* <button onClick={toggleSidebar} id="toggle-btn" className={sidebarCollapsed ? "rotate-180" : ""}>
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
                 <path d="m313-480 155 156q11 11 11.5 27.5T468-268q-11 11-28 11t-28-11L228-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T468-692q11 11 11 28t-11 28L313-480Zm264 0 155 156q11 11 11.5 27.5T732-268q-11 11-28 11t-28-11L492-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T732-692q11 11 11 28t-11 28L577-480Z" />
               </svg>
-            </button>
+            </button> */}
           </li>
           <li className={isActive("/dashboard") ? "active" : ""}>
             <Link to="/dashboard" className="flex items-center gap-4 p-3.5 rounded-lg text-blue-600 no-underline transition-colors">
@@ -164,15 +170,15 @@ const Sidebar = () => {
             <ul className={`sub-menu ${activityLogOpen ? 'show' : ''}`}>
               <div className="overflow-hiddenhttp">
                 <li>
-                  <a href="#" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
+                  <Link to="/activity-log/wpsi-cwr" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                       <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                     </svg>
                     <span>WPSI-CWR</span>
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
+                  <a href="/activity-log/wmsi-cwr" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                       <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                     </svg>
@@ -180,7 +186,7 @@ const Sidebar = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
+                  <a href="/activity-log/wlpi-cwr" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                       <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                     </svg>
@@ -188,7 +194,7 @@ const Sidebar = () => {
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
+                  <a href="/activity-log/cfii-cwr" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                       <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                     </svg>
@@ -211,15 +217,15 @@ const Sidebar = () => {
             </Link>
           </li>
           <li>
-            <button
-              onClick={handleLogout}
+            <a
+              onClick={() => setIsLogoutModalOpen(true)}
               className="w-full text-left bg-transparent border-none cursor-pointer flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors"
             >
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                 <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
               </svg>
               <span>Logout</span>
-            </button>
+            </a>
           </li>
           <li className={`mobile-more-menu ${mobileMoreOpen ? 'active' : ''}`}>
             <button
@@ -257,36 +263,36 @@ const Sidebar = () => {
                   <ul className={`sub-menu ${activityLogOpen ? 'show' : ''}`}>
                     <div className="overflow-hidden">
                       <li>
-                        <a href="#" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
+                        <Link to="/activity-log/wpsi-cwr" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
                           <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                             <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                           </svg>
                           <span>WPSI-CWR</span>
-                        </a>
+                        </Link>
                       </li>
                       <li>
-                        <a href="#" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
+                       <Link to="/activity-log/wmsi-cwr" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
                           <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                             <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                           </svg>
                           <span>WMSI-CWR</span>
-                        </a>
+                        </Link>
                       </li>
                       <li>
-                        <a href="#" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
+                        <Link to="/activity-log/wlpi-cwr" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
                           <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                             <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                           </svg>
                           <span>WLPI-CWR</span>
-                        </a>
+                        </Link>
                       </li>
                       <li>
-                        <a href="#" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
+                        <Link to="/activity-log/cfii-cwr" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors opacity-50 cursor-not-allowed">
                           <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                             <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                           </svg>
                           <span>CFII-CWR</span>
-                        </a>
+                        </Link>
                       </li>
                     </div>
                   </ul>
@@ -300,21 +306,23 @@ const Sidebar = () => {
                   </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={handleLogout}
+                  <a
+                    onClick={() => setIsLogoutModalOpen(true)}
                     className="w-full text-left bg-transparent border-none cursor-pointer flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                       <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
                     </svg>
                     <span>Logout</span>
-                  </button>
+                  </a>
                 </li>
               </div>
             </ul>
           </li>
         </ul>
       </nav>
+      <LogoutModal isOpen={isLogoutModalOpen} onConfirm={handleLogout} onCancel={() => setIsLogoutModalOpen(false)}
+      />
     </>
   );
 };

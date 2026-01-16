@@ -6,7 +6,7 @@
   --line-clr: #42434a;
   --hover-clr: rgba(94, 99, 255, 0.1);
   --text-clr: #11121a;
-  --accent-clr: #007bff;
+  --accent-clr: #001c77;
   --secondary-text-clr: #b0b3c1;
 }
 
@@ -26,6 +26,7 @@ body {
   background-color: var(--base-clr);
   color: var(--text-clr);
   transition: background-color 0.3s ease, color 0.3s ease;
+
 }
 
 .dashboard-layout {
@@ -105,19 +106,22 @@ body {
   list-style: none;
 }
 
-#sidebar>ul>li:first-child {
+/* #sidebar>ul>li:first-child {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 16px;
 
   .logo {
     font-weight: 600;
+    height: 18px;
+    width: 100px;
   }
-}
+} */
 
 #sidebar ul li.active a {
   color: var(--accent-clr);
-  /* ACTIVE COLOR BLUE */background-color: rgba(94, 99, 255, 0.1);
+  /* ACTIVE COLOR BLUE */
+  background-color: rgba(94, 99, 255, 0.15);
   font-weight: 600;
 }
 
@@ -140,15 +144,24 @@ body {
 }
 
 @media (max-width: 767px) {
+
   /* Only target direct child links, not submenu links */
-  #sidebar > ul > li.active > a {
-    background-color: var(--hover-clr);
+  #sidebar>ul>li.active>a,
+  #sidebar>ul>li.active>.dropdown-btn,
+  #sidebar>ul>li.active>.more-btn,
+  #sidebar>ul>li.active>.mobile-more-menu {
+    background-color: rgba(94, 99, 255, 0.15);
     position: relative;
     width: 70px;
     transition: all 0.3s ease;
   }
 
-  #sidebar > ul > li.active > a::after {
+  /* Active state for navbar */
+  #sidebar>ul>li.active>a::after,
+  #sidebar>ul>li.active>.dropdown-btn::after,
+  #sidebar>ul>li.active>button::after,
+  #sidebar>ul>li.active>.more-btn::after,
+  #sidebar>ul>li.active>.mobile-more-menu::after {
     content: '';
     position: absolute;
     top: 0;
@@ -161,7 +174,7 @@ body {
   }
 
   /* Default/inactive state for More button */
-  #sidebar ul li.mobile-more-menu .more-btn {
+  /*   #sidebar ul li.mobile-more-menu .more-btn {
     background-color: transparent;
     color: var(--text-clr);
     position: relative;
@@ -173,10 +186,10 @@ body {
 
   #sidebar ul li.mobile-more-menu .more-btn svg {
     fill: var(--text-clr);
-  }
+  } */
 
   /* Active state for More button when submenu is open */
-  #sidebar ul li.mobile-more-menu.active .more-btn {
+  /*   #sidebar ul li.mobile-more-menu.active .more-btn {
     background-color: var(--hover-clr);
     color: var(--accent-clr);
     position: relative;
@@ -187,7 +200,7 @@ body {
   #sidebar ul li.mobile-more-menu.active .more-btn::after {
     content: '';
     position: absolute;
-    top: 0;
+    top: 0; 
     left: 50%;
     transform: translateX(-50%);
     width: 30px;
@@ -202,7 +215,7 @@ body {
 
   #sidebar ul li.mobile-more-menu.active .more-btn span {
     color: var(--accent-clr);
-  }
+  } */
 
   /* Reset styles for submenu links inside mobile-more-menu */
   #sidebar ul li.mobile-more-menu.active .mobile-more-submenu a,
@@ -330,6 +343,15 @@ main {
   padding: min(30px, 7%);
   position: relative;
   z-index: 1;
+  display: flex;
+  justify-content: center;
+  /* centers horizontally */
+  align-items: center;
+  /* centers vertically */
+  min-height: 100vh;
+  /* full viewport height */
+  width: 100%;
+  overflow-x: hidden;
 }
 
 main p {
@@ -345,7 +367,8 @@ main p {
 
   h2,
   p {
-    margin-top: 1em
+    margin-top: 1em;
+    display: flex;
   }
 }
 
@@ -689,6 +712,7 @@ main p {
     font-weight: 500;
     padding: 2px;
     display: block;
+    text-align: left;
   }
 
   #sidebar ul .mobile-more-submenu .dropdown-btn {
