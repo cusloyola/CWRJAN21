@@ -252,7 +252,7 @@ const WLPI = () => {
 
               <div className="modal-section-header">Supporting Docs</div>
               {/* Remarks Section */}
-              <div className="modal-section-header">Remarks</div>
+              <div className="modal-section-header-remarks">Remarks</div>
               <div className="modal-remarks">
                 <textarea
                   className="modal-remarks-input"

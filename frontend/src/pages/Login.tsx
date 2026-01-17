@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import type { FormEvent, ChangeEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import '../styles/Login.css';
-import logo from '../assets/wallemsquare.png';
+import logo from '../assets/wallemrectangle.png';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 interface LoginFormData {
@@ -73,29 +75,37 @@ function Login() {
     }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
+        e.preventDefault();
 
         if (!validateForm()) {
-            return
+            toast.error("Please fix the errors in the form");
+            return;
         }
 
-        setIsLoading(true)
+        setIsLoading(true);
 
         // Simulate login delay
         setTimeout(() => {
-            // For now, accept any valid email/password (frontend only)
-            // Store demo token on local storage
-            localStorage.setItem('authToken', 'demo-token-' + Date.now())
-            localStorage.setItem('userEmail', formData.email)
+            try {
+                // For demo: success if email contains "admin"
+                if (formData.email.includes("admin")) {
+                    localStorage.setItem('authToken', 'demo-token-' + Date.now());
+                    localStorage.setItem('userEmail', formData.email);
 
-            //    Redirect to dashboard
-            navigate('/dashboard')
-            console.log('Login successful (demo mode)')
-            console.log('Demo Auth Token:', localStorage.getItem('authToken'))
+                    toast.success("Login successful! Redirecting...");
 
-            setIsLoading(false)
-        }, 500)
-    }
+                    setTimeout(() => navigate('/dashboard'), 1500);
+                } else {
+                    // Simulate a failed login
+                    toast.error("Invalid email or password");
+                    setIsLoading(false);
+                }
+            } catch (error) {
+                toast.error("An unexpected error occurred");
+                setIsLoading(false);
+            }
+        }, 1000);
+    };
 
     return (
         <div className="login-container">
@@ -103,10 +113,10 @@ function Login() {
                 <div className="login-header">
                     <h1 className="text-2xl font-semibold">
                         <img src={logo} alt="Wallem Logo" className="w-8 h-8" />
-                    </h1>                    
+                    </h1>
                     <p>Sign in to your account</p>
                 </div>
-
+                <ToastContainer position="top-center" autoClose={1500} theme="colored" />
                 <form onSubmit={handleSubmit} className="login-form">
                     {infoMessage && (
                         <div className="info-message" style={{
