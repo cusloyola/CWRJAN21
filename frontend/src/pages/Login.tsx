@@ -97,7 +97,7 @@ function Login() {
                     setTimeout(() => navigate('/dashboard'), 1500);
                 } else {
                     // Simulate a failed login
-                    toast.error("Invalid email or password");
+                    toast.error("Invalid email or password: Use admin@gmail.com");
                     setIsLoading(false);
                 }
             } catch (error) {
