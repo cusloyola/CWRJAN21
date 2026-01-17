@@ -114,7 +114,7 @@
     font-size: 0.875rem;
     font-weight: bold;
     color: #1f2937;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     margin-bottom: 0.75rem;
 }
 
@@ -247,6 +247,9 @@
 .wpsi-filter-box:hover {
     background-color: #e5e7eb;
 }
+
+
+
 
 /* .wpsi-search-box {
     display: flex;
@@ -404,6 +407,7 @@
     border-radius: 2px;
     margin: 12px auto;
     cursor: grab;
+    touch-action: none;
 }
 
 .modal-drag-handle:active {
@@ -535,7 +539,16 @@
     color: #1f2937;
     margin-top: 1.5rem;
     padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
     border-bottom: 2px solid #e5e7eb;
+}
+.modal-section-header-remarks {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 /* Mobile adjustments for modal */

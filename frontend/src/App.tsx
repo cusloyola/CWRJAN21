@@ -13,6 +13,8 @@ import WMSICWR from './pages/WMSI-CWR'
 import WLPICWR from './pages/WLPI-CWR'
 import CFIICWR from './pages/CFII-CWR'
 import ProtectedRoute from './components/ProtectedRoute'
+import { ToastContainer  } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
   const location = useLocation()
@@ -39,6 +41,7 @@ function App() {
         <Route path="/activity-log/cfii-cwr" element={<ProtectedRoute><CFIICWR /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <ToastContainer />
     </div>
   )
 }

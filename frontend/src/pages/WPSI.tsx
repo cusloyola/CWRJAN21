@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Sidebar from "./Sidebar";
 import '../styles/WPSI.css';
 
@@ -27,6 +27,35 @@ const WPSI = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [remarks, setRemarks] = useState('');
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [offsetY, setOffsetY] = useState(0);
+  const [isDragging, setIsDragging] = useState(false); // Use State, not Ref, to force re-render on start
+  const startY = useRef(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    startY.current = e.touches[0].clientY;
+    setIsDragging(true); // 1. Enable "Direct Mode" (no transition)
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startY.current;
+
+    // Only allow dragging down
+    if (diff > 0) {
+      setOffsetY(diff); // 2. Update position in real-time
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false); // 3. Re-enable smooth transition for the snap back/close
+
+    if (offsetY > 150) {
+      closeModal();
+    } else {
+      setOffsetY(0);
+    }
+  };
 
   const transactions: Transaction[] = [
     {
@@ -188,8 +217,25 @@ const WPSI = () => {
       {isModalOpen && selectedTransaction && (
         <>
           <div className={`modal-backdrop ${isClosing ? 'closing' : ''}`} onClick={closeModal}></div>
-          <div className={`transaction-modal ${isClosing ? 'closing' : ''}`}>
-            <div className="modal-drag-handle" onClick={closeModal}></div>
+
+          <div
+            className={`transaction-modal ${isClosing ? 'closing' : ''}`}
+            style={{
+              // If dragging, follow finger exactly. If not, use 0 (or undefined to let CSS take over)
+              transform: offsetY > 0 ? `translateY(${offsetY}px)` : undefined,
+
+              // CRITICAL: turn off animation while dragging, turn it on when you let go
+              transition: isDragging ? 'none' : 'transform 0.3s ease-out'
+            }}
+          >
+            {/* 4. Attach touch events to the handle */}
+            <div
+              className="modal-drag-handle"
+              onClick={() => { if (offsetY === 0) closeModal() }}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            ></div>
             <div className="modal-header">
               <span className="modal-title">{selectedTransaction.section}</span>
               <button className="modal-close" onClick={closeModal}>
@@ -252,7 +298,7 @@ const WPSI = () => {
 
               <div className="modal-section-header">Supporting Docs</div>
               {/* Remarks Section */}
-              <div className="modal-section-header">Remarks</div>
+              <div className="modal-section-header-remarks">Remarks</div>
               <div className="modal-remarks">
                 <textarea
                   className="modal-remarks-input"

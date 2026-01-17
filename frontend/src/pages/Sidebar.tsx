@@ -24,13 +24,13 @@ const Sidebar = () => {
   };
 
 
-  const toggleSidebar = () => {
+/*   const toggleSidebar = () => {
     if (window.innerWidth >= 1024) {
       setSidebarCollapsed(!sidebarCollapsed);
       setActivityLogOpen(false);
       setMobileMoreOpen(false);
     }
-  };
+  }; */
 
   const toggleActivityLog = () => {
     if (!activityLogOpen) {
