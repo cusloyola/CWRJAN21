@@ -48,11 +48,6 @@ const Profile = () => {
             <span className="stats-label">CFII</span>
           </div>
         </div>
-
-        {/* Main Content Area */}
-        <main className="dashboard-main">
-          {/* Add more dashboard content here */}
-        </main>
         
       </div>
       

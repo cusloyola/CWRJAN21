@@ -34,8 +34,8 @@ body {
  */
   width: 100%;
   max-width: 400px;
-  background: #fff;
-  transition: box-shadow 0.3s ease;
+/*   background: #fff;
+ */  transition: box-shadow 0.3s ease;
 }
 
 .login-box:hover {
