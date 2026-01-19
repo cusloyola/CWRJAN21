@@ -174,7 +174,7 @@ body {
   }
 
   /* Default/inactive state for More button */
-  /*   #sidebar ul li.mobile-more-menu .more-btn {
+/*     #sidebar ul li.mobile-more-menu .more-btn {
     background-color: transparent;
     color: var(--text-clr);
     position: relative;
@@ -343,8 +343,8 @@ main {
   padding: min(30px, 7%);
   position: relative;
   z-index: 1;
-  display: flex;
-  justify-content: center;
+/*   display: flex;
+ */  justify-content: center;
   /* centers horizontally */
   align-items: center;
   /* centers vertically */
@@ -501,7 +501,6 @@ main p {
       width: 100%;
       height: 64px;
       padding: 6px 4px;
-      border-radius: 0;
       justify-content: center;
       align-items: center;
       display: flex;

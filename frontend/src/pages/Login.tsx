@@ -43,12 +43,14 @@ function Login() {
     const validateForm = (): boolean => {
         const newErrors: LoginErrors = {}
 
+        // Check Email
         if (!formData.email) {
             newErrors.email = 'Email is required'
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = 'Please enter a valid email'
         }
 
+        // Check Password
         if (!formData.password) {
             newErrors.password = 'Password is required'
         } else if (formData.password.length < 6) {
@@ -56,7 +58,15 @@ function Login() {
         }
 
         setErrors(newErrors)
-        return Object.keys(newErrors).length === 0
+
+        // Trigger Toast for the first error found
+        const firstError = Object.values(newErrors)[0]
+        if (firstError) {
+            toast.error(firstError)
+            return false
+        }
+
+        return true
     }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -77,10 +87,10 @@ function Login() {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!validateForm()) {
-            toast.error("Please fix the errors in the form");
-            return;
-        }
+        // 1. Check Validation
+        // We simply stop here if false. 
+        // validateForm() handles the specific toast message internally.
+        if (!validateForm()) return;
 
         setIsLoading(true);
 
@@ -94,11 +104,10 @@ function Login() {
 
                     toast.success("Login successful! Redirecting...");
 
-                    setTimeout(() => navigate('/dashboard'), 1500);
+                    setTimeout(() => navigate('/dashboard'), 1000);
                 } else {
-                    // Simulate a failed login
                     toast.error("Invalid email or password: Use admin@gmail.com");
-                    setIsLoading(false);
+                    setIsLoading(false); // Make sure to stop loading on failure
                 }
             } catch (error) {
                 toast.error("An unexpected error occurred");
@@ -117,7 +126,7 @@ function Login() {
                     <p>Sign in to your account</p>
                 </div>
                 <ToastContainer position="top-center" autoClose={1500} theme="colored" />
-                <form onSubmit={handleSubmit} className="login-form">
+                <form onSubmit={handleSubmit} className="login-form" noValidate>
                     {infoMessage && (
                         <div className="info-message" style={{
                             padding: '12px',
