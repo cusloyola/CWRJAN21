@@ -140,9 +140,9 @@ function Login() {
                             {infoMessage}
                         </div>
                     )}
-                    {errors.general && (
+                    {/*                     {errors.general && (
                         <div className="error-message general-error">{errors.general}</div>
-                    )}
+                    )} */}
 
                     <div className="form-group">
                         <label htmlFor="email">Email Address</label>
@@ -153,12 +153,13 @@ function Login() {
                             value={formData.email}
                             onChange={handleChange}
                             placeholder="you@example.com"
-                            className={errors.email ? 'input-error' : ''}
-                            disabled={isLoading}
+                            className="text-[16px]"
+/*                             className={errors.email ? 'input-error' : ''}
+ */                            disabled={isLoading}
                         />
-                        {errors.email && (
+                        {/*                         {errors.email && (
                             <span className="error-message">{errors.email}</span>
-                        )}
+                        )} */}
                     </div>
 
                     <div className="form-group">
@@ -171,8 +172,10 @@ function Login() {
                                 value={formData.password}
                                 onChange={handleChange}
                                 placeholder="Enter your password"
-                                className={errors.password ? 'input-error' : ''}
-                                disabled={isLoading}
+                                className="text-[16px]"
+
+/*                                 className={errors.password ? 'input-error' : ''}
+ */                                disabled={isLoading}
                             />
                             <button
                                 type="button"
@@ -188,9 +191,9 @@ function Login() {
                                 )}
                             </button>
                         </div>
-                        {errors.password && (
+                        {/*                         {errors.password && (
                             <span className="error-message">{errors.password}</span>
-                        )}
+                        )} */}
                     </div>
 
                     <button

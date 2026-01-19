@@ -124,7 +124,8 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-top: 16px;
-    justify-content: space-between;
+    margin-bottom: 16px;
+    justify-content: center;
 }
 
 .modal-remarks-input {
@@ -150,16 +151,19 @@
 
 
 .modal-con-button {
-    flex: 1 1 calc(25% - 8px);
-    padding: 10px 12px;
-    border: 2px solid #ccc;
-    border-radius: 6px;
+    flex: 1;
+    padding: 4px 8px;
+    border-radius: 24px;
+    border: 1px solid #ccc;
+    background-color: white;
     font-weight: 600;
+    font-size: 14px;
+    color: #333;
     text-align: center;
     cursor: pointer;
-    background-color: white;
-    color: #333;
     transition: all 0.2s ease;
+    white-space: nowrap;
+    max-width: 300px;
 }
 
 .modal-con-button.selected {
@@ -177,22 +181,53 @@
 /* Icon + Back row */
 .modal-con-footer {
     display: flex;
-    justify-content: space-between;
+    justify-content: center !important;
+    /* Forces them to the middle */
     align-items: center;
-    margin-top: 16px;
+    gap: 12px;
+    /* Keeps them close together */
+    width: 100%;
+    margin-top: 20px;
 }
 
+/* Shared Base Styles */
 .modal-con-icon-button,
 .modal-con-back-button {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    border: 2px solid var(--accent-clr);
-    border-radius: 6px;
+    justify-content: center;
+
+    /* Creates a 90% white / 10% accent mix for the background */
+    background-color: color-mix(in srgb, var(--accent-clr), white 90%);
     color: var(--accent-clr);
-    font-weight: 500;
+
+    border: none;
+    /* Remove the border to match the design */
     cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Hover Effect: slightly darker mix */
+.modal-con-icon-button:hover,
+.modal-con-back-button:hover {
+    background-color: color-mix(in srgb, var(--accent-clr), white 80%);
+}
+
+/* Specific Shapes */
+.modal-con-icon-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    /* Circle */
+    font-size: 18px;
+}
+
+.modal-con-back-button {
+    padding: 8px 24px;
+    border-radius: 20px;
+    /* Pill */
+    font-weight: 600;
+    font-size: 14px;
 }
 
 /* end for remarks */
@@ -218,6 +253,42 @@
     margin-bottom: 0.75rem;
     align-items: stretch;
 }
+
+.wpsi-search-container {
+    position: relative;
+    display: block;
+    width: 100%;
+}
+
+.wpsi-search-input {
+    padding-left: 2rem;
+    /* Space for the icon */
+    width: 100%;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: #1f2937;
+    height: 2.5rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.wpsi-search-input:focus {
+    border-color: var(--accent-clr, #007bff);
+}
+
+.wpsi-search-icon {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #888;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
 
 .wpsi-search-box {
     display: flex;
@@ -268,15 +339,6 @@
     color: #9ca3af;
 }
 
-.wpsi-search-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    font-size: 0.875rem;
-    color: #1f2937;
-}
-
 .wpsi-search-input::placeholder {
     color: #9ca3af;
 }
@@ -312,7 +374,7 @@
 }
 
 .wpsi-transaction-amount {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: #6b7280;
 }
 
@@ -497,7 +559,7 @@
 }
 
 .modal-ref-no {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: #6b7280;
 }
 
@@ -542,6 +604,7 @@
     margin-bottom: 0.5rem;
     border-bottom: 2px solid #e5e7eb;
 }
+
 .modal-section-header-remarks {
     font-size: 0.875rem;
     font-weight: 600;

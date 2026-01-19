@@ -17,7 +17,7 @@
   align-items: center;
   gap: 1rem;
   /* Space between search and filter */
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   width: 100%;
 }
 
@@ -25,8 +25,8 @@
 .wpsi-search-input {
   flex: 1;
   /* Grow to fill available space */
-  padding: 10px 14px;
-  font-size: 14px;
+/*   padding: 10px 14px;
+ */  font-size: 14px;
   border: 1px solid #e2e8f0;
   /* Light gray border */
   border-radius: 8px;
@@ -48,10 +48,12 @@
 /* === Dropdown Filter Styling === */
 
 .wpsi-dropdown {
-  height: 42px;              /* Match height of search input */
+  height: 42px;
+  /* Match height of search input */
   border-radius: 8px;
   border: 1px solid #e2e8f0;
-  padding: 0 36px 0 12px;    /* Padding for text + arrow space */
+  padding: 0 36px 0 12px;
+  /* Padding for text + arrow space */
   font-size: 14px;
   background-color: #fff;
   cursor: pointer;
@@ -80,6 +82,8 @@
   opacity: 0.7;
 }
 
+
+
 /* Target the options inside the dropdown */
 .wpsi-dropdown option {
   /* 1. Background color for the list */
@@ -104,81 +108,128 @@
 }
 
 
-/* Card Container */
-.activity-card-container {
-  display: grid;
+/* Container */
+.wpsi-list-container {
+  display: flex;
+  flex-direction: column;
   gap: 0.75rem;
-  grid-template-columns: 1fr;
-  /* Single column by default */
 }
 
-/* Card */
-.activity-card {
-  border: 1px solid #e5e7eb;
-  border-color: #1f2937;
-  padding: 1rem;
-  border-radius: 0.75rem;
-  background-color: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+/* The Card (Renamed from activity-card) */
+/* .wpsi-transaction-item {
+    background-color: white;
+    border-radius: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+} */
+
+.wpsi-transaction-item:hover {
+    background-color: #f9fafb;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
 }
 
-.activity-card:hover {
-  background-color: #f9fafb;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Card Header */
-.activity-card-header {
+.wpsi-title-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  gap: 1rem;
 }
 
-/* Date */
-.activity-date {
-  font-size: 0.875rem;
-  color: #6b7280;
+
+.wpsi-transaction-item:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Description */
-.activity-description {
-  font-size: 0.875rem;
-  color: #1f2937;
+/* The Row Layout */
+.wpsi-transaction-row {
+  display: flex;
+  justify-content: space-between;
+  /* Pushes chevron to the right */
+  align-items: center;
+  /* Vertically centers content */
 }
 
-/* Status Badge */
+/* The Text Section */
+.wpsi-transaction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Meta line (Date + Badge) */
+.wpsi-transaction-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wpsi-date {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+/* Chevron Icon */
+.wpsi-chevron {
+  width: 20px;
+  height: 20px;
+  color: #94a3b8;
+  transition: transform 0.2s;
+}
+
+.wpsi-transaction-item:hover .wpsi-chevron {
+  transform: translateX(4px);
+  /* Subtle animation on hover */
+  color: #3b82f6;
+}
+
+/* --- BADGES (Important!) --- */
 .status-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  /* Pill shape */
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  display: inline-block;
+  letter-spacing: 0.025em;
+  max-width: 100px;
+  text-align: center;
 }
 
-/* Badge Variants */
-.status-badge.completed {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #059669;
+/* Badge Colors - Ensure your data matches these classes */
+.status-badge.completed,
+.status-badge.success {
+  background-color: #d1fae5;
+  color: #047857;
 }
 
-.status-badge.pending {
-  background-color: rgba(251, 191, 36, 0.15);
+.status-badge.pending,
+.status-badge.warning {
+  background-color: #fef3c7;
   color: #b45309;
 }
 
-.status-badge.in-progress {
-  background-color: rgba(59, 130, 246, 0.15);
-  color: #1d4ed8;
+.status-badge.in-progress,
+.status-badge.processing {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.failed,
+.status-badge.cancelled {
+  background-color: #fee2e2;
+  color: #b91c1c;
 }
 
 /* Responsive Adjustments */
 @media (max-width: 1024px) {
 
   /* Tablet and smaller screens */
-/*   .activity-card-container {
+  /*   .activity-card-container {
     grid-template-columns: 1fr 1fr;
   } */
 
@@ -213,21 +264,27 @@
 /* --- Responsive Breakpoint (Mobile) --- */
 @media (max-width: 640px) {
   .wpsi-controls {
-    flex-direction: column;  /* Stack vertically */
-    align-items: stretch;    /* Stretch inputs to full width */
-    gap: 10px;               /* Smaller gap for mobile */
+    flex-direction: column;
+    /* Stack vertically */
+    align-items: stretch;
+    /* Stretch inputs to full width */
+    gap: 10px;
+    /* Smaller gap for mobile */
   }
 
   .wpsi-search-input {
-    width: 100%;             /* Full width */
+    width: 100%;
+    /* Full width */
   }
 
   .wpsi-dropdown-container {
-    width: 100%;             /* Full width container */
+    width: 100%;
+    /* Full width container */
   }
-  
+
   .wpsi-dropdown {
-    width: 100%;             /* Full width select box */
+    width: 100%;
+    /* Full width select box */
   }
 }
 
@@ -235,9 +292,12 @@
 .wpsi-no-results {
   text-align: center;
   padding: 3rem 1rem;
-  color: #64748b;            /* Muted slate text color */
-  background-color: #f8fafc; /* Very light gray background */
-  border: 2px dashed #e2e8f0;/* Dashed border */
+  color: #64748b;
+  /* Muted slate text color */
+  background-color: #f8fafc;
+  /* Very light gray background */
+  border: 2px dashed #e2e8f0;
+  /* Dashed border */
   border-radius: 12px;
   margin-top: 1rem;
   font-size: 0.95rem;
@@ -257,28 +317,18 @@
 
 @media (max-width: 480px) {
 
-  /* Very small screens */
-  .activity-card {
-    padding: 0.5rem;
-  }
-
-  .activity-description {
-    font-size: 0.75rem;
-    /* Even smaller text for very small screens */
-  }
-
   .status-badge {
     font-size: 0.7rem;
-    /* Smaller badge text */
     padding: 0.2rem 0.4rem;
-    /* Smaller badge size */
+    max-width: none;      /* Allow badge to grow with content */
+    white-space: nowrap;  /* Prevent wrapping */
   }
 }
 
 @media (min-width: 1200px) {
 
   /* Large screens (Desktops) */
-/*   .activity-card-container {
+  /*   .activity-card-container {
     grid-template-columns: repeat(3, 1fr);
      Three columns for large screens 
   }

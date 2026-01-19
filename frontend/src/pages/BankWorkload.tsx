@@ -276,21 +276,16 @@ const BankWorkload = () => {
                 ))}
               </div>
 
-              {/* Icon + Back */}
               <div className="modal-con-footer">
                 <button className="modal-con-icon-button">
                   <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2m-4 0H7a2 2 0 01-2-2V10a2 2 0 012-2h6m0 0V4m0 4l-2-2m2 2l2-2" />
                   </svg>
-                  Comment
                 </button>
                 <button className="modal-con-back-button" onClick={closeModal}>
-                  ← Back
+                  Back
                 </button>
               </div>
-
-
-
             </div>
           </div>
         </>
