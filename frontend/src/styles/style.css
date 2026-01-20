@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 @import "tailwindcss";
 
+
 :root {
   --base-clr: #fbfafa;
   --line-clr: #42434a;
@@ -174,7 +175,7 @@ body {
   }
 
   /* Default/inactive state for More button */
-/*     #sidebar ul li.mobile-more-menu .more-btn {
+  /*     #sidebar ul li.mobile-more-menu .more-btn {
     background-color: transparent;
     color: var(--text-clr);
     position: relative;
@@ -343,8 +344,9 @@ main {
   padding: min(30px, 7%);
   position: relative;
   z-index: 1;
-/*   display: flex;
- */  justify-content: center;
+  /*   display: flex;
+ */
+  justify-content: center;
   /* centers horizontally */
   align-items: center;
   /* centers vertically */
@@ -660,7 +662,8 @@ main p {
   #sidebar ul .mobile-more-submenu.show {
     display: block;
     animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
-    background-color: #fbfafa;
+    /*     background-color: #fbfafa;
+ */
   }
 
   #sidebar ul .mobile-more-submenu li {
@@ -826,5 +829,134 @@ main p {
     to {
       opacity: 1;
     }
+  }
+}
+
+/* === Filter Bar & Dropdowns (Responsive) === */
+/* Applies to .wpsi-controls, .wpsi-dropdown, .wpsi-dropdown-container, .wpsi-search-* used on Transactions, CWR pages */
+
+.wpsi-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.wpsi-search-container {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.wpsi-dropdown-container {
+  flex: 0 1 auto;
+  min-width: 120px;
+}
+
+.wpsi-dropdown {
+  width: 100%;
+  max-width: 100%;
+  min-height: 38px;
+  height: auto;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background-color: #fff;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  box-sizing: border-box;
+}
+
+.wpsi-dropdown:hover {
+  border-color: var(--accent-clr, #001c77);
+}
+
+.wpsi-dropdown:focus {
+  outline: none;
+  border-color: var(--accent-clr, #001c77);
+  box-shadow: 0 0 0 2px rgba(0, 28, 119, 0.15);
+}
+
+/* Tablet: allow wrap, tighter gaps */
+@media (max-width: 1024px) {
+  .wpsi-controls {
+    gap: 0.6rem;
+  }
+
+  .wpsi-dropdown-container {
+    min-width: 110px;
+  }
+
+  .wpsi-dropdown {
+    font-size: 0.8125rem;
+    padding: 0.45rem 1.75rem 0.45rem 0.6rem;
+  }
+}
+
+/* Small tablet / large phone: stack or 2-col, full-width dropdowns */
+@media (max-width: 768px) {
+  .wpsi-controls {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .wpsi-search-container {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .wpsi-dropdown-container {
+    flex: 1 1 calc(50% - 0.25rem);
+    min-width: 0;
+    max-width: none;
+  }
+
+  .wpsi-dropdown {
+    width: 100%;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Phone: stack everything, full width */
+@media (max-width: 640px) {
+  .wpsi-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .wpsi-search-container {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .wpsi-dropdown-container {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .wpsi-dropdown {
+    width: 100%;
+  }
+}
+
+/* Small phone: compact touch targets */
+@media (max-width: 480px) {
+  .wpsi-controls {
+    gap: 0.4rem;
+  }
+
+  .wpsi-dropdown {
+    min-height: 42px;
+    font-size: 0.875rem;
+    padding: 0.5rem 2.25rem 0.5rem 0.75rem;
   }
 }
