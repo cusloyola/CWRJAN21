@@ -1,9 +1,13 @@
 # CWR version 1
+## Check Writing and Retrieval System
+
+A **Check Writing and Retrieval System** is an application designed to automate the creation, recording, and tracking of issued checks while providing easy access to historical check data. It ensures accurate payee details, amounts, and dates, and allows users to quickly search, retrieve, and verify issued checks.
+
+By centralizing check records, the system improves financial control, reduces errors, and supports efficient auditing and reporting.
+
 
 ## 🚀 Features
-```
-CWR app
-```
+
 - Frontend: Vite+React
 - Backend:  Python/Django 
 - Database: MariaDB
