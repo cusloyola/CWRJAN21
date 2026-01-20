@@ -1,7 +1,7 @@
 /* Dashboard Styles */
 
 .dashboard-header {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    background: #001c77;
     height: 7rem;
     transition: height 0.3s ease;
 }

@@ -12,6 +12,7 @@ import WPSICWR from './pages/WPSI-CWR'
 import WMSICWR from './pages/WMSI-CWR'
 import WLPICWR from './pages/WLPI-CWR'
 import CFIICWR from './pages/CFII-CWR'
+import TransactionTable from './pages/Transactions'
 import ProtectedRoute from './components/ProtectedRoute'
 import { ToastContainer  } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -20,7 +21,7 @@ function App() {
   const location = useLocation()
   const dashboardRoutes = ['/dashboard', '/profile', '/wpsi', '/wmsi', '/wlpi',
     '/cfii', '/bank-workload', '/activity-log/wpsi-cwr', '/activity-log/wmsi-cwr', '/activity-log/wlpi-cwr', 
-    '/activity-log/cfii-cwr']
+    '/activity-log/cfii-cwr', '/transactions']
   const isDashboardLayout = dashboardRoutes.includes(location.pathname)
 
   return (
@@ -39,6 +40,7 @@ function App() {
         <Route path="/activity-log/wmsi-cwr" element={<ProtectedRoute><WMSICWR /></ProtectedRoute>} />
         <Route path="/activity-log/wlpi-cwr" element={<ProtectedRoute><WLPICWR /></ProtectedRoute>} />
         <Route path="/activity-log/cfii-cwr" element={<ProtectedRoute><CFIICWR /></ProtectedRoute>} />
+        <Route path="/transactions" element={<ProtectedRoute><TransactionTable /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ToastContainer />

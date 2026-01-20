@@ -6,6 +6,43 @@ import logo from '../assets/wallemrectangle.png';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+export const STATIC_USERS = [
+    {
+        role: "Approver",
+        email: "approver@demo.com",
+        password: "admin123"
+    },
+    {
+        role: "Deputy",
+        email: "deputy@demo.com",
+        password: "admin123"
+    },
+    {
+        role: "DAM WPSI", // Deputy Acct Manager
+        email: "damwpsi@demo.com",
+        password: "admin123"
+    },
+    {
+        role: "DAM WMSI", // Deputy Acct Manager
+        email: "damwmsi@demo.com",
+        password: "admin123"
+    },
+    {
+        role: "DAM WLPI", // Deputy Acct Manager
+        email: "damwlpi@demo.com",
+        password: "admin123"
+    },
+    {
+        role: "DAM CFII", // Deputy Acct Manager
+        email: "damcfii@demo.com",
+        password: "admin123"
+    },
+    {
+        role: "Worker",
+        email: "worker@demo.com",
+        password: "admin123"
+    }
+];
 
 interface LoginFormData {
     email: string
@@ -31,10 +68,8 @@ function Login() {
     const [infoMessage, setInfoMessage] = useState<string>('')
 
     useEffect(() => {
-        // Check if there's a message from the protected route
         if (location.state?.message) {
             setInfoMessage(location.state.message)
-            // Clear the message after 10 seconds
             const timer = setTimeout(() => setInfoMessage(''), 10000)
             return () => clearTimeout(timer)
         }
@@ -43,18 +78,24 @@ function Login() {
     const validateForm = (): boolean => {
         const newErrors: LoginErrors = {}
 
-        // Check Email
         if (!formData.email) {
             newErrors.email = 'Email is required'
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = 'Please enter a valid email'
         }
 
-        // Check Password
         if (!formData.password) {
             newErrors.password = 'Password is required'
         } else if (formData.password.length < 6) {
             newErrors.password = 'Password must be at least 6 characters'
+        }
+
+        // Check if user exists in STATIC_USERS
+        const user = STATIC_USERS.find(
+            u => u.email === formData.email && u.password === formData.password
+        );
+        if (formData.email && formData.password && !user) {
+            newErrors.general = 'Invalid email or password';
         }
 
         setErrors(newErrors)
@@ -88,32 +129,34 @@ function Login() {
         e.preventDefault();
 
         // 1. Check Validation
-        // We simply stop here if false. 
-        // validateForm() handles the specific toast message internally.
         if (!validateForm()) return;
 
         setIsLoading(true);
 
-        // Simulate login delay
         setTimeout(() => {
             try {
-                // For demo: success if email contains "admin"
-                if (formData.email.includes("admin")) {
+                // Find user in STATIC_USERS
+                const user = STATIC_USERS.find(
+                    u => u.email === formData.email && u.password === formData.password
+                );
+                if (user) {
+                    console.log(`Login attempt with email: ${user.email}`); // <-- Added log
                     localStorage.setItem('authToken', 'demo-token-' + Date.now());
-                    localStorage.setItem('userEmail', formData.email);
+                    localStorage.setItem('userEmail', user.email);
+                    localStorage.setItem('userRole', user.role);
 
                     toast.success("Login successful! Redirecting...");
 
                     setTimeout(() => navigate('/dashboard'), 1000);
                 } else {
-                    toast.error("Invalid email or password: Use admin@gmail.com");
-                    setIsLoading(false); // Make sure to stop loading on failure
+                    toast.error("Invalid email or password");
+                    setIsLoading(false);
                 }
             } catch (error) {
                 toast.error("An unexpected error occurred");
                 setIsLoading(false);
             }
-        }, 1000);
+        console.log(localStorage.getItem('userRole'))}, 1000);
     };
 
     return (
