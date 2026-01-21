@@ -28,27 +28,25 @@ const WPSI = () => {
   const [remarks, setRemarks] = useState('');
   const [selectedAction, setSelectedAction] = useState<string | null>(null);
   const [offsetY, setOffsetY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false); // Use State, not Ref, to force re-render on start
+  const [isDragging, setIsDragging] = useState(false);
   const startY = useRef(0);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startY.current = e.touches[0].clientY;
-    setIsDragging(true); // 1. Enable "Direct Mode" (no transition)
+    setIsDragging(true);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return;
     const currentY = e.touches[0].clientY;
     const diff = currentY - startY.current;
-
-    // Only allow dragging down
     if (diff > 0) {
-      setOffsetY(diff); // 2. Update position in real-time
+      setOffsetY(diff);
     }
   };
 
   const handleTouchEnd = () => {
-    setIsDragging(false); // 3. Re-enable smooth transition for the snap back/close
+    setIsDragging(false);
 
     if (offsetY > 150) {
       closeModal();
@@ -57,6 +55,7 @@ const WPSI = () => {
     }
   };
 
+  // Static transaction data
   const transactions: Transaction[] = [
     {
       id: 1,
@@ -217,18 +216,13 @@ const WPSI = () => {
       {isModalOpen && selectedTransaction && (
         <>
           <div className={`modal-backdrop ${isClosing ? 'closing' : ''}`} onClick={closeModal}></div>
-
           <div
             className={`transaction-modal ${isClosing ? 'closing' : ''}`}
             style={{
-              // If dragging, follow finger exactly. If not, use 0 (or undefined to let CSS take over)
               transform: offsetY > 0 ? `translateY(${offsetY}px)` : undefined,
-
-              // CRITICAL: turn off animation while dragging, turn it on when you let go
               transition: isDragging ? 'none' : 'transform 0.3s ease-out'
             }}
           >
-            {/* 4. Attach touch events to the handle */}
             <div
               className="modal-drag-handle"
               onClick={() => { if (offsetY === 0) closeModal() }}
