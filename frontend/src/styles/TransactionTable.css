@@ -112,7 +112,8 @@
 /* Action column - allow wrapping for buttons */
 .transactions-table td:last-child {
     white-space: normal;
-    text-align: center;
+    /*     text-align: center;
+ */
 }
 
 /* --- Action Buttons --- */
@@ -129,6 +130,33 @@
     white-space: nowrap;
 }
 
+.wpsi-add-button-container {
+    display: flex;
+    align-items: center;
+    margin: 0 1rem;
+}
+
+.wpsi-add-button {
+    background-color: var(--accent-clr);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5em;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: background-color 0.3s ease, box-shadow 0.2s;
+    box-shadow: 0 1px 4px rgba(0, 28, 119, 0.08);
+}
+
+.wpsi-add-button:hover {
+    background-color: rgba(0, 28, 119, 0.85);
+    /* Slightly darker accent */
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 28, 119, 0.12);
+}
+
+
 .transaction-view-button:hover {
     background-color: rgba(0, 28, 119, 0.85);
     color: white;
@@ -139,20 +167,10 @@
 }
 
 .transaction-edit-button {
-    background-color: #10b981;
-    color: white;
-    border: none;
-    border-radius: 0.5em;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.1s ease;
-    white-space: nowrap;
 }
 
 .transaction-edit-button:hover {
-    background-color: #059669;
     color: white;
 }
 
