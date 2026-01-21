@@ -88,7 +88,10 @@ const Sidebar = () => {
       <nav id="sidebar" className={sidebarClass}>
         <ul className="list-none">
           <li className="flex justify-between items-center">
-            <span className="logo font-semibold text-xl"><img src={logo} alt="Wallem Square Logo" /></span>
+            <span className="logo">
+              <Link to="/dashboard">
+                <img src={logo} alt="Wallem Square Logo" style={{ width: '100%', height: '50px' }} />              </Link>
+            </span>
             {isWorker && (<>
 
               {/*                        <button onClick={toggleSidebar} id="toggle-btn" className={sidebarCollapsed ? "rotate-180" : ""}>

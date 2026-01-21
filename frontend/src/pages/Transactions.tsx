@@ -113,6 +113,7 @@ const TransactionTable: React.FC = () => {
         <>
             <Sidebar />
             <main style={{ padding: 'min(30px, 7%)', width: '100%', overflowX: 'hidden' }}>
+                
                 <div className="transactions-page-wrapper">
                     {/* Title */}
                     <div className="wpsi-section-header">
