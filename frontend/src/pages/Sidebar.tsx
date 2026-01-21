@@ -16,7 +16,6 @@ const Sidebar = () => {
   const isWorker = userRole === 'Worker';
   const isApproverOrDeputy = userRole === 'Approver' || userRole === 'Deputy';
 
-
   const damCompanyTabs = [
     { role: 'DAM WPSI', path: '/wpsi', label: 'WPSI' },
     { role: 'DAM WMSI', path: '/wmsi', label: 'WMSI' },
@@ -32,9 +31,6 @@ const Sidebar = () => {
     return false;
   };
 
-  /*   const openModal = () => setIsLogoutModalOpen(true);
-    const closeModal = () => setIsLogoutModalOpen(false); */
-
   const isActive = (path: string) => location.pathname === path && !mobileMoreOpen;
 
   const handleLogout = () => {
@@ -42,7 +38,6 @@ const Sidebar = () => {
     localStorage.removeItem('userEmail');
     navigate('/login');
   };
-
 
   /*     const toggleSidebar = () => {
         if (window.innerWidth >= 1024) {
@@ -63,20 +58,18 @@ const Sidebar = () => {
       setSidebarCollapsed(false);
     }
   };
-
   const toggleMobileMore = () => {
     if (!mobileMoreOpen) {
       setActivityLogOpen(false);
     }
     setMobileMoreOpen(!mobileMoreOpen);
   };
-
   const closeMobileMenus = () => {
     setMobileMoreOpen(false);
     setActivityLogOpen(false);
   };
-
   const sidebarClass = `${sidebarCollapsed ? "w-16 px-1" : "w-64 px-4"}`;
+
   return (
     <>
       {mobileMoreOpen && (
@@ -88,7 +81,11 @@ const Sidebar = () => {
       <nav id="sidebar" className={sidebarClass}>
         <ul className="list-none">
           <li className="flex justify-between items-center">
-            <span className="logo font-semibold text-xl"><img src={logo} alt="Wallem Square Logo" /></span>
+            <span className="logo">
+              {/*               <Link to="/dashboard"> */}
+              <img src={logo} alt="Wallem Square Logo" style={{ width: '100%', height: '50px', display: 'flex' }} />
+              {/*             </Link>
+ */}          </span>
             {isWorker && (<>
 
               {/*                        <button onClick={toggleSidebar} id="toggle-btn" className={sidebarCollapsed ? "rotate-180" : ""}>
@@ -107,10 +104,8 @@ const Sidebar = () => {
             <Link to="/dashboard" className="flex items-center gap-4 p-3.5 rounded-lg text-blue-600 no-underline transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                 {isActive("/dashboard") ? (
-                  /* Filled Home Icon Path */
                   <path d="M160-120v-480l320-240 320 240v480H520v-240h-80v240H160Z" />
                 ) : (
-                  /* Outlined Home Icon Path (Your current one) */
                   <path d="M240-200h120v-200q0-17 11.5-28.5T400-440h160q17 0 28.5 11.5T600-400v200h120v-360L480-740 240-560v360Zm-80 0v-360q0-19 8.5-36t23.5-28l240-180q21-16 48-16t48 16l240 180q15 11 23.5 28t8.5 36v360q0 33-23.5 56.5T720-120H560q-17 0-28.5-11.5T520-160v-200h-80v200q0 17-11.5 28.5T400-120H240q-33 0-56.5-23.5T160-200Zm320-270Z" />
                 )}
               </svg>
@@ -123,10 +118,8 @@ const Sidebar = () => {
               <Link to="/wpsi" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                   {isActive("/wpsi") ? (
-                    /* Solid / Filled Path */
                     <path d="M480-240q-60 0-105-40l-45-40q-37 37-83.5 56T145-243L50-540l66-17v-123q0-33 23.5-56.5T196-760h124v-80h320v80h124q33 0 56.5 23.5T844-680v123l66 17-95 297q-54-2-101.5-21T730-320l-45 40q-45 40-105 40ZM152-80h-32v-80h32q48 0 91.5-10.5T341-204q38 19 66.5 31.5T480-160q44 0 72.5-12.5T619-204q53 23 97.5 33.5T809-160h31v80h-31q-49 0-95.5-9T622-116q-40 19-73 27t-69 8q-36 0-68.5-8T339-116q-45 18-91.5 27T152-80Z" />
                   ) : (
-                    /* Outlined Path (Your Original) */
                     <path d="M152-80h-32v-80h32q48 0 91.5-10.5T341-204q38 19 66.5 31.5T480-160q44 0 72.5-12.5T619-204q53 23 97.5 33.5T809-160h31v80h-31q-49 0-95.5-9T622-116q-40 19-73 27t-69 8q-36 0-68.5-8T339-116q-45 18-91.5 27T152-80Zm328-160q-60 0-105-40l-45-40q-27 27-60.5 46T198-247l-85-273q-5-17 3-31t25-19l59-16v-134q0-33 23.5-56.5T280-800h100v-80h200v80h100q33 0 56.5 23.5T760-720v134l59 16q17 5 25 19t3 31l-85 273q-38-8-71.5-27T630-320l-45 40q-45 40-105 40Zm2-80q31 0 55-20.5t44-43.5l46-53 41 42q11 11 22.5 20.5T713-355l46-149-279-73-278 73 46 149q11-10 22.5-19.5T293-395l41-42 46 53q20 24 45 44t57 20ZM280-607l200-53 200 53v-113H280v113Zm201 158Z" />
                   )}
                 </svg>
@@ -139,10 +132,8 @@ const Sidebar = () => {
               <Link to="/wmsi" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                   {isActive("/wmsi") ? (
-                    /* Solid Path if state is active*/
                     <path d="M40-120v-112q0-33 17-62t47-44q51-26 115-44t141-18q77 0 141 18t115 44q30 15 47 44t17 62v112H40Zm322-320q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm320 160-6-30q-6-2-11.5-4.5T652-322l-28 10-20-36 22-20v-24l-22-20 20-36 28 10q4-4 10-7t12-5l6-30h40l6 30q6 2 12 5t10 7l28-10 20 36-22 20v24l22 20-20 36-28-10q-5 5-10.5 7.5T726-310l-6 30h-40Zm102-210-8-42q-9-3-16.5-7.5T734-540l-42 14-28-48 34-30q-2-5-2-8v-16q0-3 2-8l-34-30 28-48 42 14q6-6 13.5-10.5T764-718l8-42h56l8 42q9 3 16.5 7.5T866-700l42-14 28 48-34 30q2 5 2 8v16q0 3-2 8l34 30-28 48-42-14q-6 6-13.5 10.5T836-522l-8 42h-56Z" />
                   ) : (
-                    /* Outlined Path */
                     <path d="M42-120v-112q0-33 17-62t47-44q51-26 115-44t141-18q77 0 141 18t115 44q30 15 47 44t17 62v112H42Zm80-80h480v-32q0-11-5.5-20T582-266q-36-18-92.5-36T362-320q-71 0-127.5 18T142-266q-9 5-14.5 14t-5.5 20v32Zm240-240q-66 0-113-47t-47-113h-10q-9 0-14.5-5.5T172-620q0-9 5.5-14.5T192-640h10q0-45 22-81t58-57v38q0 9 5.5 14.5T302-720q9 0 14.5-5.5T322-740v-54q9-3 19-4.5t21-1.5q11 0 21 1.5t19 4.5v54q0 9 5.5 14.5T422-720q9 0 14.5-5.5T442-740v-38q36 21 58 57t22 81h10q9 0 14.5 5.5T552-620q0 9-5.5 14.5T532-600h-10q0 66-47 113t-113 47Zm0-80q33 0 56.5-23.5T442-600H282q0 33 23.5 56.5T362-520Zm300 160-6-30q-6-2-11.5-4.5T634-402l-28 10-20-36 22-20v-24l-22-20 20-36 28 10q4-4 10-7t12-5l6-30h40l6 30q6 2 12 5t10 7l28-10 20 36-22 20v24l22 20-20 36-28-10q-5 5-10.5 7.5T708-390l-6 30h-40Zm20-70q12 0 21-9t9-21q0-12-9-21t-21-9q-12 0-21 9t-9 21q0 12 9 21t21 9Zm72-130-8-42q-9-3-16.5-7.5T716-620l-42 14-28-48 34-30q-2-5-2-8v-16q0-3 2-8l-34-30 28-48 42 14q6-6 13.5-10.5T746-798l8-42h56l8 42q9 3 16.5 7.5T848-780l42-14 28 48-34 30q2 5 2 8v16q0 3-2 8l34 30-28 48-42-14q-6 6-13.5 10.5T818-602l-8 42h-56Zm28-90q21 0 35.5-14.5T832-700q0-21-14.5-35.5T782-750q-21 0-35.5 14.5T732-700q0 21 14.5 35.5T782-650ZM362-200Z" />
                   )}
                 </svg>
@@ -179,7 +170,7 @@ const Sidebar = () => {
               </Link>
             </li>
           )}
-          {/* The rest of the tabs: only for Approver/Deputy */}
+          {/* For Approver/Deputy only*/}
           {isApproverOrDeputy && (
             <>
               <li className={isActive("/bank-workload") ? "active" : ""}>
@@ -194,8 +185,6 @@ const Sidebar = () => {
                   <span>Bank Workload</span>
                 </Link>
               </li>
-
-
               <li>
                 <button
                   onClick={toggleActivityLog}
@@ -246,10 +235,8 @@ const Sidebar = () => {
                   </div>
                 </ul>
               </li>
-
             </>
           )}
-
           {isWorker && (
             <>
               <li className={isActive("/transactions") ? "active" : ""}>
@@ -264,11 +251,19 @@ const Sidebar = () => {
                   <span>Transactions</span>
                 </Link>
               </li>
-
-
+              <li className={isActive("/archives") ? "active" : ""}>
+                <Link to="/archives" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor" className="flex-shrink-0">
+                    {isActive("/archives") ? (
+                      <path d="M20 6H4l-2 4v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V10l-2-4zm0 14H4V10h16v10zm-8-3l-4-4h3v-3h2v3h3l-4 4z" />) : (<path d="M20 6H4l-2 4v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V10l-2-4zm0 14H4V10h16v10zm-8-3l-4-4h3v-3h2v3h3l-4 4z" />)}
+                  </svg>
+                  <span>Archives</span>
+                </Link>
+              </li>
             </>
           )}
-          <li className={isActive("/profile") ? "active" : ""}>
+          {/* Commented out profile sidebar */}
+          {/*           <li className={isActive("/profile") ? "active" : ""}>
             <Link to="/profile" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="flex-shrink-0">
                 {isActive("/profile") ? (
@@ -279,7 +274,7 @@ const Sidebar = () => {
               </svg>
               <span>Profile</span>
             </Link>
-          </li>
+          </li> */}
           <li>
             <a
               onClick={() => setIsLogoutModalOpen(true)}
@@ -291,7 +286,6 @@ const Sidebar = () => {
               <span>Logout</span>
             </a>
           </li>
-
           {isApproverOrDeputy && (
             <>
               <li className={`mobile-more-menu ${mobileMoreOpen ? 'active' : ''}`}>
@@ -386,12 +380,10 @@ const Sidebar = () => {
                   </div>
                 </ul>
               </li>
-
             </>
           )}
-
         </ul>
-      </nav>
+      </nav >
       <LogoutModal isOpen={isLogoutModalOpen} onConfirm={handleLogout} onCancel={() => setIsLogoutModalOpen(false)}
       />
     </>

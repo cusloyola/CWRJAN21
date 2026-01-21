@@ -6,6 +6,7 @@ import logo from '../assets/wallemrectangle.png';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+// Static users for demo purposes
 export const STATIC_USERS = [
     {
         role: "Approver",
@@ -18,22 +19,22 @@ export const STATIC_USERS = [
         password: "admin123"
     },
     {
-        role: "DAM WPSI", // Deputy Acct Manager
+        role: "DAM WPSI",
         email: "damwpsi@demo.com",
         password: "admin123"
     },
     {
-        role: "DAM WMSI", // Deputy Acct Manager
+        role: "DAM WMSI",
         email: "damwmsi@demo.com",
         password: "admin123"
     },
     {
-        role: "DAM WLPI", // Deputy Acct Manager
+        role: "DAM WLPI",
         email: "damwlpi@demo.com",
         password: "admin123"
     },
     {
-        role: "DAM CFII", // Deputy Acct Manager
+        role: "DAM CFII",
         email: "damcfii@demo.com",
         password: "admin123"
     },
@@ -78,6 +79,7 @@ function Login() {
     const validateForm = (): boolean => {
         const newErrors: LoginErrors = {}
 
+        // Email regex validation
         if (!formData.email) {
             newErrors.email = 'Email is required'
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -116,7 +118,6 @@ function Login() {
             ...prev,
             [name]: value,
         }))
-        // Clear error for this field when user starts typing
         if (errors[name as keyof LoginErrors]) {
             setErrors((prev) => ({
                 ...prev,
@@ -127,20 +128,18 @@ function Login() {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
-        // 1. Check Validation
         if (!validateForm()) return;
 
         setIsLoading(true);
 
         setTimeout(() => {
             try {
-                // Find user in STATIC_USERS
                 const user = STATIC_USERS.find(
                     u => u.email === formData.email && u.password === formData.password
                 );
                 if (user) {
-                    console.log(`Login attempt with email: ${user.email}`); // <-- Added log
+                    console.log(`Login attempt with email: ${user.email}`);
+                    // AuthToken placed in localStorage for demo purposes
                     localStorage.setItem('authToken', 'demo-token-' + Date.now());
                     localStorage.setItem('userEmail', user.email);
                     localStorage.setItem('userRole', user.role);
@@ -156,7 +155,8 @@ function Login() {
                 toast.error("An unexpected error occurred");
                 setIsLoading(false);
             }
-        console.log(localStorage.getItem('userRole'))}, 1000);
+            console.log(localStorage.getItem('userRole'))
+        }, 1000);
     };
 
     return (
@@ -183,10 +183,6 @@ function Login() {
                             {infoMessage}
                         </div>
                     )}
-                    {/*                     {errors.general && (
-                        <div className="error-message general-error">{errors.general}</div>
-                    )} */}
-
                     <div className="form-group">
                         <label htmlFor="email">Email Address</label>
                         <input
@@ -197,12 +193,8 @@ function Login() {
                             onChange={handleChange}
                             placeholder="you@example.com"
                             className="text-[16px]"
-/*                             className={errors.email ? 'input-error' : ''}
- */                            disabled={isLoading}
+                            disabled={isLoading}
                         />
-                        {/*                         {errors.email && (
-                            <span className="error-message">{errors.email}</span>
-                        )} */}
                     </div>
 
                     <div className="form-group">
@@ -216,9 +208,7 @@ function Login() {
                                 onChange={handleChange}
                                 placeholder="Enter your password"
                                 className="text-[16px]"
-
-/*                                 className={errors.password ? 'input-error' : ''}
- */                                disabled={isLoading}
+                                disabled={isLoading}
                             />
                             <button
                                 type="button"
@@ -234,11 +224,7 @@ function Login() {
                                 )}
                             </button>
                         </div>
-                        {/*                         {errors.password && (
-                            <span className="error-message">{errors.password}</span>
-                        )} */}
                     </div>
-
                     <button
                         type="submit"
                         className="login-button"
@@ -247,18 +233,6 @@ function Login() {
                         {isLoading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
-
-                {/*                 <div className="login-footer">
-                    <a href="#forgot-password" className="forgot-password">
-                        Forgot your password?
-                    </a>
-                    <div className="signup-link">
-                        Don't have an account?{' '}
-                        <a href="#signup" className="signup">
-                            Sign up
-                        </a>
-                    </div>
-                </div> */}
             </div>
         </div>
     )
