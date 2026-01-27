@@ -3,6 +3,84 @@ import '../styles/Dashboard.css';
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
+  const userRole = localStorage.userRole;
+
+  let statsContent;
+  if (userRole === 'Approver' || userRole === 'Deputy') {
+    statsContent = (
+      <>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">22</span>
+            <span className="stats-label"><Link to="/wpsi">WPSI</Link></span>
+          </div>
+        </div>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">2</span>
+            <span className="stats-label"><Link to="/wmsi">WMSI</Link></span>
+          </div>
+        </div>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">19</span>
+            <span className="stats-label"><Link to="/wlpi">WLPI</Link></span>
+          </div>
+        </div>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">9</span>
+            <span className="stats-label"><Link to="/cfii">CFII</Link></span>
+          </div>
+        </div>
+      </>
+    );
+  } else if (userRole === 'DAM WPSI') {
+    statsContent = (
+      <>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">22</span>
+            <span className="stats-label"><Link to="/wpsi">WPSI</Link></span>
+          </div>
+        </div>
+      </>
+    );
+  } else if (userRole === 'DAM WMSI') {
+    statsContent = (
+      <>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">2</span>
+            <span className="stats-label"><Link to="/wmsi">WMSI</Link></span>
+          </div>
+        </div>
+      </>
+    );
+  } else if (userRole === 'DAM WLPI') {
+    statsContent = (
+      <>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">22</span>
+            <span className="stats-label"><Link to="/wlpi">WLPI</Link></span>
+          </div>
+        </div>
+      </>
+    );
+  } else if (userRole === 'DAM CFII') {
+    statsContent = (
+      <>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">22</span>
+            <span className="stats-label"><Link to="/cfii">CFII</Link></span>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Sidebar />
@@ -29,35 +107,7 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
-        {/* Stats Card */}
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">22</span>
-            <span className="stats-label"><Link to="/wpsi">WPSI</Link></span>
-          </div>
-        </div>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">2</span>
-            <span className="stats-label"><Link to="/wmsi">WMSI</Link></span>
-          </div>
-        </div>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">19</span>
-            <span className="stats-label"><Link to="/wlpi">WLPI</Link></span>
-          </div>
-        </div>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">9</span>
-            <span className="stats-label"><Link to="/cfii">CFII</Link></span>
-          </div>
-        </div>
-
-        {/* Main Content Area */}
-          {/* Add more dashboard content here */}
+        {statsContent}
       </div>
     </>
   );
