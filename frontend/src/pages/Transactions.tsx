@@ -6,96 +6,112 @@ import { transactionsData, type Transaction } from '../dummy_data/transactionsDa
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
 const TransactionTable: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [categoryFilter, setCategoryFilter] = useState<string>('All');
     const [currencyFilter, setCurrencyFilter] = useState<string>('All');
     const [dateFilter, setDateFilter] = useState<string>('All');
-/*     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
- */    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-    const [editableTransaction, setEditableTransaction] = useState<Transaction | null>(null);
 
-/*     const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
- */    const [isClosing, setIsClosing] = useState<boolean>(false);
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 5;
 
-    const transactions = transactionsData;
+    // Transactions data
+    const [staticTransactions, setStaticTransactions] = useState<Transaction[]>([...transactionsData]);
 
-    // Get unique values for filters
-    const categories = useMemo(() => {
-        const uniqueCategories = Array.from(new Set(transactions.map(t => t.category)));
-        return uniqueCategories.sort();
+    // Edit modal states
+    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+    const [editableTransaction, setEditableTransaction] = useState<Transaction | null>(null);
+    const [isClosing, setIsClosing] = useState<boolean>(false);
+
+    // Add modal states
+    const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+    const [isAddModalClosing, setIsAddModalClosing] = useState<boolean>(false);
+
+    const [newTransaction, setNewTransaction] = useState<Partial<Transaction>>({
+        category: '',
+        date: '',
+        payee: '',
+        particulars: '',
+        vesselPrincipal: '',
+        etd: '',
+        currency: '',
+        amount: 0,
+        referenceErfp: '',
+        branchToIssueMc: '',
+        fundingAccount: '',
+        batch: '',
+        driveFileLink: '',
+        supportingDocs: '',
+    });
+
+    const transactions = staticTransactions;
+
+    useEffect(() => {
+        // Find the highest existing TRX number
+        const existingRefs = staticTransactions
+            .map(t => t.transactionRef)
+            .filter(ref => typeof ref === 'string' && ref.startsWith('TRX'));
+
+        if (existingRefs.length === 0) {
+            setNextTrxNumber(11);
+            return;
+        }
+
+        const numbers = existingRefs
+            .map(ref => {
+                const numStr = ref.replace('TRX', '');
+                const num = Number(numStr);
+                return isNaN(num) ? 0 : num;
+            })
+            .filter(n => n > 0);
+
+        if (numbers.length === 0) {
+            setNextTrxNumber(11);
+        } else {
+            const maxNum = Math.max(...numbers);
+            setNextTrxNumber(maxNum + 1);
+        }
     }, []);
+
+    // Unique filter values
+    const categories = useMemo(() => {
+        const unique = Array.from(new Set(transactions.map(t => t.category))).sort();
+        return unique;
+    }, [transactions]);
 
     const currencies = useMemo(() => {
-        const uniqueCurrencies = Array.from(new Set(transactions.map(t => t.currency)));
-        return uniqueCurrencies.sort();
-    }, []);
+        const unique = Array.from(new Set(transactions.map(t => t.currency))).sort();
+        return unique;
+    }, [transactions]);
 
-    const dates = useMemo(() => {
-        const uniqueDates = Array.from(new Set(transactions.map(t => t.date)));
-        return uniqueDates.sort();
-    }, []);
-
-    const handleAdd = () => {
-        toast.info("Add Transaction functionality to be implemented.");
-    };
-
-    // Filter transactions
+    // Filtered & paginated transactions
     const filteredTransactions = useMemo(() => {
-        return transactions.filter(transaction => {
-            // Search filter
+        return transactions.filter(t => {
             const matchesSearch = searchQuery === '' ||
-                Object.values(transaction).some(value =>
-                    String(value).toLowerCase().includes(searchQuery.toLowerCase())
-                );
+                Object.values(t).some(v => String(v).toLowerCase().includes(searchQuery.toLowerCase()));
 
-            // Category filter
-            const matchesCategory = categoryFilter === 'All' ||
-                transaction.category === categoryFilter;
-
-            // Currency filter
-            const matchesCurrency = currencyFilter === 'All' ||
-                transaction.currency === currencyFilter;
-
-            // Date filter (simplified - you can enhance this with date range)
-            const matchesDate = dateFilter === 'All' ||
-                transaction.date.includes(dateFilter);
+            const matchesCategory = categoryFilter === 'All' || t.category === categoryFilter;
+            const matchesCurrency = currencyFilter === 'All' || t.currency === currencyFilter;
+            const matchesDate = dateFilter === 'All' || t.date.includes(dateFilter);
 
             return matchesSearch && matchesCategory && matchesCurrency && matchesDate;
         });
-    }, [searchQuery, categoryFilter, currencyFilter, dateFilter]);
+    }, [transactions, searchQuery, categoryFilter, currencyFilter, dateFilter]);
 
-    // Pagination calculations
     const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredTransactions.length);
     const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
 
-    // Reset to page 1 when filters change
+    const [nextTrxNumber, setNextTrxNumber] = useState<number>(11);
+
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, categoryFilter, currencyFilter, dateFilter]);
 
-    /*     const openModal = (transaction: Transaction) => {
-            setSelectedTransaction(transaction);
-            setIsModalOpen(true);
-            setIsClosing(false);
-        };
-    
-        const closeModal = () => {
-            setIsClosing(true);
-            setTimeout(() => {
-                setIsModalOpen(false);
-                setSelectedTransaction(null);
-                setIsClosing(false);
-            }, 300);
-        }; */
-
+    // Modal Handlers
     const openEditModal = (transaction: Transaction) => {
-        setEditableTransaction({ ...transaction }); // clone for editing
+        setEditableTransaction({ ...transaction });
         setIsEditModalOpen(true);
         setIsClosing(false);
     };
@@ -104,45 +120,121 @@ const TransactionTable: React.FC = () => {
         setIsClosing(true);
         setTimeout(() => {
             setIsEditModalOpen(false);
+            setEditableTransaction(null);
             setIsClosing(false);
         }, 300);
     };
 
     const handleEditChange = (field: keyof Transaction, value: any) => {
         if (!editableTransaction) return;
-        setEditableTransaction({ ...editableTransaction, [field]: value });
+        setEditableTransaction(prev => ({ ...prev!, [field]: value }));
+    };
+
+    const saveEditedTransaction = () => {
+        if (!editableTransaction) return;
+
+        setStaticTransactions(prev =>
+            prev.map(t =>
+                t.transactionRef === editableTransaction.transactionRef ? { ...editableTransaction } : t
+            )
+        );
+
+        toast.success("Changes saved successfully!");
+        closeEditModal();
+    };
+
+    const handleAdd = () => {
+        setNewTransaction({
+            category: '',
+            date: '',
+            payee: '',
+            particulars: '',
+            vesselPrincipal: '',
+            etd: '',
+            currency: '',
+            amount: 0,
+            referenceErfp: '',
+            branchToIssueMc: '',
+            fundingAccount: '',
+            batch: '',
+            driveFileLink: '',
+            supportingDocs: '',
+        });
+        setIsAddModalOpen(true);
+        setIsAddModalClosing(false);
+    };
+
+    const closeAddModal = () => {
+        setIsAddModalClosing(true);
+        setTimeout(() => {
+            setIsAddModalOpen(false);
+            setIsAddModalClosing(false);
+        }, 300);
+    };
+
+    const handleAddChange = (field: keyof typeof newTransaction, value: any) => {
+        setNewTransaction(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleSaveNewTransaction = () => {
+        if (!newTransaction.payee || !newTransaction.date || newTransaction.amount == null || !newTransaction.currency) {
+            toast.error("Please fill required fields: Payee, Date, Amount, Currency");
+            return;
+        }
+
+        const paddedNumber = String(nextTrxNumber).padStart(3, '0'); // → 011, 012, ...
+        const newRef = `TRX${paddedNumber}`;
+
+
+        const transactionToAdd: Transaction = {
+            transactionRef: newRef,
+            ...newTransaction as Omit<Transaction, 'transactionRef'>,
+            amount: newTransaction.amount!,
+        };
+
+        setStaticTransactions(prev => [transactionToAdd, ...prev]);
+        setNextTrxNumber(prev => prev + 1);
+
+        toast.success("Transaction added successfully!");
+        closeAddModal();
     };
 
     const handlePageChange = (page: number) => {
+        if (page < 1 || page > totalPages) return;
         setCurrentPage(page);
-        // Scroll to top of table
-        const tableContainer = document.querySelector('.transactions-table-container');
-        if (tableContainer) {
-            tableContainer.scrollTop = 0;
-        }
+        const container = document.querySelector('.transactions-table-container');
+        if (container) container.scrollTop = 0;
     };
 
     return (
         <>
             <Sidebar />
+
             <main style={{ padding: 'min(30px, 7%)', width: '100%', overflowX: 'hidden' }}>
+                <ToastContainer position="top-center"
+                    autoClose={1500}
+                    theme="colored"
+                    limit={3}
+                    newestOnTop
+                    closeOnClick
+                    pauseOnHover={false} />
 
                 <div className="transactions-page-wrapper">
-                    {/* Title */}
+                    {/* Header */}
                     <div className="wpsi-section-header">
                         <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#1f2937', marginBottom: '1rem' }}>
                             Transactions
                         </h1>
                     </div>
 
-                    {/* Search and Filter Controls */}
+                    {/* Controls */}
                     <div className="wpsi-controls">
                         <div className="wpsi-search-container">
                             <input
                                 type="text"
                                 placeholder="Search transactions..."
                                 value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onChange={e => setSearchQuery(e.target.value)}
                                 className="wpsi-search-input"
                                 style={{ paddingLeft: '2.5rem', maxWidth: '500px' }}
                             />
@@ -161,50 +253,29 @@ const TransactionTable: React.FC = () => {
                         </div>
 
                         <div className="wpsi-add-button-container">
-                            <button onClick={handleAdd} className="wpsi-add-button"> + Add </button>
+                            <button onClick={handleAdd} className="wpsi-add-button">+ Add</button>
                         </div>
 
                         <div className="wpsi-dropdown-container">
-                            <select
-                                value={categoryFilter}
-                                onChange={(e) => setCategoryFilter(e.target.value)}
-                                className="wpsi-dropdown"
-                            >
-                                <option value="All">All Categories</option>
-                                {categories.map(category => (
-                                    <option key={category} value={category}>{category}</option>
+                            <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="wpsi-dropdown">
+                                <option value="All">Categories</option>
+                                {categories.map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
                                 ))}
                             </select>
                         </div>
 
                         <div className="wpsi-dropdown-container">
-                            <select
-                                value={currencyFilter}
-                                onChange={(e) => setCurrencyFilter(e.target.value)}
-                                className="wpsi-dropdown"
-                            >
-                                <option value="All">All Currencies</option>
-                                {currencies.map(currency => (
-                                    <option key={currency} value={currency}>{currency}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="wpsi-dropdown-container">
-                            <select
-                                value={dateFilter}
-                                onChange={(e) => setDateFilter(e.target.value)}
-                                className="wpsi-dropdown"
-                            >
-                                <option value="All">All Dates</option>
-                                {dates.map(date => (
-                                    <option key={date} value={date}>{date}</option>
+                            <select value={currencyFilter} onChange={e => setCurrencyFilter(e.target.value)} className="wpsi-dropdown">
+                                <option value="All">Currencies</option>
+                                {currencies.map(cur => (
+                                    <option key={cur} value={cur}>{cur}</option>
                                 ))}
                             </select>
                         </div>
                     </div>
 
-                    {/* Table Container */}
+                    {/* Table */}
                     <div className="transactions-table-container">
                         <table className="transactions-table table">
                             <colgroup>
@@ -224,17 +295,19 @@ const TransactionTable: React.FC = () => {
                                 </tr>
                             </thead>
                             <tbody className="odd:bg-gray-50 even:bg-white">
-                                {filteredTransactions.length === 0 ? (
+                                {paginatedTransactions.length === 0 ? (
                                     <tr>
                                         <td colSpan={5} className="transactions-table-empty">
-                                            {searchQuery || categoryFilter !== 'All' || currencyFilter !== 'All' || dateFilter !== 'All'
-                                                ? 'No transactions found matching your filters'
-                                                : 'No transactions found'}
+                                            No transactions found
                                         </td>
                                     </tr>
                                 ) : (
-                                    paginatedTransactions.map((transaction) => (
-                                        <tr key={transaction.transactionRef} onClick={() => openEditModal(transaction)} className="transaction-edit-button">
+                                    paginatedTransactions.map(transaction => (
+                                        <tr
+                                            key={transaction.transactionRef}
+                                            onClick={() => openEditModal(transaction)}
+                                            className="cursor-pointer hover:bg-gray-50 transition-colors"
+                                        >
                                             <td>{transaction.transactionRef}</td>
                                             <td>
                                                 <div style={{ fontWeight: 500 }}>{transaction.payee}</div>
@@ -244,8 +317,10 @@ const TransactionTable: React.FC = () => {
                                             </td>
                                             <td>{transaction.vesselPrincipal}</td>
                                             <td>{transaction.date}</td>
-                                            <td>{new Intl.NumberFormat('en-US', { style: 'currency', currency: transaction.currency }).format(transaction.amount)}</td>
-
+                                            <td>
+                                                {new Intl.NumberFormat('en-US', { style: 'currency', currency: transaction.currency || 'USD' })
+                                                    .format(transaction.amount || 0)}
+                                            </td>
                                         </tr>
                                     ))
                                 )}
@@ -253,7 +328,7 @@ const TransactionTable: React.FC = () => {
                         </table>
                     </div>
 
-                    {/* Pagination Controls */}
+                    {/* Pagination */}
                     {filteredTransactions.length > 0 && totalPages > 1 && (
                         <div className="transactions-pagination">
                             <button
@@ -265,8 +340,7 @@ const TransactionTable: React.FC = () => {
                             </button>
 
                             <div className="pagination-page-numbers">
-                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                                    // Show first page, last page, current page, and pages around current
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
                                     if (
                                         page === 1 ||
                                         page === totalPages ||
@@ -281,7 +355,8 @@ const TransactionTable: React.FC = () => {
                                                 {page}
                                             </button>
                                         );
-                                    } else if (page === currentPage - 2 || page === currentPage + 2) {
+                                    }
+                                    if (page === currentPage - 2 || page === currentPage + 2) {
                                         return <span key={page} className="pagination-ellipsis">...</span>;
                                     }
                                     return null;
@@ -298,291 +373,402 @@ const TransactionTable: React.FC = () => {
                         </div>
                     )}
 
-                    {/* Pagination Info */}
                     {filteredTransactions.length > 0 && (
                         <div className="pagination-info">
-                            Showing {startIndex + 1} to {Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length} transactions
+                            Showing {startIndex + 1} to {endIndex} of {filteredTransactions.length} transactions
                         </div>
                     )}
                 </div>
+
+                {/* Edit Modal */}
+                {isEditModalOpen && editableTransaction && (
+                    <>
+                        <div className={`transaction-modal-backdrop ${isClosing ? 'closing' : ''}`} onClick={closeEditModal} />
+                        <div className={`transaction-detail-modal ${isClosing ? 'closing' : ''}`} onClick={e => e.stopPropagation()}>
+                            <div className="transaction-modal-header">
+                                <span className="transaction-modal-title">Edit Transaction</span>
+                                <button className="transaction-modal-close" onClick={closeEditModal}>
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="transaction-modal-content">
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1rem' }}>
+                                    <span className="transaction-modal-detail-label" style={{ textAlign: 'center' }}>
+                                        Transaction Ref
+                                    </span>
+                                    <h2 className="transaction-modal-ref-title" style={{ textAlign: 'center', margin: 0 }}>
+                                        {editableTransaction.transactionRef}
+                                    </h2>
+                                </div>
+
+                                <div className="transaction-modal-details">
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Category</span>
+                                        <select
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.category}
+                                            onChange={e => handleEditChange('category', e.target.value)}
+                                        >
+                                            {categories.map(cat => (
+                                                <option key={cat} value={cat}>{cat}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Date</span>
+                                        <input
+                                            type="date"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.date}
+                                            onChange={e => handleEditChange('date', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Payee</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.payee}
+                                            onChange={e => handleEditChange('payee', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Particulars</span>
+                                        <textarea
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.particulars}
+                                            onChange={e => handleEditChange('particulars', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Vessel / Principal</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.vesselPrincipal}
+                                            onChange={e => handleEditChange('vesselPrincipal', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">ETD</span>
+                                        <input
+                                            type="date"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.etd}
+                                            onChange={e => handleEditChange('etd', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Currency</span>
+                                        <select
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.currency}
+                                            onChange={e => handleEditChange('currency', e.target.value)}
+                                        >
+                                            {currencies.map(cur => (
+                                                <option key={cur} value={cur}>{cur}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Amount</span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.amount.toFixed(2)}
+                                            onChange={e => handleEditChange('amount', Number(e.target.value))}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Reference / eRFP</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.referenceErfp}
+                                            onChange={e => handleEditChange('referenceErfp', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Branch to Issue MC</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.branchToIssueMc}
+                                            onChange={e => handleEditChange('branchToIssueMc', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Funding Account</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.fundingAccount}
+                                            onChange={e => handleEditChange('fundingAccount', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Batch</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.batch}
+                                            onChange={e => handleEditChange('batch', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Drive File Link</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.driveFileLink}
+                                            onChange={e => handleEditChange('driveFileLink', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Supporting Docs</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={editableTransaction.supportingDocs}
+                                            onChange={e => handleEditChange('supportingDocs', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                                    <button onClick={closeEditModal} className="transaction-edit-cancel-button">
+                                        Cancel
+                                    </button>
+                                    <button onClick={saveEditedTransaction} className="transaction-edit-save-button">
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
+
+                {/* Add Modal */}
+                {isAddModalOpen && (
+                    <>
+                        <div
+                            className={`transaction-modal-backdrop ${isAddModalClosing ? 'closing' : ''}`}
+                            onClick={closeAddModal}
+                        />
+                        <div
+                            className={`transaction-detail-modal ${isAddModalClosing ? 'closing' : ''}`}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="transaction-modal-header">
+                                <span className="transaction-modal-title">Add New Transaction</span>
+                                <button className="transaction-modal-close" onClick={closeAddModal}>
+                                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="transaction-modal-content">
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1rem' }}>
+                                    <span className="transaction-modal-detail-label" style={{ textAlign: 'center' }}>
+                                        Transaction Ref
+                                    </span>
+                                    <h2 className="transaction-modal-ref-title" style={{ textAlign: 'center', margin: 0 }}>
+                                        TRX{String(nextTrxNumber).padStart(3, '0')}
+                                    </h2>
+                                </div>
+
+                                <div className="transaction-modal-details">
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Category</span>
+                                        <select
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.category || ''}
+                                            onChange={e => handleAddChange('category', e.target.value)}
+                                        >
+                                            <option value="">Select Category</option>
+                                            {categories.map(cat => (
+                                                <option key={cat} value={cat}>{cat}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Date</span>
+                                        <input
+                                            type="date"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.date || ''}
+                                            onChange={e => handleAddChange('date', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Payee</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.payee || ''}
+                                            onChange={e => handleAddChange('payee', e.target.value)}
+                                            placeholder="Enter payee name"
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Particulars</span>
+                                        <textarea
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.particulars || ''}
+                                            onChange={e => handleAddChange('particulars', e.target.value)}
+                                            placeholder="Enter transaction details..."
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Vessel / Principal</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.vesselPrincipal || ''}
+                                            onChange={e => handleAddChange('vesselPrincipal', e.target.value)}
+                                            placeholder="Enter vessel or principal"
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">ETD</span>
+                                        <input
+                                            type="date"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.etd || ''}
+                                            onChange={e => handleAddChange('etd', e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Currency</span>
+                                        <select
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.currency || ''}
+                                            onChange={e => handleAddChange('currency', e.target.value)}
+                                        >
+                                            <option value="">Select Currency</option>
+                                            {currencies.map(cur => (
+                                                <option key={cur} value={cur}>{cur}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Amount</span>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.amount ?? ''}
+                                            onChange={e => handleAddChange('amount', e.target.value ? Number(e.target.value) : null)}
+                                            placeholder="0.00"
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Reference / eRFP</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.referenceErfp || ''}
+                                            onChange={e => handleAddChange('referenceErfp', e.target.value)}
+                                            placeholder="Enter reference or eRFP"
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Branch to Issue MC</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.branchToIssueMc || ''}
+                                            onChange={e => handleAddChange('branchToIssueMc', e.target.value)}
+                                            placeholder="Enter branch"
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Funding Account</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.fundingAccount || ''}
+                                            onChange={e => handleAddChange('fundingAccount', e.target.value)}
+                                            placeholder="Enter funding account"
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Batch</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.batch || ''}
+                                            onChange={e => handleAddChange('batch', e.target.value)}
+                                            placeholder="Enter batch number"
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Drive File Link</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.driveFileLink || ''}
+                                            onChange={e => handleAddChange('driveFileLink', e.target.value)}
+                                            placeholder="https://drive.google.com/..."
+                                        />
+                                    </div>
+
+                                    <div className="transaction-modal-detail-row">
+                                        <span className="transaction-modal-detail-label">Supporting Docs</span>
+                                        <input
+                                            type="text"
+                                            className="transaction-modal-detail-value"
+                                            value={newTransaction.supportingDocs || ''}
+                                            onChange={e => handleAddChange('supportingDocs', e.target.value)}
+                                            placeholder="List supporting documents"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                                    <button onClick={closeAddModal} className="transaction-edit-cancel-button">
+                                        Cancel
+                                    </button>
+                                    <button onClick={handleSaveNewTransaction} className="transaction-edit-save-button">
+                                        Add Transaction
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                )}
             </main>
-            <ToastContainer position="top-center" autoClose={1500} theme="colored" />
-
-            {/* Transaction Edit Modal */}
-            {isEditModalOpen && editableTransaction && (
-                <>
-
-                    <div className={`transaction-modal-backdrop ${isClosing ? 'closing' : ''}`} onClick={closeEditModal}></div>
-                    <div className={`transaction-detail-modal ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
-                        <div className="transaction-modal-header">
-                            <span className="transaction-modal-title">Edit Transaction</span>
-                            <button className="transaction-modal-close" onClick={closeEditModal}>
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div className="transaction-modal-content">
-                            <h2 className="transaction-modal-ref-title">
-                                <input
-                                    type="text"
-                                    value={editableTransaction.transactionRef}
-                                    onChange={e => handleEditChange('transactionRef', e.target.value)}
-                                    style={{ width: '100%' }}
-                                />
-                            </h2>
-                            <div className="transaction-modal-details">
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Category</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.category}
-                                        onChange={e => handleEditChange('category', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Transaction Ref</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.transactionRef}
-                                        onChange={e => handleEditChange('transactionRef', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Date</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.date}
-                                        onChange={e => handleEditChange('date', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Payee</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.payee}
-                                        onChange={e => handleEditChange('payee', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Particulars</span>
-                                    <textarea
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.particulars}
-                                        onChange={e => handleEditChange('particulars', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Vessel / Principal</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.vesselPrincipal}
-                                        onChange={e => handleEditChange('vesselPrincipal', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">ETD</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.etd}
-                                        onChange={e => handleEditChange('etd', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Currency</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.currency}
-                                        onChange={e => handleEditChange('currency', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Amount</span>
-                                    <input
-                                        type="number"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.amount}
-                                        onChange={e => handleEditChange('amount', Number(e.target.value))}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Reference / eRFP</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.referenceErfp}
-                                        onChange={e => handleEditChange('referenceErfp', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Branch to Issue MC</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.branchToIssueMc}
-                                        onChange={e => handleEditChange('branchToIssueMc', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Funding Account</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.fundingAccount}
-                                        onChange={e => handleEditChange('fundingAccount', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Batch</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.batch}
-                                        onChange={e => handleEditChange('batch', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Drive File Link</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.driveFileLink}
-                                        onChange={e => handleEditChange('driveFileLink', e.target.value)}
-                                    />
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Supporting Docs</span>
-                                    <input
-                                        type="text"
-                                        className="transaction-modal-detail-value"
-                                        value={editableTransaction.supportingDocs}
-                                        onChange={e => handleEditChange('supportingDocs', e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                                <button
-                                    onClick={closeEditModal}
-                                    className="transaction-edit-cancel-button"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        toast.success("Edit Saved successfully!");
-                                        closeEditModal();
-                                    }}
-                                    className="transaction-edit-save-button"
-                                >
-                                    Save Changes
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </>
-            )}
-
-            {/* Transaction Detail Modal */}
-            {/*             {isModalOpen && selectedTransaction && (
-                <>
-                    <div className={`transaction-modal-backdrop ${isClosing ? 'closing' : ''}`} onClick={closeModal}></div>
-                    <div className={`transaction-detail-modal ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
-                        <div className="transaction-modal-header">
-                            <span className="transaction-modal-title">Transaction Details</span>
-                            <button className="transaction-modal-close" onClick={closeModal}>
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div className="transaction-modal-content">
-                            <h2 className="transaction-modal-ref-title">{selectedTransaction.transactionRef}</h2>
-
-                            <div className="transaction-modal-details">
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Category</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.category}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Transaction Ref</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.transactionRef}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Date</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.date}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Payee</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.payee}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Particulars</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.particulars}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Vessel / Principal</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.vesselPrincipal}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">ETD</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.etd}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Currency</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.currency}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Amount</span>
-                                    <span className="transaction-modal-detail-value">
-                                        {new Intl.NumberFormat('en-US', { style: 'currency', currency: selectedTransaction.currency }).format(selectedTransaction.amount)}
-                                    </span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Reference / eRFP</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.referenceErfp}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Branch to Issue MC</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.branchToIssueMc}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Funding Account</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.fundingAccount}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Batch</span>
-                                    <span className="transaction-modal-detail-value">{selectedTransaction.batch}</span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Drive File Link</span>
-                                    <span className="transaction-modal-detail-value">
-                                        <a href={selectedTransaction.driveFileLink} target="_blank" rel="noreferrer" className="transaction-modal-link">
-                                            {selectedTransaction.driveFileLink}
-                                        </a>
-                                    </span>
-                                </div>
-                                <div className="transaction-modal-detail-row">
-                                    <span className="transaction-modal-detail-label">Supporting Docs</span>
-                                    <span className="transaction-modal-detail-value">
-                                        <a href={selectedTransaction.supportingDocs} target="_blank" rel="noreferrer" className="transaction-modal-link">
-                                            {selectedTransaction.supportingDocs}
-                                        </a>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </>
-            )} */}
         </>
-
     );
 };
 

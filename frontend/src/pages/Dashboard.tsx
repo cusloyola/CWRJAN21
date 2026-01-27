@@ -24,7 +24,7 @@ const Dashboard = () => {
               {/* User Info */}
               <div>
                 <h2 className="profile-name">Juan Dela Cruz</h2>
-                <p className="profile-role">Approver</p>
+                <p className="profile-role">{localStorage.userRole}</p>
               </div>
             </div>
           </div>

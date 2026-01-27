@@ -5,7 +5,6 @@ import '../styles/ActivityLog.css';
 import { transactionsData, type Transaction } from '../dummy_data/transactionsData';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import AddTransactionForm from './AddTransactionForm';
 
 
 const ArchivesTable: React.FC = () => {
@@ -63,24 +62,7 @@ const ArchivesTable: React.FC = () => {
     const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
 
     const handleAdd = () => {
-        setNewTransaction({
-            transactionRef: '',
-            category: '',
-            date: '',
-            payee: '',
-            particulars: '',
-            vesselPrincipal: '',
-            etd: '',
-            currency: '',
-            amount: 0,
-            referenceErfp: '',
-            branchToIssueMc: '',
-            fundingAccount: '',
-            batch: '',
-            driveFileLink: '',
-            supportingDocs: ''
-        });
-        setIsAddModalOpen(true);
+        toast.info("Add Transaction feature is coming soon!");
         setIsClosing(false);
     };
 
@@ -296,20 +278,6 @@ const ArchivesTable: React.FC = () => {
                 </div>
             </main >
             <ToastContainer position="top-center" autoClose={1500} theme="colored" />
-            {
-                <AddTransactionForm
-                    isOpen={isAddModalOpen}
-                    isClosing={isClosing}
-                    transaction={newTransaction}
-                    onChange={handleNewChange}
-                    onCancel={closeAddModal}
-                    onSave={() => {
-                        toast.success("Transaction added successfully!");
-                        closeAddModal();
-                        // Logic to actually add the transaction would go here
-                    }}
-                />
-            }
             {
                 isEditModalOpen && editableTransaction && (
                     <>
