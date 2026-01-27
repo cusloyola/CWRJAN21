@@ -10,7 +10,7 @@ const TransactionTable: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [categoryFilter, setCategoryFilter] = useState<string>('All');
     const [currencyFilter, setCurrencyFilter] = useState<string>('All');
-    const [dateFilter, setDateFilter] = useState<string>('All');
+    const [dateFilter] = useState<string>('All');
 
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 5;
