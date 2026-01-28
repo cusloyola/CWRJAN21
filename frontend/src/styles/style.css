@@ -600,24 +600,30 @@ main p {
     }
   }
 
+  /* ── More submenu – now matches the same timing & easing ── */
   #sidebar ul .mobile-more-submenu {
     position: fixed;
-    bottom: 64px;
-    left: 0;
-    right: 0;
-    background-color: var(--base-clr);
-    backdrop-filter: blur(10px);
-    z-index: 999;
-    display: none;
+    inset: auto 0 64px 0;
+    /* bottom:64px; left/right:0 */
+    width: 100%;
     max-height: calc(100vh - 120px);
     overflow-y: auto;
-    width: 100%;
-    padding: 4px 0 12px 0;
-    margin: 0;
-    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+    background: var(--base-clr);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.14);
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-top: 1px solid rgba(0, 0, 0, 0.07);
+    z-index: 999;
+
+    /* Match main content transition style */
+    opacity: 0;
+    transform: scale(0.982) translateY(6px);
+    transition:
+      opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+      transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    display: none;
   }
 
   #sidebar ul .mobile-more-submenu::before {
@@ -631,28 +637,14 @@ main p {
     opacity: 0.4;
   }
 
-  @keyframes slideUp {
-    from {
-      transform: translateY(100%);
-      opacity: 0;
-    }
-
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+  .mobile-menu-backdrop {
+    transition: opacity 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
   }
 
-  @keyframes slideDown {
-    from {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    to {
-      transform: translateY(100%);
-      opacity: 0;
-    }
+  .mobile-menu-backdrop.visible {
+    /* or .show — match your JS class */
+    opacity: 1;
   }
 
   #sidebar ul .mobile-more-submenu>div {
@@ -661,9 +653,8 @@ main p {
 
   #sidebar ul .mobile-more-submenu.show {
     display: block;
-    animation: slideUp 0.3s cubic-bezier(0.32, 0.72, 0, 1) forwards;
-    /*     background-color: #fbfafa;
- */
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 
   #sidebar ul .mobile-more-submenu li {
@@ -960,3 +951,58 @@ main p {
     padding: 0.5rem 2.25rem 0.5rem 0.75rem;
   }
 }
+
+@media (max-width: 767px) {
+  /* Force :active to be very brief on touch devices */
+  #sidebar ul li.mobile-more-menu .more-btn:active,
+  #sidebar ul li.mobile-more-menu button:active {
+    background-color: var(--hover-clr);
+    transition: background-color 0.08s ease-out;   /* very quick fade-out */
+  }
+
+  /* Immediately neutralize after release */
+  #sidebar ul li.mobile-more-menu .more-btn:not(:active),
+  #sidebar ul li.mobile-more-menu button:not(:active) {
+    background-color: transparent !important;
+  }
+
+  /* Prevent blue from sticking due to focus */
+  #sidebar ul li.mobile-more-menu .more-btn:focus-visible,
+  #sidebar ul li.mobile-more-menu button:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  /* If your blue comes from rgba(94,99,255,0.15) — override aggressively when not intended */
+  #sidebar ul li.mobile-more-menu:not(.active) .more-btn,
+  #sidebar ul li.mobile-more-menu:not(.active) button {
+    background-color: transparent !important;
+    color: var(--text-clr) !important;
+  }
+
+  #sidebar ul li.mobile-more-menu:not(.active) .more-btn svg,
+  #sidebar ul li.mobile-more-menu:not(.active) button svg {
+    fill: var(--text-clr) !important;
+  }
+
+  /* Remove the bottom bar indicator when More is NOT open */
+  #sidebar ul li.mobile-more-menu .more-btn::after,
+  #sidebar ul li.mobile-more-menu button::after {
+    display: none !important;
+  }
+
+  /* Only show indicator when submenu is actually open */
+  #sidebar ul li.mobile-more-menu.active .more-btn::after,
+  #sidebar ul li.mobile-more-menu.active button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 3px;
+    background-color: var(--accent-clr);
+    border-radius: 0 0 3px 3px;
+  }
+}
+

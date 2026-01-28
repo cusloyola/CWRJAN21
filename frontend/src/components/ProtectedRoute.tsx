@@ -54,6 +54,7 @@ const DEFAULT_REDIRECTS: Record<string, string> = {
 function ProtectedRoute({ children }: ProtectedRouteProps) {
     const authToken = localStorage.getItem('authToken');
     const userRole = localStorage.getItem('userRole') || '';
+    console.log('Logged in Role:', userRole);
     const location = useLocation();
 
     // 1. Authentication Check
