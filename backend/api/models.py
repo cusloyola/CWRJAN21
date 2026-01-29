@@ -1,3 +1,7 @@
-from django.db import models
+# import uuid
+# import os
+# from django.db import models
+# from django.contrib.auth.hashers import make_password,check_password
+# from django.core.exceptions import ValidationError
 
-# Create your models here.
+# class USer(models.Model):
