@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import check_password
 from .models import (
     Company, 
     UserCompany,
@@ -15,10 +16,16 @@ class EmailTokenSerializer(serializers.Serializer):
         email = attrs.get("email")
         password = attrs.get("password")
 
-        user = authenticate(
-            username=email,
-            password=password
-        )
+        if not email or not password:
+            raise serializers.ValidationError("Email and password are required")
+
+        # --- Authenticate using email ---
+        try:
+            user = User.objects.get(email=email)
+            if not check_password(password, user.password):
+                user = None
+        except User.DoesNotExist:
+            user = None
 
         if not user:
             raise serializers.ValidationError("Invalid email or password")
@@ -26,23 +33,22 @@ class EmailTokenSerializer(serializers.Serializer):
         if not user.is_active:
             raise serializers.ValidationError("User account is disabled")
 
+        # --- JWT tokens ---
         refresh = RefreshToken.for_user(user)
 
-        # ---- Role ----
+        # --- Role ---
         role_code = None
         role_name = None
         if hasattr(user, "userrole"):
             role_code = user.userrole.role
             role_name = user.userrole.get_role_display()
 
-        # ---- Companies ----
+        # --- Companies ---
         if role_code in ["APR", "DEP"]:
             companies_qs = Company.objects.all()
         else:
             companies_qs = Company.objects.filter(
-                id__in=UserCompany.objects.filter(
-                    user=user
-                ).values_list("company_id", flat=True)
+                id__in=UserCompany.objects.filter(user=user).values_list("company_id", flat=True)
             )
 
         companies = [
