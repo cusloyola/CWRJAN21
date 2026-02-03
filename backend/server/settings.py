@@ -10,17 +10,12 @@ from datetime import timedelta
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / ".env")
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY') 
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False").lower() in ("true", "1", "yes")
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
-
 
 # Application definition
 
@@ -55,7 +50,20 @@ MIDDLEWARE = [
 # Allow the frontend to access the backend API
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://localhost",
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True  # dev only
+
+CORS_ALLOW_HEADERS = [
+    'authorization',
+    'content-type',
+    'accept',
+    'origin',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
 
 ROOT_URLCONF = 'server.urls'
 
@@ -78,7 +86,6 @@ WSGI_APPLICATION = 'server.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -93,7 +100,6 @@ DATABASES = {
 
 
 # Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -128,11 +134,25 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
-
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+# AUTH_USER_MODEL = 'api.User'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

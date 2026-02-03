@@ -1,0 +1,37 @@
+# ======================
+# Python
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.env/
+.venv/
+venv/
+ENV/
+env/
+pip-wheel-metadata/
+
+# ======================
+# Django
+# ======================
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+api/migrations/
+# Migrations (optional – keep if you want versioned migrations)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+
+# ======================
+# OS / Editor
+# ======================
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

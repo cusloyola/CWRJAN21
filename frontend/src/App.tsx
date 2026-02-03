@@ -45,7 +45,7 @@ function App() {
         <Route path="/archives" element={<ProtectedRoute><ArchivesTable /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      <ToastContainer />
+      <ToastContainer position="top-center" theme="colored" limit={3} newestOnTop closeOnClick pauseOnHover={false} />
     </div>
   )
 }
