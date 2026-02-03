@@ -61,8 +61,8 @@
     z-index: 1;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
-    word-wrap: break-word;
+    white-space: normal;
+    word-break: break-word;
 }
 
 /* --- Rows --- */
@@ -230,7 +230,7 @@
 
     .transactions-table th,
     .transactions-table td {
-        padding: 0.4rem 0.2rem;
+        padding: 0.4rem 0.4rem;
         font-size: 0.7rem;
     }
 }
@@ -643,5 +643,18 @@
         padding: 0.35rem 0.5rem;
         font-size: 0.75rem;
         min-width: 28px;
+    }
+}
+
+.wpsi-section-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+@media (max-width: 640px) {
+    .wpsi-section-header h1 {
+        font-size: 1.25rem;
+        text-align: center;
     }
 }

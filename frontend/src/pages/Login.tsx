@@ -3,7 +3,7 @@ import type { FormEvent, ChangeEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import '../styles/Login.css';
 import logo from '../assets/wallemrectangle.png';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Static users for demo purposes
@@ -138,15 +138,17 @@ function Login() {
                     u => u.email === formData.email && u.password === formData.password
                 );
                 if (user) {
-                    console.log(`Login attempt with email: ${user.email}`);
                     // AuthToken placed in localStorage for demo purposes
                     localStorage.setItem('authToken', 'demo-token-' + Date.now());
                     localStorage.setItem('userEmail', user.email);
                     localStorage.setItem('userRole', user.role);
 
-                    toast.success("Login successful! Redirecting...");
+                    const toastId = toast.success("Login successful! Redirecting...");
 
-                    setTimeout(() => navigate('/dashboard'), 1000);
+                    setTimeout(() => {
+                        toast.dismiss(toastId); // Dismiss the toast before navigating
+                        navigate('/dashboard');
+                    }, 1000);
                 } else {
                     toast.error("Invalid email or password");
                     setIsLoading(false);
@@ -155,7 +157,6 @@ function Login() {
                 toast.error("An unexpected error occurred");
                 setIsLoading(false);
             }
-            console.log(localStorage.getItem('userRole'))
         }, 1000);
     };
 
@@ -168,7 +169,6 @@ function Login() {
                     </h1>
                     <p>Sign in to your account</p>
                 </div>
-                <ToastContainer position="top-center" autoClose={1500} theme="colored" />
                 <form onSubmit={handleSubmit} className="login-form" noValidate>
                     {infoMessage && (
                         <div className="info-message" style={{

@@ -1,19 +1,18 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
-import '../styles/ActivityLog.css';
 import { transactionsData, type Transaction } from '../dummy_data/transactionsData';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const ArchivesTable: React.FC = () => {
+const Archives: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [categoryFilter, setCategoryFilter] = useState<string>('All');
     const [currencyFilter, setCurrencyFilter] = useState<string>('All');
     const [dateFilter] = useState<string>('All');
 
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const itemsPerPage = 5;
+    const itemsPerPage = 6;
 
     // Transactions data
     const [staticTransactions, setStaticTransactions] = useState<Transaction[]>([...transactionsData]);
@@ -104,6 +103,18 @@ const ArchivesTable: React.FC = () => {
     const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
 
     const [nextTrxNumber, setNextTrxNumber] = useState<number>(11);
+
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
+    const [isVerySmall, setIsVerySmall] = useState(window.innerWidth <= 390);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 640);
+            setIsVerySmall(window.innerWidth <= 390);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -211,18 +222,11 @@ const ArchivesTable: React.FC = () => {
             <Sidebar />
 
             <main style={{ padding: 'min(30px, 7%)', width: '100%', overflowX: 'hidden' }}>
-                <ToastContainer position="top-center"
-                    autoClose={1500}
-                    theme="colored"
-                    limit={3}
-                    newestOnTop
-                    closeOnClick
-                    pauseOnHover={false} />
 
                 <div className="transactions-page-wrapper">
                     {/* Header */}
                     <div className="wpsi-section-header">
-                        <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#1f2937', marginBottom: '1rem' }}>
+                        <h1 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#1f2937'}}>
                             Archives
                         </h1>
                     </div>
@@ -232,7 +236,7 @@ const ArchivesTable: React.FC = () => {
                         <div className="wpsi-search-container">
                             <input
                                 type="text"
-                                placeholder="Search archives..."
+                                placeholder="Search transactions..."
                                 value={searchQuery}
                                 onChange={e => setSearchQuery(e.target.value)}
                                 className="wpsi-search-input"
@@ -280,24 +284,26 @@ const ArchivesTable: React.FC = () => {
                         <table className="transactions-table table">
                             <colgroup>
                                 <col style={{ width: '17%' }} />
-                                <col style={{ width: '28%' }} />
-                                <col style={{ width: '15%' }} />
-                                <col style={{ width: '20%' }} />
+                                <col style={{ width: isMobile ? '38%' : '28%' }} />
+                                {!isMobile && <col style={{ width: '15%' }} />}
+                                {!isVerySmall && <col style={{ width: '20%' }} />}
                                 <col style={{ width: '20%' }} />
                             </colgroup>
                             <thead>
                                 <tr>
-                                    <th>Transaction Ref</th>
+                                    <th>Archive Ref</th>
                                     <th>Payee / Particulars</th>
-                                    <th>Vessel</th>
-                                    <th>Date</th>
+                                    {!isMobile && <th>Vessel</th>}
+                                    {!isVerySmall && <th>Date</th>}
                                     <th>Amount</th>
                                 </tr>
                             </thead>
                             <tbody className="odd:bg-gray-50 even:bg-white">
                                 {paginatedTransactions.length === 0 ? (
                                     <tr>
-                                        <td colSpan={5} className="transactions-table-empty">
+                                        <td colSpan={
+                                            isVerySmall ? 3 : isMobile ? 4 : 5
+                                        } className="transactions-table-empty">
                                             No transactions found
                                         </td>
                                     </tr>
@@ -315,8 +321,8 @@ const ArchivesTable: React.FC = () => {
                                                     {transaction.particulars}
                                                 </div>
                                             </td>
-                                            <td>{transaction.vesselPrincipal}</td>
-                                            <td>{transaction.date}</td>
+                                            {!isMobile && <td>{transaction.vesselPrincipal}</td>}
+                                            {!isVerySmall && <td>{transaction.date}</td>}
                                             <td>
                                                 {new Intl.NumberFormat('en-US', { style: 'currency', currency: transaction.currency || 'USD' })
                                                     .format(transaction.amount || 0)}
@@ -483,11 +489,33 @@ const ArchivesTable: React.FC = () => {
                                     <div className="transaction-modal-detail-row">
                                         <span className="transaction-modal-detail-label">Amount</span>
                                         <input
-                                            type="number"
-                                            step="0.01"
+                                            type="text"
+                                            inputMode="decimal"
+                                            pattern="^\\d*(\\.\\d{0,2})?$"
                                             className="transaction-modal-detail-value"
-                                            value={editableTransaction.amount.toFixed(2)}
-                                            onChange={e => handleEditChange('amount', Number(e.target.value))}
+                                            value={
+                                                editableTransaction.amount === null || editableTransaction.amount === undefined
+                                                    ? ''
+                                                    : (typeof editableTransaction.amount === 'string'
+                                                        ? editableTransaction.amount
+                                                        : Number(editableTransaction.amount).toFixed(2))
+                                            }
+                                            onChange={e => {
+                                                // Allow only digits and dot, and allow empty string for backspace
+                                                let val = e.target.value.replace(/[^\d.]/g, '');
+                                                val = val.replace(/(\..*)\./g, '$1');
+                                                handleEditChange('amount', val);
+                                            }}
+                                            onBlur={e => {
+                                                let val = e.target.value;
+                                                if (val !== '' && !isNaN(Number(val))) {
+                                                    handleEditChange('amount', Number(val).toFixed(2));
+                                                } else if (val === '') {
+                                                    handleEditChange('amount', '');
+                                                }
+                                            }}
+                                            style={{ MozAppearance: 'textfield' }}
+                                            onWheel={e => e.currentTarget.blur()}
                                         />
                                     </div>
 
@@ -772,4 +800,4 @@ const ArchivesTable: React.FC = () => {
     );
 };
 
-export default ArchivesTable;
+export default Archives;
