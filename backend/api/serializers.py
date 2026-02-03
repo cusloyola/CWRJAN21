@@ -75,16 +75,3 @@ class EmailTokenSerializer(serializers.Serializer):
             }
         }
 
-# class CompanySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Company
-#         fields = ['id','company_code','company_name',
-#         ]
-
-# class UserRoleSerializer(serializers.ModelSerializer):
-#     email = serializers.EmailField(source='user.email', read_only=True)
-#     username = serializers.CharField(source='user.username', read_only=True)
-
-#     class Meta:
-#         model = UserRole
-#         fields = ['id', 'email', 'username', 'role']
