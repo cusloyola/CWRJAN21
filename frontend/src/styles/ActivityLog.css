@@ -19,6 +19,7 @@
   /* Space between search and filter */
   margin-bottom: 0.5rem;
   width: 100%;
+  flex-wrap: wrap;
 }
 
 /* Search Input Styling */
@@ -280,11 +281,8 @@ select,
 @media (max-width: 640px) {
   .wpsi-controls {
     flex-direction: column;
-    /* Stack vertically */
     align-items: stretch;
-    /* Stretch inputs to full width */
-    gap: 10px;
-    /* Smaller gap for mobile */
+    gap: 0.75rem;
   }
 
   .wpsi-search-input {
