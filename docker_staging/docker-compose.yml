@@ -1,4 +1,4 @@
-name: cwr_v1
+name: cwr_v1_staging
 
 services:
   # --------------------------
@@ -7,7 +7,7 @@ services:
   db:
     build:
       context: ..
-      dockerfile: docker/db.Dockerfile
+      dockerfile: docker/db.staging.Dockerfile
     image: cwr_v1_mariadb:latest
     container_name: cwr_db
     restart: always
@@ -30,7 +30,7 @@ services:
   frontend:
     build:
       context: ..
-      dockerfile: docker/frontend.Dockerfile
+      dockerfile: docker/frontend.staging.Dockerfile
     container_name: cwr_frontend
     working_dir: /app
     volumes:
@@ -53,7 +53,7 @@ services:
   backend:
     build:
       context: ..
-      dockerfile: docker/backend.Dockerfile
+      dockerfile: docker/backend.staging.Dockerfile
     env_file:
       - ../backend/.env
     container_name: cwr_backend

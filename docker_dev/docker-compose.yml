@@ -1,0 +1,93 @@
+name: cwr_v1_dev
+
+services:
+  # --------------------------
+  # Database - MariaDB
+  # --------------------------
+  db:
+    build:
+      context: ..
+      dockerfile: docker_dev/db.Dockerfile
+    image: cwr_v1_mariadb:latest
+    container_name: cwr_db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: cwr_db
+      MARIADB_USER: user
+      MARIADB_PASSWORD: userpassword
+      TZ: Asia/Manila 
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app_network
+
+  # --------------------------
+  # Frontend - React
+  # --------------------------
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker_dev/frontend.Dockerfile
+    container_name: cwr_frontend
+    working_dir: /app
+    volumes:
+      - ../frontend:/app
+      - node_modules_cache:/app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    networks:
+      - app_network
+    restart:  unless-stopped
+  # --------------------------
+  # Backend - Django
+  # --------------------------
+  backend:
+    build:
+      context: ..
+      dockerfile: docker_dev/backend.Dockerfile
+    env_file:
+      - ../backend/.env
+    container_name: cwr_backend
+    environment:
+      DB_HOST: db   # override host for Docker
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ../backend:/app
+      - ../media_data:/app/media
+    ports:
+      - "8000:8000"
+    networks:
+      - app_network
+    restart: always
+  # --------------------------
+  # Proxy Server - Nginx
+  # --------------------------
+  proxy:
+    build:
+      context: ..
+      dockerfile: docker_dev/nginx.Dockerfile
+    container_name: cwr_proxy
+    ports:
+      - "80:80"  # Expose Nginx on port 80
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  node_modules_cache:
+  db_data:
