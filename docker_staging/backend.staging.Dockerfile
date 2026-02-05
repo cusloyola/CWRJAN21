@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements first
 COPY ../backend/requirements.txt /app/
 RUN pip3 install --no-cache-dir -r requirements.txt \
-    pip3 install --no-cache-dir gunicorn
+    && pip3 install --no-cache-dir gunicorn
 
 # Copy the Django project
 COPY ../backend /app/

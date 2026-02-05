@@ -7,8 +7,8 @@ services:
   db:
     build:
       context: ..
-      dockerfile: docker/db.staging.Dockerfile
-    image: cwr_v1_mariadb:latest
+      dockerfile: docker_staging/db.staging.Dockerfile
+    image: cwr_v1_staging_mariadb:latest
     container_name: cwr_db
     restart: always
     ports:
@@ -30,8 +30,8 @@ services:
   frontend:
     build:
       context: ..
-      dockerfile: docker/frontend.staging.Dockerfile
-    container_name: cwr_frontend
+      dockerfile: docker_staging/frontend.staging.Dockerfile
+    container_name: cwr_frontend_staging
     working_dir: /app
     volumes:
       - ../frontend:/app
@@ -53,10 +53,10 @@ services:
   backend:
     build:
       context: ..
-      dockerfile: docker/backend.staging.Dockerfile
+      dockerfile: docker_staging/backend.staging.Dockerfile
     env_file:
       - ../backend/.env
-    container_name: cwr_backend
+    container_name: cwr_backend_staging
     environment:
       DB_HOST: db   # override host for Docker
     command: python3 manage.py runserver 0.0.0.0:8000
@@ -68,21 +68,7 @@ services:
     networks:
       - app_network
     restart: always
-  # --------------------------
-  # Proxy Server - Nginx
-  # --------------------------
-  proxy:
-    build:
-      context: ..
-      dockerfile: docker/nginx.Dockerfile
-    container_name: cwr_proxy
-    ports:
-      - "80:80"  # Expose Nginx on port 80
-    depends_on:
-      - frontend
-      - backend
-    networks:
-      - app_network
+
 
 networks:
   app_network:
