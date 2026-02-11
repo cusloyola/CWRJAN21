@@ -12,15 +12,14 @@ COPY ../backend/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt 
 RUN pip install --no-cache-dir gunicorn
 
-COPY ../backend /app/
-RUN python manage.py collectstatic --noinput
+COPY backend /app/
 
 # Copy the entrypoint
-# COPY docker-entrypoint-init.sh /app/
+# COPY docker_staging/docker-entrypoint-init.sh /app/
 # RUN chmod +x /app/docker-entrypoint-init.sh
 
 # Use it as entrypoint
 # ENTRYPOINT ["/app/docker-entrypoint-init.sh"]
 
 EXPOSE 8000
-CMD ["gunicorn", "cwr.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
+CMD ["gunicorn", "server.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]

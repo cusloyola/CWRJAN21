@@ -1,10 +1,20 @@
 #!/bin/bash
-# backend/docker-entrypoint-init.sh
 
-set -e
+
+echo "Waiting for database..."
+
+# simple wait loop
+while ! nc -z $DB_HOST 3306; do
+  sleep 1
+done
+
+echo "Database ready"
 
 echo "Running migrations..."
 python manage.py migrate --noinput
+
+echo "Collect static"
+python manage.py collectstatic --noinput
 
 echo "Creating superuser if it doesn't exist..."
 DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME:-mis}
