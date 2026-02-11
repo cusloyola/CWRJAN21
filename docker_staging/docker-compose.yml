@@ -35,6 +35,7 @@ services:
     working_dir: /app
     volumes:
       - ../media_data:/usr/share/nginx/html/media
+      - ../backend/staticfiles:/usr/share/nginx/html/static  # <- serve static
     ports:
       - "80:80"
     depends_on:
@@ -54,10 +55,12 @@ services:
     container_name: cwr_backend_staging
     environment:
       DB_HOST: db   # override host for Docker
-    command: gunicorn server.wsgi:application --bind 0.0.0.0:8000
+    depends_on:
+      - db
     volumes:
       - ../backend:/app
       - ../media_data:/app/media
+      - ../backend/staticfiles:/app/staticfiles  # <- for admin CSS/JS
     ports:
       - "8000:8000"
     networks:
