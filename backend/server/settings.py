@@ -156,3 +156,5 @@ SIMPLE_JWT = {
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")

@@ -1,0 +1,74 @@
+name: cwr_v1_staging
+
+services:
+  # --------------------------
+  # Database - MariaDB
+  # --------------------------
+  db:
+    build:
+      context: ..
+      dockerfile: docker_staging/db.staging.Dockerfile
+    image: cwr_v1_staging_mariadb:latest
+    container_name: cwr_db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: cwr_db
+      MARIADB_USER: user
+      MARIADB_PASSWORD: userpassword
+      TZ: Asia/Manila 
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app_network
+
+  # --------------------------
+  # Frontend - React
+  # --------------------------
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker_staging/frontend.staging.Dockerfile
+    container_name: cwr_frontend_staging
+    working_dir: /app
+    volumes:
+      - ../media_data:/usr/share/nginx/html/media
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - app_network
+    restart:  always
+  # --------------------------
+  # Backend - Django
+  # --------------------------
+  backend:
+    build:
+      context: ..
+      dockerfile: docker_staging/backend.staging.Dockerfile
+    env_file:
+      - ../backend/.env
+    container_name: cwr_backend_staging
+    environment:
+      DB_HOST: db   # override host for Docker
+    command: gunicorn server.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - ../backend:/app
+      - ../media_data:/app/media
+    ports:
+      - "8000:8000"
+    networks:
+      - app_network
+    restart: always
+
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  node_modules_cache:
+  db_data:

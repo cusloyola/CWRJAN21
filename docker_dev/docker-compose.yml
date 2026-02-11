@@ -1,4 +1,4 @@
-name: cwr_v1
+name: cwr_v1_dev
 
 services:
   # --------------------------
@@ -7,9 +7,9 @@ services:
   db:
     build:
       context: ..
-      dockerfile: docker/db.Dockerfile
-    image: cwr_v1_mariadb:latest
-    container_name: cwr_db
+      dockerfile: docker_dev/db.Dockerfile
+    image: cwr_v1_dev_mariadb:latest
+    container_name: cwr_db_dev
     restart: always
     ports:
       - "3306:3306"
@@ -20,7 +20,7 @@ services:
       MARIADB_PASSWORD: userpassword
       TZ: Asia/Manila 
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data_dev:/var/lib/mysql
     networks:
       - app_network
 
@@ -30,8 +30,8 @@ services:
   frontend:
     build:
       context: ..
-      dockerfile: docker/frontend.Dockerfile
-    container_name: cwr_frontend
+      dockerfile: docker_dev/frontend.Dockerfile
+    container_name: cwr_frontend_dev
     working_dir: /app
     volumes:
       - ../frontend:/app
@@ -53,10 +53,10 @@ services:
   backend:
     build:
       context: ..
-      dockerfile: docker/backend.Dockerfile
+      dockerfile: docker_dev/backend.Dockerfile
     env_file:
       - ../backend/.env
-    container_name: cwr_backend
+    container_name: cwr_backend_dev
     environment:
       DB_HOST: db   # override host for Docker
     command: python3 manage.py runserver 0.0.0.0:8000
@@ -74,8 +74,8 @@ services:
   proxy:
     build:
       context: ..
-      dockerfile: docker/nginx.Dockerfile
-    container_name: cwr_proxy
+      dockerfile: docker_dev/nginx.Dockerfile
+    container_name: cwr_proxy_dev
     ports:
       - "80:80"  # Expose Nginx on port 80
     depends_on:
@@ -90,4 +90,4 @@ networks:
 
 volumes:
   node_modules_cache:
-  db_data:
+  db_data_dev:
