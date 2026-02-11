@@ -20,7 +20,7 @@ services:
       MARIADB_PASSWORD: userpassword
       TZ: Asia/Manila 
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data_dev:/var/lib/mysql
     networks:
       - app_network
 
@@ -90,4 +90,4 @@ networks:
 
 volumes:
   node_modules_cache:
-  db_data:
+  db_data_dev:

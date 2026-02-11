@@ -1,30 +1,26 @@
-FROM ubuntu:24.04
-
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    DATA_UPLOAD_MAX_MEMORY_SIZE=52428800 \
-    FILE_UPLOAD_MAX_MEMORY_SIZE=52428800
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Basic system dependencies for Python + Django + mysqlclient
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    default-libmysqlclient-dev \
+RUN apt-get update && apt-get install -y \ 
+    default-libmysqlclient-dev \ 
+    build-essential \ 
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first
 COPY ../backend/requirements.txt /app/
-RUN pip3 install --no-cache-dir -r requirements.txt \
-    && pip3 install --no-cache-dir gunicorn
+RUN pip install --no-cache-dir -r requirements.txt 
+RUN pip install --no-cache-dir gunicorn
 
-# Copy the Django project
 COPY ../backend /app/
+RUN python manage.py collectstatic --noinput
 
-# Collect static (optional)
-RUN python3 manage.py collectstatic --noinput
+# Copy the entrypoint
+# COPY docker-entrypoint-init.sh /app/
+# RUN chmod +x /app/docker-entrypoint-init.sh
+
+# Use it as entrypoint
+# ENTRYPOINT ["/app/docker-entrypoint-init.sh"]
 
 EXPOSE 8000
-
 CMD ["gunicorn", "cwr.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3"]
