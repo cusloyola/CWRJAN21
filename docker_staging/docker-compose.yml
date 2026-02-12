@@ -36,8 +36,10 @@ services:
     volumes:
       - ../media_data:/usr/share/nginx/html/media
       - ../backend/staticfiles:/usr/share/nginx/html/static  # <- serve static
+      - ../docker_staging/certs:/etc/nginx/ssl  # <-- mount certs
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - backend
     networks:
@@ -51,7 +53,7 @@ services:
       context: ..
       dockerfile: docker_staging/backend.staging.Dockerfile
     env_file:
-      - ../backend/.env
+      - ../backend/.env.staging
     container_name: cwr_backend_staging
     environment:
       DB_HOST: db   # override host for Docker
