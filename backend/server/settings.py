@@ -53,7 +53,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True  # dev only
+CORS_ALLOW_ALL_ORIGINS = False #True  # dev only
 
 CORS_ALLOW_HEADERS = [
     'authorization',
@@ -122,7 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Asia/Manila'
+TIME_ZONE = os.getenv('LOCAL_TIMEZONE') 
 
 USE_I18N = True
 

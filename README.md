@@ -15,6 +15,14 @@ By centralizing check records, the system improves financial control, reduces er
 - Django Rest Framework
 - JWT authentication
 
+##🧠 Think like this
+
+Development = workshop
+Staging = rehearsal before live show
+
+You don’t rehearse with half tools.
+You don’t develop wearing a tuxedo.
+
 ## 📜 Documentation/Installation Guide
 
 - [Setup Guide](docs/setup.md) 
