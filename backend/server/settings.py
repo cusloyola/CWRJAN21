@@ -9,7 +9,15 @@ from datetime import timedelta
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / ".env")
+# choose env file
+ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
+
+if ENVIRONMENT == "staging":
+    load_dotenv(BASE_DIR / ".env.staging")
+else:
+    load_dotenv(BASE_DIR / ".env.dev")
+
+# load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv('SECRET_KEY') 
 
@@ -48,12 +56,12 @@ MIDDLEWARE = [
     
 ]
 # Allow the frontend to access the backend API
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://localhost",
-]
+CORS_ALLOWED_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS",
+    ""
+).split(",")
 
-CORS_ALLOW_ALL_ORIGINS = False #True  # dev only
+CORS_ALLOW_ALL_ORIGINS = os.getenv("CORS_ALLOW_ALL", "False").lower() == "true"
 
 CORS_ALLOW_HEADERS = [
     'authorization',
@@ -132,7 +140,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -157,7 +169,8 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_TRUSTED_ORIGINS = ['https://localhost']
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

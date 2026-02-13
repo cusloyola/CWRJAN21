@@ -57,6 +57,7 @@ services:
     container_name: cwr_backend_staging
     environment:
       DB_HOST: db   # override host for Docker
+      ENVIRONMENT: staging
     depends_on:
       - db
     volumes:
@@ -68,8 +69,7 @@ services:
     networks:
       - app_network
     restart: always
-
-
+ 
 networks:
   app_network:
     driver: bridge

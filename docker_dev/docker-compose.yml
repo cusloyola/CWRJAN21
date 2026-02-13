@@ -55,10 +55,11 @@ services:
       context: ..
       dockerfile: docker_dev/backend.Dockerfile
     env_file:
-      - ../backend/.env
+      - ../backend/.env.dev
     container_name: cwr_backend_dev
     environment:
       DB_HOST: db   # override host for Docker
+      ENVIRONMENT: dev
     command: python3 manage.py runserver 0.0.0.0:8000
     volumes:
       - ../backend:/app
@@ -83,7 +84,7 @@ services:
       - backend
     networks:
       - app_network
-
+  
 networks:
   app_network:
     driver: bridge
