@@ -69,7 +69,9 @@ services:
       - app_network
     restart: always
 
-
+environment:
+  ENVIRONMENT: staging
+  
 networks:
   app_network:
     driver: bridge
