@@ -1,5 +1,8 @@
-## Cloning Repo from GitLab
-
+## Cloning Repo for Development
+ - Create local NS in the hosts file (C:\Windows\System32\drivers\etc)
+   ```
+   127.0.0.1	devcwr.local
+   ```
  - Create the folder 
    ```
    mkdir cwr
@@ -43,10 +46,10 @@
     ```
     npm install
     ```
-- Docker container install
-  - Change to docker folder
+- Running Docker container 
+  - Change to development docker folder
     ```
-    cd docker
+    cd docker_dev
     ```
   - Create the Dockerfile
     ```
@@ -59,8 +62,13 @@
 - Setup Django Admin portal
   - Migrate Database:
       ```
+      python manage.py makemigrations
       python manage.py migrate
       ```
+   - Collect static files:
+      ```
+      python manage.py collectstatic
+     ```
   - Create superuser (admin account):
       ```
       python manage.py createsuperuser
