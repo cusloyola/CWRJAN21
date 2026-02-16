@@ -27,13 +27,18 @@ You don’t develop wearing a tuxedo.
 
 - [Setup Guide](docs/setup.md) 
 - [Cloning from Repo for development](docs/development.md)
+- [Staging Deployment with SSL](docs/staging.md)
 
 ## 📂 Project Structure
 ```
 doc_route/
 ├─ frontend/        # React + Vite + TypeScript + SWC PIN UI
 ├─ backend/         # Django + DRF + JWT PIN API
-├─ docker/          # Docker configuration
+├─ docker_dev/      # Docker dev configuration
+|  └─ nginx         # Default Nginx config for dev
+├─ docker_staging/  # Docker staging configuration
+|  └─ nginx         # Default Nginx config for staging
+|  └─ certs         # Mkcert generated certificate
 ├─ docs/            # Documentation
 ├─ env/             # Python environment
 ├─ nginx/           # Proxy server configuration
