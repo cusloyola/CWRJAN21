@@ -25,8 +25,8 @@ You don’t develop wearing a tuxedo.
 ```
 ## 📜 Documentation/Installation Guide
 
-- [Setup Guide](docs/setup.md) 
-- [Cloning from Repo for development](docs/development.md)
+- [Initial Setup Guide](docs/setup.md) 
+- [Cloning from Gitlab Repo for development](docs/development.md)
 - [Staging Deployment with SSL](docs/staging.md)
 
 ## 📂 Project Structure
