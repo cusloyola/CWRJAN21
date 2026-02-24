@@ -29,16 +29,8 @@ RUN wget https://www.python.org/ftp/python/3.13.7/Python-3.13.7.tgz && \
 RUN ln -s /usr/local/bin/python3.13 /usr/bin/python3 && \
     ln -s /usr/local/bin/pip3.13 /usr/bin/pip3
 
-# 🔹 Install AWS CLI v2
-RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
-    unzip awscliv2.zip && ./aws/install && \
-    rm -rf awscliv2.zip ./aws
-
-
 WORKDIR /app
 
-# Install Gunicorn separately (not in requirements.txt)
-# RUN pip3 install --no-cache-dir gunicorn
 
 # Copy requirements first
 COPY ../backend/requirements.txt /app/
