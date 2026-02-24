@@ -1,4 +1,5 @@
 
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -57,6 +58,27 @@ class UserCompany(models.Model):
 
     class Meta:
         unique_together = ('user','company')
+
+class Transaction (models.Model):
+    transaction_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    transaction_ref = models.CharField(max_length=100,unique=True)
+    category = models.CharField(max_length=100, unique=True)
+    payee = models.CharField(max_length=100,unique=True)
+    particulars = models.CharField(max_length=100,unique=True)
+    vessel_principal = models.CharField(max_length=100,unique=True)
+    etd = models.DateField()
+    currency = models.CharField(max_length=4,unique=True)
+    reference_erfp = models.CharField(max_length=100,unique=True)
+    mc_branch_issuance = models.CharField(max_length=100,unique=True)
+    funding_account = models.CharField(max_length=100,unique=True)
+    batch = models.CharField(max_length=50,unique=True)
+    drive_file_link = models.CharField(max_length=100,unique=True)
+    supporting_docs = models.CharField(max_length=100,unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+
+class TransactionLog(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
 
 # class Check(models.Model):
 
