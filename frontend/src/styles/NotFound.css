@@ -19,14 +19,14 @@
 }
 
 .notfound-icon {
-    color: #007bff;
+    color: var(--color-primary);
     margin-bottom: 24px;
 }
 
 .notfound-title {
     font-size: 120px;
     font-weight: 700;
-    color: #007bff;
+    color: var(--color-primary);
     margin: 0;
     line-height: 1;
     letter-spacing: -4px;
@@ -69,7 +69,7 @@
 }
 
 .notfound-btn-primary {
-    background: #007bff;
+    background: var(--color-primary);
     color: white;
 }
 

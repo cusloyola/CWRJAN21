@@ -84,7 +84,9 @@ const Dashboard = () => {
       <>
         <div className="dashboard-wrapper px-4 sm:px-6" style={{ marginBottom: '1rem', marginTop: '1rem'  }}>
           <div className="wpsi-add-button-container" style={{ justifyContent: 'flex-end', textAlign: 'right', fontSize: '1.125rem' }}>
-            <button className="wpsi-add-button">+ Add</button>
+            <Link to="/add-transaction" className="wpsi-add-button" style={{ textDecoration: 'none' }}>
+              + Add
+            </Link>
           </div>
         </div>
         <div className="dashboard-wrapper px-4 sm:px-6">

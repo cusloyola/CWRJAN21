@@ -5,6 +5,7 @@ import '../styles/Login.css';
 import logo from '../assets/wallemrectangle.png';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Footer } from '../components/Footer';
 
 // Static users for demo purposes
 export const STATIC_USERS = [
@@ -233,6 +234,7 @@ function Login() {
                         {isLoading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
+                <Footer />
             </div>
         </div>
     )
