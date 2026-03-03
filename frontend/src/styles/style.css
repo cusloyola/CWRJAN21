@@ -40,6 +40,7 @@ body {
   box-sizing: border-box;
   height: 100vh;
   width: 250px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 4px 1em;
   background-color: var(--base-clr);
   position: sticky;
@@ -49,6 +50,21 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   text-wrap: nowrap;
+  display: flex;
+  flex-direction: column;
+}
+
+#sidebar > ul {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+  gap: 0.5em;
+}
+
+#sidebar > ul > li:last-child {
+  margin-top: auto;
+  cursor: pointer;
 }
 
 /* Set sidebar width for default desktop (1024px+) */
@@ -68,8 +84,8 @@ body {
 }
 
 #sidebar.w-16 {
-  width: 80px !important;
-  padding: 10px !important;
+  width: 80px;
+  padding: 10px;
 }
 
 #sidebar.w-16 button {
@@ -468,10 +484,10 @@ main p {
   }
 
   #sidebar {
-    height: 64px;
-    width: 100%;
+    height: 64px !important;
+    width: 100% !important;
     border-right: none;
-    padding: 0;
+    padding: 0 !important;
     position: fixed;
     top: unset;
     bottom: 0;
@@ -577,6 +593,9 @@ main p {
   /* For larger mobile screens that can fit more items (e.g., 600px+) */
   @media (min-width: 600px) {
     #sidebar {
+      width: 100% !important;
+      height: 64px !important;
+      
       >ul {
         grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
       }
@@ -759,7 +778,8 @@ main p {
     }
 
     #sidebar {
-      height: 64px;
+      height: 64px !important;
+      width: 100% !important;
 
       ul a,
       ul .dropdown-btn,

@@ -64,16 +64,16 @@
 
 select,
 ::picker(select) {
-  overflow: hidden;
-  width: 200px;
+/*   overflow: hidden;
+  width: 200px; */
   appearance: base-select;
 }
 
-::picker(select) {
+/* ::picker(select) {
   border: 0;
   margin: .4rem 0;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
+} */
 
 /* HOVER STATE */
 .wpsi-dropdown:hover {
