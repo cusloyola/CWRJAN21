@@ -25,9 +25,9 @@ You don’t develop wearing a tuxedo.
 ```
 ## 📜 Documentation/Installation Guide
 
-- [Initial Setup Guide](docs/setup.md) 
-- [Cloning from Gitlab Repo for development](docs/development.md)
-- [Staging Deployment with SSL](docs/staging.md)
+- [Initial Setup Guide](documentation/setup.md) 
+- [Cloning from Gitlab Repo for development](documentation/development.md)
+- [Staging Deployment with SSL](documentation/staging.md)
 
 ## 📂 Project Structure
 ```
@@ -39,9 +39,8 @@ doc_route/
 ├─ docker_staging/  # Docker staging configuration
 |  └─ nginx         # Default Nginx config for staging
 |  └─ certs         # Mkcert generated certificate
-├─ docs/            # Documentation
+├─ documentation/   # Documentation
 ├─ env/             # Python environment
-├─ nginx/           # Proxy server configuration
 └─ README.md        # Project overview
 ```
 ## 📜 License
