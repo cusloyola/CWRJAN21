@@ -2,12 +2,76 @@ name: cwr_v1_dev
 
 services:
   # --------------------------
+  # Redis - Celery Broker
+  # --------------------------
+  redis:
+    build:
+      context: ..
+      dockerfile: docker_dev/dev.redis.Dockerfile
+    container_name: cwr_redis_dev
+    restart: always
+    volumes:
+      - redis_data_dev:/data
+    networks:
+      - app_network
+
+  # --------------------------
+  # Celery Worker
+  # --------------------------
+  celery_worker:
+    build:
+      context: ..
+      dockerfile: docker_dev/dev.backend.Dockerfile
+    container_name: cwr_celery_worker_dev
+    working_dir: /app
+    command: python3 -m celery -A server.celery:app worker --loglevel=info
+    env_file:
+      - ../backend/.env.dev
+    environment:
+      DB_HOST: db
+      ENVIRONMENT: dev
+    volumes:
+      - ../backend:/app
+      - ../media_data:/app/media
+    depends_on:
+      - db
+      - redis
+    networks:
+      - app_network
+    restart: always
+  
+  # --------------------------
+  # Celery Beat (Scheduler)
+  # --------------------------
+  celery_beat:
+    build:
+      context: ..
+      dockerfile: docker_dev/dev.backend.Dockerfile
+    container_name: cwr_celery_beat_dev
+    working_dir: /app
+    command: python3 -m celery -A server.celery:app beat --loglevel=info
+    env_file:
+      - ../backend/.env.dev
+    environment:
+      DB_HOST: db
+      ENVIRONMENT: dev
+    volumes:
+      - ../backend:/app
+      - ../media_data:/app/media
+    depends_on:
+      - db
+      - redis
+    networks:
+      - app_network
+    restart: always
+    
+  # --------------------------
   # Database - MariaDB
   # --------------------------
   db:
     build:
       context: ..
-      dockerfile: docker_dev/db.Dockerfile
+      dockerfile: docker_dev/dev.db.Dockerfile
     image: cwr_v1_dev_mariadb:latest
     container_name: cwr_db_dev
     restart: always
@@ -30,7 +94,7 @@ services:
   frontend:
     build:
       context: ..
-      dockerfile: docker_dev/frontend.Dockerfile
+      dockerfile: docker_dev/dev.frontend.Dockerfile
     container_name: cwr_frontend_dev
     working_dir: /app
     volumes:
@@ -47,13 +111,14 @@ services:
     networks:
       - app_network
     restart:  unless-stopped
+
   # --------------------------
   # Backend - Django
   # --------------------------
   backend:
     build:
       context: ..
-      dockerfile: docker_dev/backend.Dockerfile
+      dockerfile: docker_dev/dev.backend.Dockerfile
     env_file:
       - ../backend/.env.dev
     container_name: cwr_backend_dev
@@ -69,13 +134,14 @@ services:
     networks:
       - app_network
     restart: always
+
   # --------------------------
   # Proxy Server - Nginx
   # --------------------------
   proxy:
     build:
       context: ..
-      dockerfile: docker_dev/nginx.Dockerfile
+      dockerfile: docker_dev/dev.nginx.Dockerfile
     container_name: cwr_proxy_dev
     ports:
       - "80:80"  # Expose Nginx on port 80
@@ -92,3 +158,4 @@ networks:
 volumes:
   node_modules_cache:
   db_data_dev:
+  redis_data_dev:
