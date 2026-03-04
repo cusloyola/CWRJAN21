@@ -2,6 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
+import AddTransaction from './pages/AddTransaction'
 import WPSI from './pages/WPSI'
 import WMSI from './pages/WMSI'
 import WLPI from './pages/WLPI'
@@ -22,7 +23,7 @@ function App() {
   const location = useLocation()
   const dashboardRoutes = ['/dashboard', '/profile', '/wpsi', '/wmsi', '/wlpi',
     '/cfii', '/bank-workload', '/activity-log/wpsi-cwr', '/activity-log/wmsi-cwr', '/activity-log/wlpi-cwr',
-    '/activity-log/cfii-cwr', '/transactions', '/archives']
+    '/activity-log/cfii-cwr', '/transactions', '/archives', '/add-transaction']
   const isDashboardLayout = dashboardRoutes.includes(location.pathname)
 
   return (
@@ -43,6 +44,7 @@ function App() {
         <Route path="/activity-log/cfii-cwr" element={<ProtectedRoute><CFIICWR /></ProtectedRoute>} />
         <Route path="/transactions" element={<ProtectedRoute><TransactionTable /></ProtectedRoute>} />
         <Route path="/archives" element={<ProtectedRoute><ArchivesTable /></ProtectedRoute>} />
+        <Route path="/add-transaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ToastContainer position="top-center" theme="colored" limit={3} newestOnTop closeOnClick pauseOnHover={false} />

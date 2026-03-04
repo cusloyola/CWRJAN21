@@ -1,4 +1,4 @@
-import { useState, } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import '../styles/style.css';
 import LogoutModal from "./LogoutModal";
@@ -7,10 +7,21 @@ import logo from '../assets/wallemrectangle.png';
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
+  // Initialize sidebar collapsed state from localStorage
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    return saved ? JSON.parse(saved) : false;
+  });
+  
   const [activityLogOpen, setActivityLogOpen] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
+
+  // Save sidebar state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(sidebarCollapsed));
+  }, [sidebarCollapsed]);
   const userRole = localStorage.getItem('userRole') || '';
   const isDAM = userRole.startsWith('DAM');
   const isWorker = userRole === 'Worker';
@@ -36,16 +47,17 @@ const Sidebar = () => {
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userEmail');
+    localStorage.removeItem('pendingTransaction'); // Clear any pending transaction drafts
     navigate('/login');
   };
 
-  /*     const toggleSidebar = () => {
-        if (window.innerWidth >= 1024) {
-          setSidebarCollapsed(!sidebarCollapsed);
-          setActivityLogOpen(false);
-          setMobileMoreOpen(false);
-        }
-      }; */
+  const toggleSidebar = () => {
+    if (window.innerWidth >= 1024) {
+      setSidebarCollapsed(!sidebarCollapsed);
+      setActivityLogOpen(false);
+      setMobileMoreOpen(false);
+    }
+  };
 
   const toggleActivityLog = () => {
     if (!activityLogOpen) {
@@ -81,26 +93,29 @@ const Sidebar = () => {
           onClick={closeMobileMenus}
         />
       )}
-      <nav id="sidebar" className={`${sidebarClass} ${sidebarRoleClass}`.trim()}>
-        <ul className="list-none">
+      <nav id="sidebar" className={`${sidebarClass} ${sidebarRoleClass} flex flex-col h-screen`.trim()}>
+        <ul className="list-none flex flex-col h-full">
           <li className="flex justify-between items-center">
-            <span className="logo">
-              {/*               <Link to="/dashboard"> */}
-              <img src={logo} alt="Wallem Square Logo" style={{ width: '100%', height: '50px', display: 'flex' }} />
-              {/*             </Link>
- */}          </span>
-            {isWorker && (<>
-
-              {/*                        <button onClick={toggleSidebar} id="toggle-btn" className={sidebarCollapsed ? "rotate-180" : ""}>
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
-                <path d="m313-480 155 156q11 11 11.5 27.5T468-268q-11 11-28 11t-28-11L228-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T468-692q11 11 11 28t-11 28L313-480Zm264 0 155 156q11 11 11.5 27.5T732-268q-11 11-28 11t-28-11L492-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T732-692q11 11 11 28t-11 28L577-480Z" />
-              </svg>
-            </button> */}
-
-            </>
-            )
-            }
-
+            {!sidebarCollapsed ? (
+              // Logo is clickable when sidebar is open - acts as minimize button
+              <span className="logo cursor-pointer" onClick={toggleSidebar}>
+                <img src={logo} alt="Wallem Square Logo" style={{ width: '100%', height: '50px', display: 'flex' }} />
+              </span>
+            ) : (
+              // Show minimal logo when collapsed
+              <span className="logo">
+                <img src={logo} alt="Wallem Square Logo" style={{ width: '32px', height: '32px', display: 'flex' }} />
+              </span>
+            )}
+            
+            {sidebarCollapsed && (
+              // Arrow button only shows when sidebar is closed - acts as expand button
+              <button onClick={toggleSidebar} id="toggle-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor">
+                  <path d="m313-480 155 156q11 11 11.5 27.5T468-268q-11 11-28 11t-28-11L228-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T468-692q11 11 11 28t-11 28L313-480Zm264 0 155 156q11 11 11.5 27.5T732-268q-11 11-28 11t-28-11L492-452q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l184-184q11-11 27.5-11.5T732-692q11 11 11 28t-11 28L577-480Z" />
+                </svg>
+              </button>
+            )}
           </li>
 
           <li className={isActive("/dashboard") ? "active" : ""}>
@@ -278,17 +293,6 @@ const Sidebar = () => {
               <span>Profile</span>
             </Link>
           </li> */}
-          <li>
-            <a
-              onClick={() => setIsLogoutModalOpen(true)}
-              className="w-full text-left bg-transparent border-none cursor-pointer flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="shrink-0">
-                <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
-              </svg>
-              <span>Logout</span>
-            </a>
-          </li>
           {isApproverOrDeputy && (
             <>
               <li className={`mobile-more-menu ${mobileMoreOpen ? 'active' : ''}`}>
@@ -385,6 +389,17 @@ const Sidebar = () => {
               </li>
             </>
           )}
+          <li className="mt-auto">
+            <a
+              onClick={() => setIsLogoutModalOpen(true)}
+              className="w-full text-left bg-transparent border-none cursor-pointer flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="shrink-0">
+                <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
+              </svg>
+              <span>Logout</span>
+            </a>
+          </li>
         </ul>
       </nav >
       <LogoutModal isOpen={isLogoutModalOpen} onConfirm={handleLogout} onCancel={() => setIsLogoutModalOpen(false)}

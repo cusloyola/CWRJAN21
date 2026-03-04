@@ -3,7 +3,7 @@ import '../styles/Dashboard.css';
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
-  const userRole = localStorage.userRole;
+  const userRole = localStorage.getItem('userRole');
 
   let statsContent;
   if (userRole === 'Approver' || userRole === 'Deputy') {
@@ -79,7 +79,39 @@ const Dashboard = () => {
         </div>
       </>
     );
-  }
+  } else if (userRole === 'Worker') {
+    statsContent = (
+      <>
+        <div className="dashboard-wrapper px-4 sm:px-6" style={{ marginBottom: '1rem', marginTop: '1rem'  }}>
+          <div className="wpsi-add-button-container" style={{ justifyContent: 'flex-end', textAlign: 'right', fontSize: '1.125rem' }}>
+            <Link to="/add-transaction" className="wpsi-add-button" style={{ textDecoration: 'none' }}>
+              + Add
+            </Link>
+          </div>
+        </div>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">22</span>
+            <span className="stats-label">Approved</span>
+          </div>
+        </div>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">2</span>
+            <span className="stats-label">Pending</span>
+          </div>
+        </div>
+        <div className="dashboard-wrapper px-4 sm:px-6">
+          <div className="stats-card">
+            <span className="stats-value">12</span>
+            <span className="stats-label">Disapproved</span>
+          </div>
+        </div>
+      </>
+    );
+  } else {
+    statsContent = <p>No stats available</p>;
+  };
 
   return (
     <>
@@ -102,7 +134,7 @@ const Dashboard = () => {
               {/* User Info */}
               <div>
                 <h2 className="profile-name">Juan Dela Cruz</h2>
-                <p className="profile-role">{localStorage.userRole}</p>
+                <p className="profile-role">{localStorage.getItem('userRole')}</p>
               </div>
             </div>
           </div>
