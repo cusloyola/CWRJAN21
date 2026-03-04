@@ -22,7 +22,7 @@ db.sqlite3
 media/
 staticfiles/
 api/migrations/
-celerybeat-schedule.*
+backend/celerybeat-*.*
 # Migrations (optional – keep if you want versioned migrations)
 # */migrations/*.py
 # !*/migrations/__init__.py
