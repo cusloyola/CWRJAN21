@@ -23,7 +23,7 @@ media/
 staticfiles/
 api/migrations/
 celerybeat-schedule
-celerybeat-schedule.*
+celerybeat-schedule*
 # Migrations (optional – keep if you want versioned migrations)
 # */migrations/*.py
 # !*/migrations/__init__.py
