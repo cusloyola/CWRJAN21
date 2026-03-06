@@ -2,14 +2,74 @@ name: cwr_v1_staging
 
 services:
   # --------------------------
+  # Redis - Celery Broker
+  # --------------------------
+  redis:
+    build:
+      context: ..
+      dockerfile: docker_staging/staging.redis.Dockerfile
+    container_name: cwr_redis_staging
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+
+  # --------------------------
+  # Celery Worker
+  # --------------------------
+  celery_worker:
+    build:
+      context: ..
+      dockerfile: docker_staging/staging.backend.Dockerfile
+    container_name: cwr_celery_worker_staging
+    command: python -m celery -A server.celery:app worker --loglevel=info
+    env_file:
+      - ../backend/.env.staging
+    environment:
+      DB_HOST: db
+      ENVIRONMENT: staging
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ../media_data:/app/media
+    networks:
+      - app_network
+    restart: always
+
+  # --------------------------
+  # Celery Beat
+  # --------------------------
+  celery_beat:
+    build:
+      context: ..
+      dockerfile: docker_staging/staging.backend.Dockerfile
+    container_name: cwr_celery_beat_staging
+    command: python -m celery -A server.celery:app beat --loglevel=info --schedule /tmp/celerybeat-schedule
+    env_file:
+      - ../backend/.env.staging
+    environment:
+      DB_HOST: db
+      ENVIRONMENT: staging
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ../media_data:/app/media
+    networks:
+      - app_network
+    restart: always
+
+  # --------------------------
   # Database - MariaDB
   # --------------------------
   db:
     build:
       context: ..
-      dockerfile: docker_staging/db.staging.Dockerfile
+      dockerfile: docker_staging/staging.db.Dockerfile
     image: cwr_v1_staging_mariadb:latest
-    container_name: cwr_db
+    container_name: cwr_db_staging
     restart: always
     ports:
       - "3306:3306"
@@ -30,7 +90,7 @@ services:
   frontend:
     build:
       context: ..
-      dockerfile: docker_staging/frontend.staging.Dockerfile
+      dockerfile: docker_staging/staging.frontend.Dockerfile
     container_name: cwr_frontend_staging
     working_dir: /app
     volumes:
@@ -45,13 +105,14 @@ services:
     networks:
       - app_network
     restart:  always
+
   # --------------------------
   # Backend - Django
   # --------------------------
   backend:
     build:
       context: ..
-      dockerfile: docker_staging/backend.staging.Dockerfile
+      dockerfile: docker_staging/staging.backend.Dockerfile
     env_file:
       - ../backend/.env.staging
     container_name: cwr_backend_staging
@@ -77,3 +138,4 @@ networks:
 volumes:
   node_modules_cache:
   db_data:
+  redis_data:

@@ -24,7 +24,7 @@ services:
       dockerfile: docker_dev/dev.backend.Dockerfile
     container_name: cwr_celery_worker_dev
     working_dir: /app
-    command: python3 -m celery -A server.celery:app worker --loglevel=info
+    command: python3 -m celery -A server.celery:app worker --loglevel=info 
     env_file:
       - ../backend/.env.dev
     environment:
@@ -49,7 +49,7 @@ services:
       dockerfile: docker_dev/dev.backend.Dockerfile
     container_name: cwr_celery_beat_dev
     working_dir: /app
-    command: python3 -m celery -A server.celery:app beat --loglevel=info
+    command: python3 -m celery -A server.celery:app beat --loglevel=info --schedule /tmp/celerybeat-schedule
     env_file:
       - ../backend/.env.dev
     environment:
