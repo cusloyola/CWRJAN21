@@ -3,8 +3,7 @@ FROM ubuntu:24.04
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     DATA_UPLOAD_MAX_MEMORY_SIZE=52428800 \
-    FILE_UPLOAD_MAX_MEMORY_SIZE=52428800
-
+    FILE_UPLOAD_MAX_MEMORY_SIZE=52428800 
 
 # Basic system dependencies for Python + Django + mysqlclient
 RUN apt-get update && apt-get install -y \
@@ -13,6 +12,9 @@ RUN apt-get update && apt-get install -y \
     libreadline-dev libsqlite3-dev \
     libffi-dev liblzma-dev tk-dev \
     default-libmysqlclient-dev pkg-config \
+    libjpeg-dev \
+    libfreetype6-dev \
+    fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python 3.13.7
@@ -29,8 +31,8 @@ RUN wget https://www.python.org/ftp/python/3.13.7/Python-3.13.7.tgz && \
 RUN ln -s /usr/local/bin/python3.13 /usr/bin/python3 && \
     ln -s /usr/local/bin/pip3.13 /usr/bin/pip3
 
+# App Directory
 WORKDIR /app
-
 
 # Copy requirements first
 COPY ../backend/requirements.txt /app/
