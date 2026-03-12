@@ -1,11 +1,15 @@
-FROM python:3.11-slim
+ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \ 
-    default-libmysqlclient-dev \ 
-    build-essential \ 
+RUN apt-get update && apt-get install -y \
+    default-libmysqlclient-dev \
+    build-essential \
     pkg-config \
+    libjpeg-dev \
+    libfreetype6-dev \
+    zlib1g-dev \
+    fonts-dejavu-core \    
     && rm -rf /var/lib/apt/lists/*
 
 COPY ../backend/requirements.txt /app/

@@ -14,6 +14,7 @@ By centralizing check records, the system improves financial control, reduces er
 - Proxy Server: Nginx
 - Django Rest Framework
 - JWT authentication
+- ReportLab
 
 ## 🧠 Think like this
 ```
