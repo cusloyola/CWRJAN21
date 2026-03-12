@@ -85,12 +85,10 @@
 
   SECRET_KEY = os.getenv('SECRET_KEY') 
   ```
-
 - Add all dependencies to requirements.txt
     ```
     pip freeze > requirements.txt
     ```
-
 - Setup Django Admin portal
 
   - Migrate Database:
@@ -160,8 +158,8 @@
 ## FRONTEND (VITE+REACT)
 - Create directory
    ```
-    mkdir backend
-    cd backend
+    mkdir frontend
+    cd frontend
    ```
 - Create a your vite + react app
   ```
