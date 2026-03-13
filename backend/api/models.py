@@ -19,6 +19,8 @@ class UserRole(models.Model):
 
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     role = models.CharField(max_length=3, choices=ROLE_CHOICES)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "User Role"
@@ -29,20 +31,22 @@ class UserRole(models.Model):
         return f"{self.user.email} ({self.role})"
 
 class Company(models.Model):
-    WPSI = "wpsi"
-    WMSI = "wmsi"
-    WLPI = "wlpi"
-    COTS = "cots"
+    # WPSI = "wpsi"
+    # WMSI = "wmsi"
+    # WLPI = "wlpi"
+    # CFII = "cfii"
 
-    CODE_CHOICES = (
-        (WPSI, 'Shipping'),
-        (WMSI, 'Maritime'),
-        (WLPI, 'Logistics'),
-        (COTS, 'COTS'),
-    )
+    # CODE_CHOICES = (
+    #     (WPSI, 'Shipping'),
+    #     (WMSI, 'Maritime'),
+    #     (WLPI, 'Logistics'),
+    #     (CFII, 'COTS'),
+    # )
 
-    company_code = models.CharField(max_length=10, choices=CODE_CHOICES, unique=True)
+    company_code = models.CharField(max_length=10, unique=True)
     company_name = models.CharField(max_length=100)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Company"
@@ -55,6 +59,8 @@ class Company(models.Model):
 class UserCompany(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     company = models.ForeignKey(Company,on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('user','company')
