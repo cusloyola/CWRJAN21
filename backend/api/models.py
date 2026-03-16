@@ -98,6 +98,20 @@ class Category (models.Model):
     def __str__(self):
         return f"{self.category_description}"
 
+class Currency (models.Model):
+    currency_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    currency_code = models.CharField(max_length=10, unique=True)
+    currency_description = models.CharField(max_length=100, unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Currency"
+        verbose_name_plural = "Currencies"
+        ordering = ['currency_code']
+    
+    def __str__(self):
+        return f"{self.currency_description}"    
+
 class TransactionLog(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 

@@ -6,6 +6,7 @@ from .models import (
     UserRole,
     UserCompany,
     Category,
+    Currency,
 )
 
 # -------------------------
@@ -92,3 +93,12 @@ class CompanyCategory(admin.ModelAdmin):
     list_display = ('company', 'category_type','category_description')
     search_fields = ('company', 'category_description')
     ordering = ('company', 'category_type',)
+
+# ------------------------------------
+# Currency
+# ------------------------------------
+@admin.register(Currency)
+class CompanyCurrency(admin.ModelAdmin):
+    list_display = ('currency_code', 'currency_description')
+    search_fields = ('currency_code',)
+    ordering = ('currency_code',)
