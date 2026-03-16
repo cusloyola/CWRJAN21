@@ -12,13 +12,15 @@ class UserRole(models.Model):
     ROLE_CHOICES = (
         (ROLE_APPROVER,'Final Approver'),
         (ROLE_VERIFIER,'Deputy Verifier'),
-        (ROLE_DAM,'Deputy Company Approver'),
+        (ROLE_DAM,'Deputy Account Manager'),
         (ROLE_MAKER,'Document Maker')
 
     )
 
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     role = models.CharField(max_length=3, choices=ROLE_CHOICES)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "User Role"
@@ -29,20 +31,22 @@ class UserRole(models.Model):
         return f"{self.user.email} ({self.role})"
 
 class Company(models.Model):
-    WPSI = "wpsi"
-    WMSI = "wmsi"
-    WLPI = "wlpi"
-    COTS = "cots"
+    # WPSI = "wpsi"
+    # WMSI = "wmsi"
+    # WLPI = "wlpi"
+    # CFII = "cfii"
 
-    CODE_CHOICES = (
-        (WPSI, 'Shipping'),
-        (WMSI, 'Maritime'),
-        (WLPI, 'Logistics'),
-        (COTS, 'COTS'),
-    )
+    # CODE_CHOICES = (
+    #     (WPSI, 'Shipping'),
+    #     (WMSI, 'Maritime'),
+    #     (WLPI, 'Logistics'),
+    #     (CFII, 'COTS'),
+    # )
 
-    company_code = models.CharField(max_length=10, choices=CODE_CHOICES, unique=True)
+    company_code = models.CharField(max_length=10, unique=True)
     company_name = models.CharField(max_length=100)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Company"
@@ -55,6 +59,8 @@ class Company(models.Model):
 class UserCompany(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     company = models.ForeignKey(Company,on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('user','company')
@@ -75,6 +81,62 @@ class Transaction (models.Model):
     drive_file_link = models.CharField(max_length=100,unique=True)
     supporting_docs = models.CharField(max_length=100,unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
+
+
+class Category (models.Model):
+    category_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    company = models.ForeignKey(Company,on_delete=models.CASCADE)
+    category_type = models.CharField(max_length=50)
+    category_description = models.CharField(max_length=100, unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+        ordering = ['company']
+    
+    def __str__(self):
+        return f"{self.category_description}"
+
+class Currency (models.Model):
+    currency_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    currency_code = models.CharField(max_length=10, unique=True)
+    currency_description = models.CharField(max_length=100, unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Currency"
+        verbose_name_plural = "Currencies"
+        ordering = ['currency_code']
+    
+    def __str__(self):
+        return f"{self.currency_description}"    
+
+class MCBranchIssuance (models.Model):
+    branch_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    branch_name = models.CharField(max_length=100, unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Branch To Issue MC"
+        verbose_name_plural = "Branches To Issue MC"
+        ordering = ['branch_name']
+    
+    def __str__(self):
+        return f"{self.branch_name}"
+
+class FundingAccount (models.Model):
+    funding_acct_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    funding_acct_name = models.CharField(max_length=100, unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Funding Account"
+        verbose_name_plural = "Funding Accounts"
+        ordering = ['funding_acct_name']
+    
+    def __str__(self):
+        return f"{self.funding_acct_name}"
 
 
 class TransactionLog(models.Model):

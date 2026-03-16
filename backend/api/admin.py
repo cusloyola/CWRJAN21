@@ -5,6 +5,10 @@ from .models import (
     Company, 
     UserRole,
     UserCompany,
+    Category,
+    Currency,
+    MCBranchIssuance,
+    FundingAccount,
 )
 
 # -------------------------
@@ -82,3 +86,39 @@ except admin.sites.NotRegistered:
     pass
 
 admin.site.register(User, UserAdmin)
+
+# ------------------------------------
+# Category
+# ------------------------------------
+@admin.register(Category)
+class CompanyCategory(admin.ModelAdmin):
+    list_display = ('company', 'category_type','category_description')
+    search_fields = ('company', 'category_description')
+    ordering = ('company', 'category_type',)
+
+# ------------------------------------
+# Currency
+# ------------------------------------
+@admin.register(Currency)
+class CompanyCurrency(admin.ModelAdmin):
+    list_display = ('currency_code', 'currency_description')
+    search_fields = ('currency_code',)
+    ordering = ('currency_code',)
+
+# ------------------------------------
+# Branch to Issue MC
+# ------------------------------------
+@admin.register(MCBranchIssuance)
+class CompanyBranch(admin.ModelAdmin):
+    list_display = ('branch_name', )
+    search_fields = ('branch_name',)
+    ordering = ('branch_name',)
+
+# ------------------------------------
+# Funding Account
+# ------------------------------------
+@admin.register(FundingAccount)
+class CompanyFundingAccount(admin.ModelAdmin):
+    list_display = ('funding_acct_name', )
+    search_fields = ('funding_acct_name',)
+    ordering = ('funding_acct_name',)    
