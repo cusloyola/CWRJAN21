@@ -5,6 +5,7 @@ from .models import (
     Company, 
     UserRole,
     UserCompany,
+    Category,
 )
 
 # -------------------------
@@ -82,3 +83,12 @@ except admin.sites.NotRegistered:
     pass
 
 admin.site.register(User, UserAdmin)
+
+# ------------------------------------
+# Category
+# ------------------------------------
+@admin.register(Category)
+class CompanyCategory(admin.ModelAdmin):
+    list_display = ('company', 'category_type','category_description')
+    search_fields = ('company', 'category_description')
+    ordering = ('company', 'category_type',)

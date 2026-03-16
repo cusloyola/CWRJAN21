@@ -12,7 +12,7 @@ class UserRole(models.Model):
     ROLE_CHOICES = (
         (ROLE_APPROVER,'Final Approver'),
         (ROLE_VERIFIER,'Deputy Verifier'),
-        (ROLE_DAM,'Deputy Company Approver'),
+        (ROLE_DAM,'Deputy Account Manager'),
         (ROLE_MAKER,'Document Maker')
 
     )
@@ -82,6 +82,21 @@ class Transaction (models.Model):
     supporting_docs = models.CharField(max_length=100,unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
+
+class Category (models.Model):
+    category_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    company = models.ForeignKey(Company,on_delete=models.CASCADE)
+    category_type = models.CharField(max_length=50)
+    category_description = models.CharField(max_length=100, unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+        ordering = ['company']
+    
+    def __str__(self):
+        return f"{self.category_description}"
 
 class TransactionLog(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
