@@ -112,6 +112,33 @@ class Currency (models.Model):
     def __str__(self):
         return f"{self.currency_description}"    
 
+class MCBranchIssuance (models.Model):
+    branch_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    branch_name = models.CharField(max_length=100, unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Branch"
+        verbose_name_plural = "Branches"
+        ordering = ['branch_name']
+    
+    def __str__(self):
+        return f"{self.branch_name}"
+
+class FundingAccount (models.Model):
+    funding_acct_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    funding_acct_name = models.CharField(max_length=100, unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Funding Account"
+        verbose_name_plural = "Funding Accounts"
+        ordering = ['funding_acct_name']
+    
+    def __str__(self):
+        return f"{self.funding_acct_name}"
+
+
 class TransactionLog(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 

@@ -7,6 +7,8 @@ from .models import (
     UserCompany,
     Category,
     Currency,
+    MCBranchIssuance,
+    FundingAccount,
 )
 
 # -------------------------
@@ -102,3 +104,21 @@ class CompanyCurrency(admin.ModelAdmin):
     list_display = ('currency_code', 'currency_description')
     search_fields = ('currency_code',)
     ordering = ('currency_code',)
+
+# ------------------------------------
+# Branch to Issue MC
+# ------------------------------------
+@admin.register(MCBranchIssuance)
+class CompanyBranch(admin.ModelAdmin):
+    list_display = ('branch_name', )
+    search_fields = ('branch_name',)
+    ordering = ('branch_name',)
+
+# ------------------------------------
+# Funding Account
+# ------------------------------------
+@admin.register(FundingAccount)
+class CompanyFundingAccount(admin.ModelAdmin):
+    list_display = ('funding_acct_name', )
+    search_fields = ('funding_acct_name',)
+    ordering = ('funding_acct_name',)    
