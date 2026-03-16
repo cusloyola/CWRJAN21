@@ -118,8 +118,8 @@ class MCBranchIssuance (models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Branch"
-        verbose_name_plural = "Branches"
+        verbose_name = "Branch To Issue MC"
+        verbose_name_plural = "Branches To Issue MC"
         ordering = ['branch_name']
     
     def __str__(self):
