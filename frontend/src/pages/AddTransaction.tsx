@@ -12,11 +12,14 @@ const AddTransaction = () => {
   const { transactionRef } = useParams<{ transactionRef?: string }>();
   const isEditMode = Boolean(transactionRef);
   const [newTransaction, setNewTransaction] = useState<Partial<Transaction>>({});
+  const [initialTransaction, setInitialTransaction] = useState<Partial<Transaction>>({});
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [leaveTarget, setLeaveTarget] = useState<'transactions' | 'back'>('transactions');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const STORAGE_KEY = 'pendingTransaction';
   const TRANSACTIONS_STORAGE_KEY = 'transactionsData';
+  const getEditDraftKey = (ref: string) => `pendingTransactionEditDraft:${ref}`;
 
   // Sample data - in real app, these would come from API
   const categories = ['Category 1', 'Category 2', 'Category 3'];
@@ -44,7 +47,21 @@ const AddTransaction = () => {
         return;
       }
 
+      const editDraftKey = getEditDraftKey(transactionRef!);
+      const savedEditDraft = localStorage.getItem(editDraftKey);
+
+      if (savedEditDraft) {
+        try {
+          setNewTransaction(JSON.parse(savedEditDraft) as Partial<Transaction>);
+          setInitialTransaction(existingTransaction);
+          return;
+        } catch {
+          localStorage.removeItem(editDraftKey);
+        }
+      }
+
       setNewTransaction(existingTransaction);
+      setInitialTransaction(existingTransaction);
       return;
     }
 
@@ -59,6 +76,7 @@ const AddTransaction = () => {
       }
     } else {
       setNewTransaction({});
+      setInitialTransaction({});
     }
   }, [isEditMode, navigate, transactionRef, transactions]);
 
@@ -70,11 +88,74 @@ const AddTransaction = () => {
   }, [isEditMode, newTransaction]);
 
   useEffect(() => {
+    if (isEditMode && transactionRef && Object.keys(newTransaction).length > 0) {
+      localStorage.setItem(getEditDraftKey(transactionRef), JSON.stringify(newTransaction));
+    }
+  }, [isEditMode, newTransaction, transactionRef]);
+
+  useEffect(() => {
     localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(transactions));
   }, [transactions]);
 
   // Calculate next transaction number
   const nextTrxNumber = transactions.length + 1;
+
+  const toComparableTransaction = (value: Partial<Transaction>) => ({
+    category: value.category || '',
+    date: value.date || '',
+    payee: value.payee || '',
+    particulars: value.particulars || '',
+    vesselPrincipal: value.vesselPrincipal || '',
+    etd: value.etd || '',
+    currency: value.currency || '',
+    amount: typeof value.amount === 'number' ? value.amount : Number(value.amount || 0),
+    referenceErfp: value.referenceErfp || '',
+    branchToIssueMc: value.branchToIssueMc || '',
+    fundingAccount: value.fundingAccount || '',
+    batch: value.batch || '',
+    driveFileLink: value.driveFileLink || '',
+    supportingDocs: value.supportingDocs || '',
+  });
+
+  const hasUnsavedEditChanges = isEditMode
+    && Object.keys(initialTransaction).length > 0
+    && JSON.stringify(toComparableTransaction(initialTransaction)) !== JSON.stringify(toComparableTransaction(newTransaction));
+
+  const hasUnsavedChanges = isEditMode
+    ? hasUnsavedEditChanges
+    : Object.keys(newTransaction).length > 0;
+
+  useEffect(() => {
+    if (hasUnsavedChanges) {
+      window.history.pushState({ guard: 'transaction-form' }, '', window.location.href);
+    }
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasUnsavedChanges) {
+        return;
+      }
+
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    const handlePopState = () => {
+      if (!hasUnsavedChanges) {
+        return;
+      }
+
+      setLeaveTarget('back');
+      setShowConfirmModal(true);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [hasUnsavedChanges]);
 
   // Form validation function
   const validateForm = (): boolean => {
@@ -161,6 +242,9 @@ const AddTransaction = () => {
       }
 
       localStorage.removeItem(STORAGE_KEY);
+      if (isEditMode && transactionRef) {
+        localStorage.removeItem(getEditDraftKey(transactionRef));
+      }
       
       // Show success toast and store its ID
       const toastId = toast.success(isEditMode ? 'Transaction updated successfully!' : 'Transaction saved successfully!');
@@ -181,6 +265,15 @@ const AddTransaction = () => {
 
   const handleFormCancel = () => {
     if (isEditMode) {
+      if (hasUnsavedEditChanges) {
+        setLeaveTarget('transactions');
+        setShowConfirmModal(true);
+        return;
+      }
+
+      if (transactionRef) {
+        localStorage.removeItem(getEditDraftKey(transactionRef));
+      }
       navigate('/transactions');
       return;
     }
@@ -188,6 +281,7 @@ const AddTransaction = () => {
     // Check if user has any unsaved data
     const hasData = Object.keys(newTransaction).length > 0;
     if (hasData) {
+      setLeaveTarget('transactions');
       setShowConfirmModal(true);
     } else {
       navigate('/transactions');
@@ -197,19 +291,34 @@ const AddTransaction = () => {
   const handleKeepDraft = () => {
     // Keep draft and navigate away
     setShowConfirmModal(false);
+    if (leaveTarget === 'back') {
+      navigate(-1);
+      return;
+    }
     navigate('/transactions');
   };
 
   const handleDiscardDraft = () => {
     // Clear draft and navigate away
-    localStorage.removeItem(STORAGE_KEY);
+    if (isEditMode && transactionRef) {
+      localStorage.removeItem(getEditDraftKey(transactionRef));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
     setShowConfirmModal(false);
+    if (leaveTarget === 'back') {
+      navigate(-1);
+      return;
+    }
     navigate('/transactions');
   };
 
   const handleCancelModal = () => {
     // Close modal and stay on the page
     setShowConfirmModal(false);
+    if (leaveTarget === 'back' && hasUnsavedChanges) {
+      window.history.pushState({ guard: 'transaction-form' }, '', window.location.href);
+    }
   };
 
   return (
@@ -234,18 +343,16 @@ const AddTransaction = () => {
         </div>
       </div>
 
-      {!isEditMode && (
-        <ConfirmationModal
-          isOpen={showConfirmModal}
-          title="Save Draft?"
-          message="You have unsaved changes. Do you want to keep your draft for later?"
-          confirmText="Keep Draft"
-          cancelText="Don't Save"
-          onConfirm={handleKeepDraft}
-          onCancel={handleDiscardDraft}
-          onBackdropClick={handleCancelModal}
-        />
-      )}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        title="Save Draft?"
+        message="You have unsaved changes. Do you want to keep your draft for later?"
+        confirmText="Keep Draft"
+        cancelText="Don't Save"
+        onConfirm={handleKeepDraft}
+        onCancel={handleDiscardDraft}
+        onBackdropClick={handleCancelModal}
+      />
     </>
   );
 };

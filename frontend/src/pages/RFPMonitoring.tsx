@@ -1,67 +1,41 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import EditRfpMonitoringModal from '../components/EditRfpMonitoringModal';
-import AddRfpMonitoringModal from '../components/AddRfpMonitoringModal';
 import '../styles/TransactionTable.css';
 import {
     rfpMonitoringData,
     type RfpMonitoringRecord,
     type RfpStatus,
 } from '../dummy_data/rfpMonitoringData';
-import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const RFPMonitoring: React.FC = () => {
+    const navigate = useNavigate();
+    const RFP_STORAGE_KEY = 'rfpMonitoringData';
+
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [statusFilter, setStatusFilter] = useState<string>('All');
 
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 6;
 
-    const [records, setRecords] = useState<RfpMonitoringRecord[]>([...rfpMonitoringData]);
-
-    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-    const [editableRecord, setEditableRecord] = useState<RfpMonitoringRecord | null>(null);
-    const [isClosing, setIsClosing] = useState<boolean>(false);
-
-    const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
-    const [isAddModalClosing, setIsAddModalClosing] = useState<boolean>(false);
-    const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
-
-    const [newRecord, setNewRecord] = useState<Partial<RfpMonitoringRecord>>({
-        cwrProcessed: '',
-        cwrUsage: 1,
-        payeePerTrampsys: '',
-        vessel: '',
-        voy: '',
-        port: '',
-        etaTrampsys: '',
-        etdTrampsys: '',
-        trampsysStatus: 'DRAFT',
-        statusCwr: '',
-        remarksCwr: '',
-        currencyInCwr: 'PHP',
-        amountInCwr: null,
+    const [records] = useState<RfpMonitoringRecord[]>(() => {
+        const savedRecords = localStorage.getItem(RFP_STORAGE_KEY);
+        if (savedRecords) {
+            try {
+                return JSON.parse(savedRecords) as RfpMonitoringRecord[];
+            } catch {
+                return [...rfpMonitoringData];
+            }
+        }
+        return [...rfpMonitoringData];
     });
+
+    const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
 
     const statuses = useMemo(() => {
         const unique = Array.from(new Set(records.map(r => r.trampsysStatus))).sort();
         return unique as RfpStatus[];
-    }, [records]);
-
-    const [nextSeriesNumber, setNextSeriesNumber] = useState<number>(12511);
-
-    useEffect(() => {
-        const numbers = records
-            .map(r => Number(r.expectedSeries))
-            .filter(n => !Number.isNaN(n));
-
-        if (numbers.length === 0) {
-            setNextSeriesNumber(12511);
-            return;
-        }
-
-        setNextSeriesNumber(Math.max(...numbers) + 1);
     }, [records]);
 
     useEffect(() => {
@@ -109,98 +83,8 @@ const RFPMonitoring: React.FC = () => {
         setCurrentPage(1);
     }, [searchQuery, statusFilter]);
 
-    const openEditModal = (record: RfpMonitoringRecord) => {
-        setEditableRecord({ ...record });
-        setIsEditModalOpen(true);
-        setIsClosing(false);
-    };
-
-    const closeEditModal = () => {
-        setIsClosing(true);
-        setTimeout(() => {
-            setIsEditModalOpen(false);
-            setEditableRecord(null);
-            setIsClosing(false);
-        }, 300);
-    };
-
-    const handleEditChange = (field: keyof RfpMonitoringRecord, value: string | number | null) => {
-        if (!editableRecord) return;
-        setEditableRecord(prev => ({ ...prev!, [field]: value }));
-    };
-
-    const saveEditedRecord = () => {
-        if (!editableRecord) return;
-
-        setRecords(prev =>
-            prev.map(r => (r.expectedSeries === editableRecord.expectedSeries ? { ...editableRecord } : r)),
-        );
-
-        toast.success('RFP record updated successfully!');
-        closeEditModal();
-    };
-
-    const handleAdd = () => {
-        setNewRecord({
-            cwrProcessed: '',
-            cwrUsage: 1,
-            payeePerTrampsys: '',
-            vessel: '',
-            voy: '',
-            port: '',
-            etaTrampsys: '',
-            etdTrampsys: '',
-            trampsysStatus: 'DRAFT',
-            statusCwr: '',
-            remarksCwr: '',
-            currencyInCwr: 'PHP',
-            amountInCwr: null,
-        });
-        setIsAddModalOpen(true);
-        setIsAddModalClosing(false);
-    };
-
-    const closeAddModal = () => {
-        setIsAddModalClosing(true);
-        setTimeout(() => {
-            setIsAddModalOpen(false);
-            setIsAddModalClosing(false);
-        }, 300);
-    };
-
-    const handleAddChange = (field: keyof RfpMonitoringRecord, value: string | number | null) => {
-        setNewRecord(prev => ({ ...prev, [field]: value }));
-    };
-
-    const handleSaveNewRecord = () => {
-        if (!newRecord.payeePerTrampsys || !newRecord.port || !newRecord.etaTrampsys || !newRecord.currencyInCwr) {
-            toast.error('Please fill required fields: Payee, Port, ETA, Currency in CWR');
-            return;
-        }
-
-        const series = String(nextSeriesNumber);
-
-        const recordToAdd: RfpMonitoringRecord = {
-            expectedSeries: series,
-            cwrProcessed: String(newRecord.cwrProcessed || `eRFP${series}`),
-            cwrUsage: typeof newRecord.cwrUsage === 'number' ? newRecord.cwrUsage : 1,
-            trampsysStatus: (newRecord.trampsysStatus as RfpStatus) || 'DRAFT',
-            statusCwr: String(newRecord.statusCwr || ''),
-            remarksCwr: String(newRecord.remarksCwr || ''),
-            etaTrampsys: String(newRecord.etaTrampsys),
-            etdTrampsys: String(newRecord.etdTrampsys || ''),
-            payeePerTrampsys: String(newRecord.payeePerTrampsys),
-            vessel: String(newRecord.vessel || ''),
-            voy: String(newRecord.voy || ''),
-            port: String(newRecord.port),
-            series,
-            currencyInCwr: String(newRecord.currencyInCwr || 'PHP'),
-            amountInCwr: typeof newRecord.amountInCwr === 'number' ? newRecord.amountInCwr : null,
-        };
-
-        setRecords(prev => [recordToAdd, ...prev]);
-        toast.success('RFP record added successfully!');
-        closeAddModal();
+    const openEditPage = (record: RfpMonitoringRecord) => {
+        navigate(`/edit-rfp/${record.expectedSeries}`);
     };
 
     const handlePageChange = (page: number) => {
@@ -260,9 +144,9 @@ const RFPMonitoring: React.FC = () => {
                                 </svg>
                             </div>
 
-                            <div className="wpsi-add-button-container">
-                                <button onClick={handleAdd} className="wpsi-add-button">+ Add RFP</button>
-                            </div>
+                            <Link to="/add-rfp" className="wpsi-add-button" style={{ textDecoration: 'none' }}>
+                                + Add RFP
+                            </Link>
 
                             <div className="wpsi-dropdown-container">
                                 <select
@@ -309,8 +193,10 @@ const RFPMonitoring: React.FC = () => {
                                         paginatedRecords.map(record => (
                                             <tr
                                                 key={record.expectedSeries}
-                                                onClick={() => openEditModal(record)}
+                                                onClick={() => openEditPage(record)}
                                                 className="cursor-pointer hover:bg-gray-50 transition-colors"
+                                                title={record.trampsysStatus === 'RELEASED' ? 'Released records are view-only.' : 'Open record for editing'}
+                                                aria-label={record.trampsysStatus === 'RELEASED' ? 'Open released record in view-only mode' : 'Open record for editing'}
                                             >
                                                 <td className="rfp-series-cell">{record.expectedSeries}</td>
                                                 <td className="rfp-status-cell">
@@ -391,26 +277,6 @@ const RFPMonitoring: React.FC = () => {
                         )}
                     </div>
 
-                    <EditRfpMonitoringModal
-                        isOpen={isEditModalOpen}
-                        isClosing={isClosing}
-                        record={editableRecord}
-                        statuses={statuses}
-                        onClose={closeEditModal}
-                        onChange={handleEditChange}
-                        onSave={saveEditedRecord}
-                    />
-
-                    <AddRfpMonitoringModal
-                        isOpen={isAddModalOpen}
-                        isClosing={isAddModalClosing}
-                        nextSeriesNumber={nextSeriesNumber}
-                        newRecord={newRecord}
-                        statuses={statuses}
-                        onClose={closeAddModal}
-                        onChange={handleAddChange}
-                        onSave={handleSaveNewRecord}
-                    />
                 </main>
             </div>
         </>

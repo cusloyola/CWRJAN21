@@ -23,7 +23,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     [ROLES.DAM_WLPI]: ['/wlpi', '/dashboard', '/profile'],
     [ROLES.DAM_CFII]: ['/cfii', '/dashboard', '/profile'],
     
-    [ROLES.WORKER]: ['/dashboard', '/profile', '/transactions', '/archives', '/add-transaction', '/edit-transaction', '/corp-inventory', '/rfp-monitoring'], 
+    [ROLES.WORKER]: ['/dashboard', '/profile', '/transactions', '/archives', '/add-transaction', '/edit-transaction', '/corp-inventory', '/rfp-monitoring', '/add-rfp', '/edit-rfp'], 
 
     [ROLES.APPROVER]: [
         '/dashboard', 
