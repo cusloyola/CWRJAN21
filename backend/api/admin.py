@@ -9,6 +9,8 @@ from .models import (
     Currency,
     MCBranchIssuance,
     FundingAccount,
+    Transaction,
+    TransactionBatch,
 )
 
 # -------------------------
@@ -122,3 +124,21 @@ class CompanyFundingAccount(admin.ModelAdmin):
     list_display = ('funding_acct_name', )
     search_fields = ('funding_acct_name',)
     ordering = ('funding_acct_name',)    
+
+# ------------------------------------------------
+# CWR Transactions
+# ------------------------------------------------
+@admin.register(Transaction)
+class ChequesTransactions(admin.ModelAdmin):
+    list_display = ('transaction_ref','category','date_created', )
+    search_fields = ('transaction_ref',)
+    ordering = ('date_created',)
+
+# ------------------------------------------------
+# Transactions Batch
+# ------------------------------------------------
+@admin.register(TransactionBatch)
+class Batch(admin.ModelAdmin):
+    list_display = ('batch_name',)
+    search_fields = ('batch_name',)
+    ordering = ('date_created',)

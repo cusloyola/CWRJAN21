@@ -2,6 +2,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
+from decimal import Decimal
 
 class UserRole(models.Model):
     ROLE_APPROVER = "APR"
@@ -65,24 +66,6 @@ class UserCompany(models.Model):
     class Meta:
         unique_together = ('user','company')
 
-class Transaction (models.Model):
-    transaction_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
-    transaction_ref = models.CharField(max_length=100,unique=True)
-    category = models.CharField(max_length=100, unique=True)
-    payee = models.CharField(max_length=100,unique=True)
-    particulars = models.CharField(max_length=100,unique=True)
-    vessel_principal = models.CharField(max_length=100,unique=True)
-    etd = models.DateField()
-    currency = models.CharField(max_length=4,unique=True)
-    reference_erfp = models.CharField(max_length=100,unique=True)
-    mc_branch_issuance = models.CharField(max_length=100,unique=True)
-    funding_account = models.CharField(max_length=100,unique=True)
-    batch = models.CharField(max_length=50,unique=True)
-    drive_file_link = models.CharField(max_length=100,unique=True)
-    supporting_docs = models.CharField(max_length=100,unique=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-
 class Category (models.Model):
     category_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     company = models.ForeignKey(Company,on_delete=models.CASCADE)
@@ -107,7 +90,7 @@ class Currency (models.Model):
     class Meta:
         verbose_name = "Currency"
         verbose_name_plural = "Currencies"
-        ordering = ['currency_code']
+        ordering = ['currency_code']  
     
     def __str__(self):
         return f"{self.currency_description}"    
@@ -138,6 +121,51 @@ class FundingAccount (models.Model):
     def __str__(self):
         return f"{self.funding_acct_name}"
 
+class TransactionBatch (models.Model):
+    batch_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    batch_name = models.CharField(max_length=4,unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Batch"
+        verbose_name_plural = "Batches"
+        ordering = ['batch_id',]
+    
+    def __str__(self):
+        return f"{self.batch_name}"
+
+class Transaction (models.Model):
+    def get_default_currency():
+        return Currency.objects.get(currency_code="PHP").pk
+    
+    def get_default_batch():
+        return TransactionBatch.objects.get(batch_name="1ST").pk
+    
+    transaction_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    transaction_ref = models.CharField(max_length=100,unique=True)
+    category = models.ForeignKey(Category,on_delete=models.PROTECT)
+    payee = models.CharField(max_length=100,unique=True)
+    particulars = models.CharField(max_length=100,unique=True)
+    vessel_principal = models.CharField(max_length=100,unique=True)
+    etd = models.DateField()
+    currency = models.ForeignKey(Currency,on_delete=models.PROTECT,default=get_default_currency)
+    transaction_amount = models.DecimalField(max_digits=10,decimal_places=2,default=Decimal("0.00"))
+    reference_erfp = models.CharField(max_length=100,unique=True)
+    mc_branch_issuance = models.ForeignKey(MCBranchIssuance,on_delete=models.PROTECT)
+    funding_account = models.ForeignKey(FundingAccount,on_delete=models.PROTECT)
+    batch = models.ForeignKey(TransactionBatch,on_delete=models.PROTECT,default=get_default_batch)
+    drive_file_link = models.CharField(max_length=100,unique=True)
+    supporting_docs = models.CharField(max_length=100,unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    endorsement_complete = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Transaction"
+        verbose_name_plural = "Transactions"
+        ordering = ['date_created']
+    
+    def __str__(self):
+        return f"{self.transaction_id}"
 
 class TransactionLog(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
