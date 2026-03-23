@@ -133,7 +133,7 @@ const Dashboard = () => {
 
               {/* User Info */}
               <div>
-                <h2 className="profile-name">Juan Dela Cruz</h2>
+                <h2 className="profile-name">{localStorage.getItem('userName')}</h2>
                 <p className="profile-role">{localStorage.getItem('userRole')}</p>
               </div>
             </div>

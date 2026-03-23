@@ -70,9 +70,9 @@ const CorpInventory: React.FC = () => {
                 <div className="transaction-form-header">
                     <h2 className="transaction-form-title">Corp Cheque Inventory</h2>
                 </div>
-                <main style={{ padding: 'min(30px, 7%)', width: '100%', overflowX: 'hidden' }}>
+                <main className="corp-inventory-main">
 
-                    <div className="transactions-page-wrapper">
+                    <div className="transactions-page-wrapper corp-inventory-page">
 
 
                         <section className="corp-summary-card" aria-label="Corp cheque inventory summary">
@@ -122,10 +122,6 @@ const CorpInventory: React.FC = () => {
                         {/* Table */}
                         <div className="transactions-table-container">
                             <table className="transactions-table table corp-inventory-table">
-                                <colgroup>
-                                    <col style={{ width: 'auto' }} />
-                                    <col style={{ width: '420px' }} />
-                                </colgroup>
                                 <thead>
                                     <tr>
                                         <th>Date</th>

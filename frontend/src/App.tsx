@@ -17,6 +17,7 @@ import TransactionTable from './pages/Transactions'
 import ArchivesTable from './pages/Archives'
 import CorpInventory from './pages/CorpInventory'
 import RFPMonitoring from './pages/RFPMonitoring'
+import AddRfpMonitoring from './pages/AddRfpMonitoring'
 import ProtectedRoute from './components/ProtectedRoute'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -25,8 +26,8 @@ function App() {
   const location = useLocation()
   const dashboardRoutes = ['/dashboard', '/profile', '/wpsi', '/wmsi', '/wlpi',
     '/cfii', '/bank-workload', '/activity-log/wpsi-cwr', '/activity-log/wmsi-cwr', '/activity-log/wlpi-cwr',
-    '/activity-log/cfii-cwr', '/transactions', '/archives', '/add-transaction', '/corp-inventory', '/rfp-monitoring']
-  const isDashboardLayout = dashboardRoutes.includes(location.pathname)
+    '/activity-log/cfii-cwr', '/transactions', '/archives', '/add-transaction', '/edit-transaction', '/corp-inventory', '/rfp-monitoring', '/add-rfp', '/edit-rfp']
+  const isDashboardLayout = dashboardRoutes.some(route => location.pathname.startsWith(route))
 
   return (
     <div className={isDashboardLayout ? 'dashboard-layout' : ''}>
@@ -47,8 +48,11 @@ function App() {
         <Route path="/transactions" element={<ProtectedRoute><TransactionTable /></ProtectedRoute>} />
         <Route path="/archives" element={<ProtectedRoute><ArchivesTable /></ProtectedRoute>} />
         <Route path="/add-transaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
+        <Route path="/edit-transaction/:transactionRef" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
         <Route path="/corp-inventory" element={<ProtectedRoute><CorpInventory /></ProtectedRoute>} />
         <Route path="/rfp-monitoring" element={<ProtectedRoute><RFPMonitoring /></ProtectedRoute>} />
+        <Route path="/add-rfp" element={<ProtectedRoute><AddRfpMonitoring /></ProtectedRoute>} />
+        <Route path="/edit-rfp/:expectedSeries" element={<ProtectedRoute><AddRfpMonitoring /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ToastContainer position="top-center" theme="colored" limit={3} newestOnTop closeOnClick pauseOnHover={false} />
