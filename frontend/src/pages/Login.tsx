@@ -12,37 +12,44 @@ export const STATIC_USERS = [
     {
         role: "Approver",
         email: "approver@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "Jane Doe"
     },
     {
         role: "Deputy",
         email: "deputy@demo.com",
-        password: "admin123"
+        password: "admin123",  
+        name: "John Smith"
     },
     {
         role: "DAM WPSI",
         email: "damwpsi@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "Alice Johnson"
     },
     {
         role: "DAM WMSI",
         email: "damwmsi@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "Bob Williams"
     },
     {
         role: "DAM WLPI",
         email: "damwlpi@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "Charlie Brown"
     },
     {
         role: "DAM CFII",
         email: "damcfii@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "David Davis"
     },
     {
         role: "Worker",
         email: "worker@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "Eve Miller"
     }
 ];
 
@@ -143,6 +150,7 @@ function Login() {
                     localStorage.setItem('authToken', 'demo-token-' + Date.now());
                     localStorage.setItem('userEmail', user.email);
                     localStorage.setItem('userRole', user.role);
+                    localStorage.setItem('userName', user.name);
 
                     const toastId = toast.success("Login successful! Redirecting...");
 

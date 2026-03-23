@@ -239,7 +239,7 @@ const Archives: React.FC = () => {
                                     value={searchQuery}
                                     onChange={e => setSearchQuery(e.target.value)}
                                     className="wpsi-search-input"
-                                    style={{ paddingLeft: '2.5rem', maxWidth: '500px' }}
+                                    style={{ paddingLeft: '2.5rem'/* , maxWidth: '500px'  */}}
                                 />
                                 <svg
                                     className="wpsi-search-icon"
