@@ -99,12 +99,12 @@ const Sidebar = () => {
             {!sidebarCollapsed ? (
               // Logo is clickable when sidebar is open - acts as minimize button
               <span className="logo cursor-pointer" onClick={toggleSidebar}>
-                <img src={logo} alt="Wallem Square Logo" style={{ width: '100%', height: '50px', display: 'flex' }} />
+                <img src={logo} alt="Wallem Square Logo" style={{ width: '100%', height: '50px', display: 'flex', cursor: 'pointer' }} />
               </span>
             ) : (
               // Show minimal logo when collapsed
               <span className="logo">
-                <img src={logo} alt="Wallem Square Logo" style={{ width: '32px', height: '32px', display: 'flex' }} />
+                <img src={logo} alt="Wallem Square Logo" style={{ width: '32px', height: '32px', display: 'flex', cursor: 'pointer' }} />
               </span>
             )}
             
@@ -269,15 +269,6 @@ const Sidebar = () => {
                   <span>Transactions</span>
                 </Link>
               </li>
-              <li className={isActive("/archives") ? "active" : ""}>
-                <Link to="/archives" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor" className="shrink-0">
-                    {isActive("/archives") ? (
-                      <path d="M20 6H4l-2 4v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V10l-2-4zm0 14H4V10h16v10zm-8-3l-4-4h3v-3h2v3h3l-4 4z" />) : (<path d="M20 6H4l-2 4v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V10l-2-4zm0 14H4V10h16v10zm-8-3l-4-4h3v-3h2v3h3l-4 4z" />)}
-                  </svg>
-                  <span>Archives</span>
-                </Link>
-              </li>
               <li className={isActive("/rfp-monitoring") ? "active" : ""}>
                 <Link to="/rfp-monitoring" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor" className="shrink-0">
@@ -293,7 +284,16 @@ const Sidebar = () => {
                     {isActive("/corp-inventory") ? (
                       <path d="M20 2H4c-1.1 0-2 .9-2 2v3h20V4c0-1.1-.9-2-2-2zm0 7H2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9zm-6 3h4v2h-4v-2zm0 4h4v2h-4v-2z" />) : (<path d="M20 2H4c-1.1 0-2 .9-2 2v3h20V4c0-1.1-.9-2-2-2zm0 7H2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9zm-6 3h4v2h-4v-2zm0 4h4v2h-4v-2z" />)}
                   </svg>
-                  <span>Corp Inventory</span>
+                  <span>Cheque Inventory</span>
+                </Link>
+              </li>
+                            <li className={isActive("/archives") ? "active" : ""}>
+                <Link to="/archives" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor" className="shrink-0">
+                    {isActive("/archives") ? (
+                      <path d="M20 6H4l-2 4v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V10l-2-4zm0 14H4V10h16v10zm-8-3l-4-4h3v-3h2v3h3l-4 4z" />) : (<path d="M20 6H4l-2 4v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V10l-2-4zm0 14H4V10h16v10zm-8-3l-4-4h3v-3h2v3h3l-4 4z" />)}
+                  </svg>
+                  <span>Archives</span>
                 </Link>
               </li>
             </>

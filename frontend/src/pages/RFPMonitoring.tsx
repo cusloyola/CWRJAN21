@@ -217,6 +217,14 @@ const RFPMonitoring: React.FC = () => {
         return 'rfp-status-draft';
     };
 
+    const getStatusLabel = (status: RfpStatus) => {
+        if (!isMobile) return status;
+        if (status === 'APPROVED') return 'APP';
+        if (status === 'RELEASED') return 'REL';
+        if (status === 'VOID') return 'VOD';
+        return 'DRF';
+    };
+
     return (
         <>
             <Sidebar />
@@ -273,11 +281,11 @@ const RFPMonitoring: React.FC = () => {
                         <div className="transactions-table-container">
                             <table className="transactions-table table rfp-monitoring-table">
                                 <colgroup>
-                                    <col style={{ width: isMobile ? '19%' : '13%' }} />
-                                    <col style={{ width: isMobile ? '21%' : '13%' }} />
+                                    <col style={{ width: isMobile ? '18%' : '13%' }} />
+                                    <col style={{ width: isMobile ? '24%' : '13%' }} />
                                     {!isMobile && <col style={{ width: isTablet ? '0%' : '21%' }} />}
-                                    <col style={{ width: isMobile ? '31%' : isTablet ? '37%' : '20%' }} />
-                                    <col style={{ width: isMobile ? '29%' : isTablet ? '30%' : '14%' }} />
+                                    <col style={{ width: isMobile ? '30%' : isTablet ? '37%' : '20%' }} />
+                                    <col style={{ width: isMobile ? '28%' : isTablet ? '30%' : '14%' }} />
                                     {!isTablet && <col style={{ width: '19%' }} />}
                                 </colgroup>
                                 <thead>
@@ -305,20 +313,26 @@ const RFPMonitoring: React.FC = () => {
                                                 className="cursor-pointer hover:bg-gray-50 transition-colors"
                                             >
                                                 <td className="rfp-series-cell">{record.expectedSeries}</td>
-                                                <td>
-                                                    <span className={`rfp-status-chip ${getStatusClass(record.trampsysStatus)}`}>
-                                                        {record.trampsysStatus}
+                                                <td className="rfp-status-cell">
+                                                    <span
+                                                        className={`rfp-status-chip ${getStatusClass(record.trampsysStatus)}`}
+                                                        title={record.trampsysStatus}
+                                                        aria-label={record.trampsysStatus}
+                                                    >
+                                                        {getStatusLabel(record.trampsysStatus)}
                                                     </span>
                                                 </td>
                                                 {!isMobile && <td>{record.statusCwr || '-'}</td>}
-                                                <td>{record.payeePerTrampsys || '-'}</td>
-                                                <td>
+                                                <td className="rfp-payee-cell">
+                                                    <div className="rfp-payee-text">{record.payeePerTrampsys || '-'}</div>
+                                                </td>
+                                                <td className="rfp-vessel-cell">
                                                     <div className="rfp-stack">
                                                         <div className="rfp-primary-text">{record.vessel || '-'}</div>
                                                         <div className="rfp-secondary-text">{record.voy || '-'}</div>
                                                     </div>
                                                 </td>
-                                                {!isTablet && <td>{record.port || '-'}</td>}
+                                                {!isTablet && <td className="rfp-port-cell">{record.port || '-'}</td>}
                                             </tr>
                                         ))
                                     )}
