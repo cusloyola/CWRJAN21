@@ -122,21 +122,21 @@ const AddTransaction = () => {
     if (hasData) {
       setShowConfirmModal(true);
     } else {
-      navigate('/dashboard');
+      navigate('/transactions');
     }
   };
 
   const handleKeepDraft = () => {
     // Keep draft and navigate away
     setShowConfirmModal(false);
-    navigate('/dashboard');
+    navigate('/transactions');
   };
 
   const handleDiscardDraft = () => {
     // Clear draft and navigate away
     localStorage.removeItem(STORAGE_KEY);
     setShowConfirmModal(false);
-    navigate('/dashboard');
+    navigate('/transactions');
   };
 
   const handleCancelModal = () => {

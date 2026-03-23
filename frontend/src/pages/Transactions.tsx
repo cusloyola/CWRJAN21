@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
 import { transactionsData, type Transaction } from '../dummy_data/transactionsData';
@@ -154,7 +155,7 @@ const Transactions: React.FC = () => {
         closeEditModal();
     };
 
-    const handleAdd = () => {
+/*     const handleAdd = () => {
         setNewTransaction({
             category: '',
             date: '',
@@ -173,7 +174,7 @@ const Transactions: React.FC = () => {
         });
         setIsAddModalOpen(true);
         setIsAddModalClosing(false);
-    };
+    }; */
 
     const closeAddModal = () => {
         setIsAddModalClosing(true);
@@ -255,9 +256,9 @@ const Transactions: React.FC = () => {
                                 </svg>
                             </div>
 
-                            <div className="wpsi-add-button-container">
-                                <button onClick={handleAdd} className="wpsi-add-button">+ Add</button>
-                            </div>
+                            <Link to="/add-transaction" className="wpsi-add-button" style={{ textDecoration: 'none' }}>
+                                + Add
+                            </Link>
 
                             <div className="wpsi-dropdown-container">
                                 <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="wpsi-dropdown">

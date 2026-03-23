@@ -154,7 +154,7 @@ const Archives: React.FC = () => {
         closeEditModal();
     };
 
-    const handleAdd = () => {
+/*     const handleAdd = () => {
         setNewTransaction({
             category: '',
             date: '',
@@ -173,7 +173,7 @@ const Archives: React.FC = () => {
         });
         setIsAddModalOpen(true);
         setIsAddModalClosing(false);
-    };
+    }; */
 
     const closeAddModal = () => {
         setIsAddModalClosing(true);
@@ -253,11 +253,7 @@ const Archives: React.FC = () => {
                                     <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
                                     <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" strokeWidth="2" />
                                 </svg>
-                            </div>
-
-                            <div className="wpsi-add-button-container">
-                                <button onClick={handleAdd} className="wpsi-add-button">+ Add</button>
-                            </div>
+                            </div>          
 
                             <div className="wpsi-dropdown-container">
                                 <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="wpsi-dropdown">
