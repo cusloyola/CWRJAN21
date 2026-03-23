@@ -25,8 +25,8 @@ function App() {
   const location = useLocation()
   const dashboardRoutes = ['/dashboard', '/profile', '/wpsi', '/wmsi', '/wlpi',
     '/cfii', '/bank-workload', '/activity-log/wpsi-cwr', '/activity-log/wmsi-cwr', '/activity-log/wlpi-cwr',
-    '/activity-log/cfii-cwr', '/transactions', '/archives', '/add-transaction', '/corp-inventory', '/rfp-monitoring']
-  const isDashboardLayout = dashboardRoutes.includes(location.pathname)
+    '/activity-log/cfii-cwr', '/transactions', '/archives', '/add-transaction', '/edit-transaction', '/corp-inventory', '/rfp-monitoring']
+  const isDashboardLayout = dashboardRoutes.some(route => location.pathname.startsWith(route))
 
   return (
     <div className={isDashboardLayout ? 'dashboard-layout' : ''}>
@@ -47,6 +47,7 @@ function App() {
         <Route path="/transactions" element={<ProtectedRoute><TransactionTable /></ProtectedRoute>} />
         <Route path="/archives" element={<ProtectedRoute><ArchivesTable /></ProtectedRoute>} />
         <Route path="/add-transaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
+        <Route path="/edit-transaction/:transactionRef" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
         <Route path="/corp-inventory" element={<ProtectedRoute><CorpInventory /></ProtectedRoute>} />
         <Route path="/rfp-monitoring" element={<ProtectedRoute><RFPMonitoring /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />

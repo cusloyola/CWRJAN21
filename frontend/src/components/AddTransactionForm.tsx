@@ -56,7 +56,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Category</label>
                             <select
-                                className="transaction-form-detail-value"
+                                className="transaction-form-detail-value transaction-form-select"
                                 value={newTransaction.category || ''}
                                 onChange={e => onChange('category', e.target.value)}
                                 required
@@ -126,7 +126,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Currency</label>
                             <select
-                                className="transaction-form-detail-value"
+                                className="transaction-form-detail-value transaction-form-select"
                                 value={newTransaction.currency || ''}
                                 onChange={e => onChange('currency', e.target.value)}
                                 required

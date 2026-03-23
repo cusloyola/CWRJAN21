@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from './Sidebar';
@@ -9,18 +9,45 @@ import { type Transaction, transactionsData } from '../dummy_data/transactionsDa
 
 const AddTransaction = () => {
   const navigate = useNavigate();
+  const { transactionRef } = useParams<{ transactionRef?: string }>();
+  const isEditMode = Boolean(transactionRef);
   const [newTransaction, setNewTransaction] = useState<Partial<Transaction>>({});
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const STORAGE_KEY = 'pendingTransaction';
+  const TRANSACTIONS_STORAGE_KEY = 'transactionsData';
 
   // Sample data - in real app, these would come from API
   const categories = ['Category 1', 'Category 2', 'Category 3'];
   const currencies = ['USD', 'PHP'];
 
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const savedTransactions = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
+    if (savedTransactions) {
+      try {
+        return JSON.parse(savedTransactions) as Transaction[];
+      } catch {
+        return [...transactionsData];
+      }
+    }
+    return [...transactionsData];
+  });
+
   // Load saved data from localStorage on component mount
   useEffect(() => {
+    if (isEditMode) {
+      const existingTransaction = transactions.find(t => t.transactionRef === transactionRef);
+      if (!existingTransaction) {
+        toast.error('Transaction not found.');
+        navigate('/transactions');
+        return;
+      }
+
+      setNewTransaction(existingTransaction);
+      return;
+    }
+
     const savedData = localStorage.getItem(STORAGE_KEY);
     if (savedData) {
       try {
@@ -28,21 +55,26 @@ const AddTransaction = () => {
         setNewTransaction(parsedData);
       } catch (error) {
         console.error('Error loading saved transaction data:', error);
-        // Clear corrupted data
         localStorage.removeItem(STORAGE_KEY);
       }
+    } else {
+      setNewTransaction({});
     }
-  }, []);
+  }, [isEditMode, navigate, transactionRef, transactions]);
 
   // Save data to localStorage whenever transaction data changes
   useEffect(() => {
-    if (Object.keys(newTransaction).length > 0) {
+    if (!isEditMode && Object.keys(newTransaction).length > 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newTransaction));
     }
-  }, [newTransaction]);
+  }, [isEditMode, newTransaction]);
+
+  useEffect(() => {
+    localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(transactions));
+  }, [transactions]);
 
   // Calculate next transaction number
-  const nextTrxNumber = transactionsData.length + 1;
+  const nextTrxNumber = transactions.length + 1;
 
   // Form validation function
   const validateForm = (): boolean => {
@@ -93,19 +125,50 @@ const AddTransaction = () => {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // TODO: Save transaction to backend/state management
-      console.log('Saving transaction:', newTransaction);
-      
-      // Clear the saved draft data since transaction is being saved
+      if (isEditMode && transactionRef) {
+        setTransactions(prev =>
+          prev.map(t =>
+            t.transactionRef === transactionRef
+              ? {
+                  ...t,
+                  ...newTransaction,
+                  transactionRef: t.transactionRef,
+                } as Transaction
+              : t,
+          ),
+        );
+      } else {
+        const paddedNumber = String(nextTrxNumber).padStart(3, '0');
+        const newRef = `TRX${paddedNumber}`;
+        const transactionToAdd: Transaction = {
+          transactionRef: newRef,
+          category: String(newTransaction.category || ''),
+          date: String(newTransaction.date || ''),
+          payee: String(newTransaction.payee || ''),
+          particulars: String(newTransaction.particulars || ''),
+          vesselPrincipal: String(newTransaction.vesselPrincipal || ''),
+          etd: String(newTransaction.etd || ''),
+          currency: String(newTransaction.currency || ''),
+          amount: typeof newTransaction.amount === 'number' ? newTransaction.amount : Number(newTransaction.amount || 0),
+          referenceErfp: String(newTransaction.referenceErfp || ''),
+          branchToIssueMc: String(newTransaction.branchToIssueMc || ''),
+          fundingAccount: String(newTransaction.fundingAccount || ''),
+          batch: String(newTransaction.batch || ''),
+          driveFileLink: String(newTransaction.driveFileLink || ''),
+          supportingDocs: String(newTransaction.supportingDocs || ''),
+        };
+        setTransactions(prev => [transactionToAdd, ...prev]);
+      }
+
       localStorage.removeItem(STORAGE_KEY);
       
       // Show success toast and store its ID
-      const toastId = toast.success('Transaction saved successfully!');
+      const toastId = toast.success(isEditMode ? 'Transaction updated successfully!' : 'Transaction saved successfully!');
       
       // Navigate back to dashboard after a short delay
       setTimeout(() => {
         toast.dismiss(toastId); // Dismiss the toast before navigating
-        navigate('/dashboard');
+        navigate('/transactions');
       }, 1000);
       
     } catch (error) {
@@ -117,6 +180,11 @@ const AddTransaction = () => {
   };
 
   const handleFormCancel = () => {
+    if (isEditMode) {
+      navigate('/transactions');
+      return;
+    }
+
     // Check if user has any unsaved data
     const hasData = Object.keys(newTransaction).length > 0;
     if (hasData) {
@@ -156,6 +224,8 @@ const AddTransaction = () => {
             newTransaction={newTransaction}
             categories={categories}
             currencies={currencies}
+            mode={isEditMode ? 'edit' : 'add'}
+            displayRef={isEditMode ? transactionRef : undefined}
             isSubmitting={isSubmitting}
             onChange={handleFormChange}
             onSave={handleFormSave}
@@ -164,16 +234,18 @@ const AddTransaction = () => {
         </div>
       </div>
 
-      <ConfirmationModal
-        isOpen={showConfirmModal}
-        title="Save Draft?"
-        message="You have unsaved changes. Do you want to keep your draft for later?"
-        confirmText="Keep Draft"
-        cancelText="Don't Save"
-        onConfirm={handleKeepDraft}
-        onCancel={handleDiscardDraft}
-        onBackdropClick={handleCancelModal}
-      />
+      {!isEditMode && (
+        <ConfirmationModal
+          isOpen={showConfirmModal}
+          title="Save Draft?"
+          message="You have unsaved changes. Do you want to keep your draft for later?"
+          confirmText="Keep Draft"
+          cancelText="Don't Save"
+          onConfirm={handleKeepDraft}
+          onCancel={handleDiscardDraft}
+          onBackdropClick={handleCancelModal}
+        />
+      )}
     </>
   );
 };
