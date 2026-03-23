@@ -46,14 +46,12 @@ const CFIICWR: React.FC = () => {
     <>
       <Sidebar />
       <div className="wpsi-content">
-        <header className="dashboard-header"></header>
-
         <main className="wpsi-main">
 
           <div className="wpsi-inner">
 
-            <div className="wpsi-section-header">
-              <h1>CFII - CWR</h1>
+            <div className="transaction-form-header">
+              <h2 className="transaction-form-title">CFII - CWR</h2>
             </div>
             <div className="wpsi-controls mb-4">
               <div className="wpsi-search-container">
