@@ -86,25 +86,45 @@
 .rfp-monitoring-table td {
     vertical-align: top;
     white-space: normal;
-    text-overflow: clip;
-    overflow: visible;
 }
 
 .rfp-monitoring-table th {
-    padding-top: 0.85rem;
-    padding-bottom: 0.85rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
 }
 
 .rfp-monitoring-table td {
-    padding-top: 0.7rem;
-    padding-bottom: 0.7rem;
-    line-height: normal;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    line-height: 1.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Override generic second-column tweak used by other tables. */
 .rfp-monitoring-table td:nth-child(2) {
-    padding-top: 0.7rem;
+    padding-top: 0.5rem;
     vertical-align: middle;
+}
+
+.rfp-monitoring-table .rfp-status-cell {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.rfp-monitoring-table .rfp-payee-cell,
+.rfp-monitoring-table .rfp-vessel-cell,
+.rfp-monitoring-table .rfp-port-cell {
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rfp-monitoring-table .rfp-payee-text {
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: #1f2937;
+    margin: 0;
 }
 
 .rfp-monitoring-table .rfp-series-col,
@@ -118,18 +138,18 @@
     white-space: nowrap;
 }
 
-.rfp-monitoring-table .rfp-primary-text {
+.rfp-primary-text {
     font-weight: 600;
-    line-height: 1.15rem;
+    line-height: 1.2rem;
     color: #1f2937;
     margin: 0;
 }
 
-.rfp-monitoring-table .rfp-secondary-text {
+.rfp-secondary-text {
     font-size: 0.75rem;
     color: #64748b;
     line-height: 1rem;
-    margin: 0;
+    margin: 0.15rem 0 0;
     word-break: break-word;
 }
 
@@ -876,4 +896,31 @@
 .rfp-monitoring-table {
     min-width: 0;
     width: 100%;
+}
+
+@media (max-width: 768px) {
+    .rfp-monitoring-table td:nth-child(2) {
+        white-space: nowrap;
+    }
+
+    .rfp-monitoring-table .rfp-status-chip {
+        padding: 0.12rem 0.45rem;
+        font-size: 0.65rem;
+        letter-spacing: 0.01em;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
+    }
+
+    .rfp-monitoring-table .rfp-stack {
+        gap: 0.12rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .rfp-monitoring-table .rfp-status-chip {
+        padding: 0.1rem 0.38rem;
+        font-size: 0.6rem;
+    }
 }
