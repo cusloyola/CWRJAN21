@@ -11,6 +11,10 @@ interface AddTransactionModalProps {
     onClose: () => void;
     onChange: (field: keyof Partial<Transaction>, value: any) => void;
     onSave: () => void;
+    modalTitle?: string;
+    referenceLabel?: string;
+    referencePrefix?: string;
+    saveButtonLabel?: string;
 }
 
 const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
@@ -22,7 +26,11 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     currencies,
     onClose,
     onChange,
-    onSave
+    onSave,
+    modalTitle = 'Add New Transaction',
+    referenceLabel = 'Transaction Ref',
+    referencePrefix = 'TRX',
+    saveButtonLabel = 'Add Transaction'
 }) => {
     if (!isOpen) return null;
 
@@ -37,7 +45,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 onClick={e => e.stopPropagation()}
             >
                 <div className="transaction-modal-header">
-                    <span className="transaction-modal-title">Add New Transaction</span>
+                    <span className="transaction-modal-title">{modalTitle}</span>
                     <button className="transaction-modal-close" onClick={onClose}>
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -48,10 +56,10 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 <div className="transaction-modal-content">
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1rem' }}>
                         <span className="transaction-modal-detail-label" style={{ textAlign: 'center' }}>
-                            Transaction Ref
+                            {referenceLabel}
                         </span>
                         <h2 className="transaction-modal-ref-title" style={{ textAlign: 'center', margin: 0 }}>
-                            TRX{String(nextTrxNumber).padStart(3, '0')}
+                            {referencePrefix}{String(nextTrxNumber).padStart(3, '0')}
                         </h2>
                     </div>
 
@@ -220,7 +228,7 @@ const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                             Cancel
                         </button>
                         <button onClick={onSave} className="transaction-edit-save-button">
-                            Add Transaction
+                            {saveButtonLabel}
                         </button>
                     </div>
                 </div>

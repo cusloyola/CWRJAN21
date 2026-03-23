@@ -278,6 +278,24 @@ const Sidebar = () => {
                   <span>Archives</span>
                 </Link>
               </li>
+              <li className={isActive("/rfp-monitoring") ? "active" : ""}>
+                <Link to="/rfp-monitoring" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor" className="shrink-0">
+                    {isActive("/rfp-monitoring") ? (
+                      <path d="M3 17h3v-7H3v7zm5 0h3V7H8v10zm5 0h3v-4h-3v4zm5 0h3V4h-3v13zM2 19h20v2H2v-2z" />) : (<path d="M3 17h3v-7H3v7zm5 0h3V7H8v10zm5 0h3v-4h-3v4zm5 0h3V4h-3v13zM2 19h20v2H2v-2z" />)}
+                  </svg>
+                  <span>RFP Monitoring</span>
+                </Link>
+              </li>
+              <li className={isActive("/corp-inventory") ? "active" : ""}>
+                <Link to="/corp-inventory" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor" className="shrink-0">
+                    {isActive("/corp-inventory") ? (
+                      <path d="M20 2H4c-1.1 0-2 .9-2 2v3h20V4c0-1.1-.9-2-2-2zm0 7H2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9zm-6 3h4v2h-4v-2zm0 4h4v2h-4v-2z" />) : (<path d="M20 2H4c-1.1 0-2 .9-2 2v3h20V4c0-1.1-.9-2-2-2zm0 7H2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9zm-6 3h4v2h-4v-2zm0 4h4v2h-4v-2z" />)}
+                  </svg>
+                  <span>Corp Inventory</span>
+                </Link>
+              </li>
             </>
           )}
           {/* Commented out profile sidebar */}

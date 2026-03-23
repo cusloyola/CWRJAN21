@@ -10,6 +10,9 @@ interface EditTransactionModalProps {
     onClose: () => void;
     onChange: (field: keyof Transaction, value: any) => void;
     onSave: () => void;
+    modalTitle?: string;
+    referenceLabel?: string;
+    saveButtonLabel?: string;
 }
 
 const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
@@ -20,7 +23,10 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
     currencies,
     onClose,
     onChange,
-    onSave
+    onSave,
+    modalTitle = 'Edit Transaction',
+    referenceLabel = 'Transaction Ref',
+    saveButtonLabel = 'Save Changes'
 }) => {
     if (!isOpen || !transaction) return null;
 
@@ -29,7 +35,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
             <div className={`transaction-modal-backdrop ${isClosing ? 'closing' : ''}`} onClick={onClose} />
             <div className={`transaction-detail-modal ${isClosing ? 'closing' : ''}`} onClick={e => e.stopPropagation()}>
                 <div className="transaction-modal-header">
-                    <span className="transaction-modal-title">Edit Transaction</span>
+                    <span className="transaction-modal-title">{modalTitle}</span>
                     <button className="transaction-modal-close" onClick={onClose}>
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -40,7 +46,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                 <div className="transaction-modal-content">
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1rem' }}>
                         <span className="transaction-modal-detail-label" style={{ textAlign: 'center' }}>
-                            Transaction Ref
+                            {referenceLabel}
                         </span>
                         <h2 className="transaction-modal-ref-title" style={{ textAlign: 'center', margin: 0 }}>
                             {transaction.transactionRef}
@@ -222,7 +228,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                             Cancel
                         </button>
                         <button onClick={onSave} className="transaction-edit-save-button">
-                            Save Changes
+                            {saveButtonLabel}
                         </button>
                     </div>
                 </div>
