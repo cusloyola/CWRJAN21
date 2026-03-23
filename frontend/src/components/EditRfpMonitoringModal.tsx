@@ -170,17 +170,6 @@ const EditRfpMonitoringModal: React.FC<EditRfpMonitoringModalProps> = ({
               />
             </div>
 
-            <div className="transaction-modal-detail-row">
-              <span className="transaction-modal-detail-label">Amount in CWR</span>
-              <input
-                type="number"
-                step="0.01"
-                className="transaction-modal-detail-value"
-                value={record.amountInCwr ?? ''}
-                onChange={e => onChange('amountInCwr', e.target.value ? Number(e.target.value) : null)}
-                placeholder="Optional amount"
-              />
-            </div>
           </div>
 
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>

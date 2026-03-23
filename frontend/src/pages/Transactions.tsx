@@ -282,16 +282,18 @@ const Transactions: React.FC = () => {
                         <div className="transactions-table-container">
                             <table className="transactions-table table">
                                 <colgroup>
-                                    <col style={{ width: '17%' }} />
-                                    <col style={{ width: isMobile ? '38%' : '28%' }} />
-                                    {!isMobile && <col style={{ width: '15%' }} />}
-                                    {!isVerySmall && <col style={{ width: '20%' }} />}
-                                    <col style={{ width: '20%' }} />
+                                    <col style={{ width: '16%' }} />
+                                    <col style={{ width: isMobile ? '36%' : '26%' }} />
+                                    {!isMobile && <col style={{ width: '14%' }} />}
+                                    {!isVerySmall && <col style={{ width: isMobile ? '18%' : '16%' }} />}
+                                    {!isVerySmall && <col style={{ width: isMobile ? '14%' : '12%' }} />}
+                                    <col style={{ width: isMobile ? '16%' : '16%' }} />
                                 </colgroup>
                                 <thead>
                                     <tr>
                                         <th>Transaction Ref</th>
                                         <th>Payee / Particulars</th>
+                                        <th>Batch</th>
                                         {!isMobile && <th>Vessel</th>}
                                         {!isVerySmall && <th>Date</th>}
                                         <th>Amount</th>
@@ -301,7 +303,7 @@ const Transactions: React.FC = () => {
                                     {paginatedTransactions.length === 0 ? (
                                         <tr>
                                             <td colSpan={
-                                                isVerySmall ? 3 : isMobile ? 4 : 5
+                                                isVerySmall ? 3 : isMobile ? 5 : 6
                                             } className="transactions-table-empty">
                                                 No transactions found
                                             </td>
@@ -315,11 +317,12 @@ const Transactions: React.FC = () => {
                                             >
                                                 <td>{transaction.transactionRef}</td>
                                                 <td>
-                                                    <div style={{ fontWeight: 500 }}>{transaction.payee}</div>
-                                                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
+                                                    <div className='rfp-primary-text'>{transaction.payee}</div>
+                                                    <div className='rfp-secondary-text'>
                                                         {transaction.particulars}
                                                     </div>
                                                 </td>
+                                                <td>{transaction.batch}</td>
                                                 {!isMobile && <td>{transaction.vesselPrincipal}</td>}
                                                 {!isVerySmall && <td>{transaction.date}</td>}
                                                 <td>

@@ -315,8 +315,8 @@ const Archives: React.FC = () => {
                                             >
                                                 <td>{transaction.transactionRef}</td>
                                                 <td>
-                                                    <div style={{ fontWeight: 500 }}>{transaction.payee}</div>
-                                                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
+                                                    <div className='rfp-primary-text'>{transaction.payee}</div>
+                                                    <div className='rfp-secondary-text' >
                                                         {transaction.particulars}
                                                     </div>
                                                 </td>

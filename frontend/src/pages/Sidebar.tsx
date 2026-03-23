@@ -99,12 +99,12 @@ const Sidebar = () => {
             {!sidebarCollapsed ? (
               // Logo is clickable when sidebar is open - acts as minimize button
               <span className="logo cursor-pointer" onClick={toggleSidebar}>
-                <img src={logo} alt="Wallem Square Logo" style={{ width: '100%', height: '50px', display: 'flex' }} />
+                <img src={logo} alt="Wallem Square Logo" style={{ width: '100%', height: '50px', display: 'flex', cursor: 'pointer' }} />
               </span>
             ) : (
               // Show minimal logo when collapsed
               <span className="logo">
-                <img src={logo} alt="Wallem Square Logo" style={{ width: '32px', height: '32px', display: 'flex' }} />
+                <img src={logo} alt="Wallem Square Logo" style={{ width: '32px', height: '32px', display: 'flex', cursor: 'pointer' }} />
               </span>
             )}
             
