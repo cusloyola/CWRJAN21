@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 50;
+  z-index: 200;
   padding: 1rem;
   /* ensures spacing on small screens */
 }
@@ -73,6 +73,15 @@
 
 .logout-modal-confirm:hover {
   background-color: #dc2626;
+}
+
+/* Non-destructive confirmation action style (used by ConfirmationModal) */
+.confirmation-modal-confirm {
+  background-color: var(--header-title);
+}
+
+.confirmation-modal-confirm:hover {
+  background-color: #1d4ed8;
 }
 
 /* 📱 Mobile adjustments */
