@@ -152,7 +152,7 @@ const WPSI = () => {
             </div>
 
             {/* CFII-ACA Section */}
-            <div className="wpsi-section-header">WPSI Transactions</div>
+            <div className="wpsi-section-header">Recent Transactions</div>
 
             {cfiiAcaTransactions.map((transaction) => (
               <div
