@@ -82,13 +82,13 @@ const Dashboard = () => {
   } else if (userRole === 'Worker') {
     statsContent = (
       <>
-        <div className="dashboard-wrapper px-4 sm:px-6" style={{ marginBottom: '1rem', marginTop: '1rem'  }}>
+{/*         <div className="dashboard-wrapper px-4 sm:px-6" style={{ marginBottom: '1rem', marginTop: '1rem'  }}>
           <div className="wpsi-add-button-container" style={{ justifyContent: 'flex-end', textAlign: 'right', fontSize: '1.125rem' }}>
             <Link to="/add-transaction" className="wpsi-add-button" style={{ textDecoration: 'none' }}>
               + Add
             </Link>
           </div>
-        </div>
+        </div> */}
         <div className="dashboard-wrapper px-4 sm:px-6">
           <div className="stats-card">
             <span className="stats-value">22</span>

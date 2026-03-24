@@ -82,6 +82,10 @@
     width: 100%;
 }
 
+.wpsi-layout {
+    display: block;
+}
+
 
 @media (max-width: 767px) {
     .wpsi-main {
@@ -614,6 +618,93 @@
     margin-bottom: 0.5rem;
 }
 
+.wpsi-desktop-panel {
+    background-color: #ffffff;
+    border: 1px solid #dbe2ea;
+    border-radius: 1rem;
+    min-height: 44rem;
+    max-height: calc(100vh - 7rem);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    position: sticky;
+}
+
+.wpsi-desktop-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.wpsi-desktop-panel-subtitle {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #64748b;
+    text-transform: uppercase;
+}
+
+.wpsi-desktop-panel-title {
+    margin: 0.2rem 0 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.wpsi-desktop-close {
+    background: #f1f5f9;
+    border: 1px solid #dbe2ea;
+    color: #475569;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.wpsi-desktop-close:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.wpsi-desktop-panel-content {
+    overflow-y: auto;
+    padding: 1rem 1.25rem 1.25rem;
+}
+
+.wpsi-desktop-empty-state {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+    color: #64748b;
+    vertical-align: middle;
+    min-height: 84vh;
+}
+
+.wpsi-desktop-empty-state h3 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.wpsi-desktop-empty-state p {
+    margin: 0.6rem 0 0;
+    max-width: 20rem;
+    line-height: 1.5;
+}
+
 /* Mobile adjustments for modal */
 /* @media (max-width: 480px) {
     .transaction-modal {
@@ -636,3 +727,29 @@
         max-width: 100%;
     }
 } */
+
+@media (min-width: 1025px) {
+    .wpsi-main {
+        padding: 1.25rem;
+    }
+
+    .wpsi-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(22rem, 0.8fr);
+        align-items: start;
+        gap: 1.25rem;
+    }
+
+    .wpsi-transaction-item {
+        border-radius: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-content {
+        padding: 0;
+    }
+
+    .modal-con-footer {
+        margin-top: 1rem;
+    }
+}
