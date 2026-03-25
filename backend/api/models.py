@@ -32,18 +32,6 @@ class UserRole(models.Model):
         return f"{self.user.email} ({self.role})"
 
 class Company(models.Model):
-    # WPSI = "wpsi"
-    # WMSI = "wmsi"
-    # WLPI = "wlpi"
-    # CFII = "cfii"
-
-    # CODE_CHOICES = (
-    #     (WPSI, 'Shipping'),
-    #     (WMSI, 'Maritime'),
-    #     (WLPI, 'Logistics'),
-    #     (CFII, 'COTS'),
-    # )
-
     company_code = models.CharField(max_length=10, unique=True)
     company_name = models.CharField(max_length=100)
     date_created = models.DateTimeField(auto_now_add=True)
@@ -80,6 +68,32 @@ class Category (models.Model):
     
     def __str__(self):
         return f"{self.category_description}"
+
+class Payee (models.Model):
+    payee_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    payee_name = models.CharField(max_length=100, unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Payee"
+        verbose_name_plural = "Payees"
+        ordering = ['payee_name']
+    
+    def __str__(self):
+        return f"{self.payee_name}"    
+
+class VesselPrincipal (models.Model):
+    vessel_principal_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    vessel_principal_name = models.CharField(max_length=100,unique=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Vessel/Principal"
+        verbose_name_plural = "Vessels/Principals"
+        ordering = ['vessel_principal_name']
+    
+    def __str__(self):
+        return f"{self.vessel_principal_name}"      
 
 class Currency (models.Model):
     currency_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
@@ -144,9 +158,9 @@ class Transaction (models.Model):
     transaction_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     transaction_ref = models.CharField(max_length=100,unique=True)
     category = models.ForeignKey(Category,on_delete=models.PROTECT)
-    payee = models.CharField(max_length=100,unique=True)
+    payee = models.ForeignKey(Payee,on_delete=models.PROTECT)
     particulars = models.CharField(max_length=100,unique=True)
-    vessel_principal = models.CharField(max_length=100,unique=True)
+    vessel_principal = models.ForeignKey(VesselPrincipal,on_delete=models.PROTECT)
     etd = models.DateField()
     currency = models.ForeignKey(Currency,on_delete=models.PROTECT,default=get_default_currency)
     transaction_amount = models.DecimalField(max_digits=10,decimal_places=2,default=Decimal("0.00"))
@@ -168,7 +182,30 @@ class Transaction (models.Model):
         return f"{self.transaction_id}"
 
 class TransactionLog(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name="logs",null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default="CREATE")
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = models.TextField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Transaction Log"
+        verbose_name_plural = "Transaction Logs"
+        ordering = ['date_created']
+    
+    def __str__(self):
+        return f"{self.action}"
 
 # class Check(models.Model):
 

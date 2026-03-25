@@ -11,6 +11,9 @@ from .models import (
     FundingAccount,
     Transaction,
     TransactionBatch,
+    Payee,
+    VesselPrincipal,
+    TransactionLog,
 )
 
 # -------------------------
@@ -126,6 +129,34 @@ class CompanyFundingAccount(admin.ModelAdmin):
     ordering = ('funding_acct_name',)    
 
 # ------------------------------------------------
+# Transactions Batch
+# ------------------------------------------------
+@admin.register(TransactionBatch)
+class Batch(admin.ModelAdmin):
+    list_display = ('batch_name',)
+    search_fields = ('batch_name',)
+    ordering = ('date_created',)
+
+# ------------------------------------------------
+# Payee
+# ------------------------------------------------
+@admin.register(Payee)
+class Batch(admin.ModelAdmin):
+    list_display = ('payee_name',)
+    search_fields = ('payee_name',)
+    ordering = ('payee_name',)
+
+# ------------------------------------------------
+# Vessel/Principal
+# ------------------------------------------------
+@admin.register(VesselPrincipal)
+class Batch(admin.ModelAdmin):
+    list_display = ('vessel_principal_name',)
+    search_fields = ('vessel_principal_name',)
+    ordering = ('vessel_principal_name',)
+
+
+# ------------------------------------------------
 # CWR Transactions
 # ------------------------------------------------
 @admin.register(Transaction)
@@ -134,11 +165,35 @@ class ChequesTransactions(admin.ModelAdmin):
     search_fields = ('transaction_ref',)
     ordering = ('date_created',)
 
+    # -------------------------
+    # CREATE / UPDATE LOG
+    # -------------------------
+    def save_model(self, request, obj, form, change):
+        action = "UPDATE" if change else "CREATE"
+
+        changes = []
+        if change:
+            for field in form.changed_data:
+                old = form.initial.get(field)
+                new = form.cleaned_data.get(field)
+                changes.append(f"{field}: {old} → {new}")
+
+        super().save_model(request, obj, form, change)
+
+        TransactionLog.objects.create(
+            transaction=obj,
+            action=action,
+            user=request.user,
+            changes=", ".join(changes) if changes else "Created"
+        )
+
 # ------------------------------------------------
-# Transactions Batch
+# View CWR Transactions Log
 # ------------------------------------------------
-@admin.register(TransactionBatch)
-class Batch(admin.ModelAdmin):
-    list_display = ('batch_name',)
-    search_fields = ('batch_name',)
+@admin.register(TransactionLog)
+class ViewLogs(admin.ModelAdmin):
+    list_display = ('transaction','action','user','date_created', )
+    search_fields = ('transaction','user',)
     ordering = ('date_created',)
+
+
