@@ -1,34 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import '../styles/WPSI.css';
-
-interface Transaction {
-  id: number;
-  label: string;
-  title: string;
-  amount: string;
-  section: string;
-  refNo: string;
-  date: string;
-  payee: string;
-  particulars: string;
-  vessel: string;
-  fundingAccount: string;
-  reference: string;
-  admin: string;
-  dam: string;
-  eya: string;
-  con: string;
-}
+import WpsiTransactionDetailsPanel, { type WpsiTransaction } from "../components/WpsiTransactionDetailsPanel";
 
 const WLPI = () => {
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<WpsiTransaction | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [remarks, setRemarks] = useState('');
-  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [isDesktopView, setIsDesktopView] = useState(false);
 
-  const transactions: Transaction[] = [
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1025px)');
+
+    const updateScreenMode = (event: MediaQueryList | MediaQueryListEvent) => {
+      setIsDesktopView(event.matches);
+    };
+
+    updateScreenMode(mediaQuery);
+    mediaQuery.addEventListener('change', updateScreenMode);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateScreenMode);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktopView) return;
+
+    setIsModalOpen(false);
+    setIsClosing(false);
+  }, [isDesktopView]);
+
+  const transactions: WpsiTransaction[] = [
     {
       id: 1,
       label: "PAYMENT FOR TRUCKING CHARGES /SI: 068260683",
@@ -85,13 +88,21 @@ const WLPI = () => {
     }
   ];
 
-  const openModal = (transaction: Transaction) => {
+  const openModal = (transaction: WpsiTransaction) => {
     setSelectedTransaction(transaction);
+
+    if (isDesktopView) return;
+
     setIsModalOpen(true);
     setIsClosing(false);
   };
 
   const closeModal = () => {
+    if (isDesktopView) {
+      setSelectedTransaction(null);
+      return;
+    }
+
     setIsClosing(true);
     setTimeout(() => {
       setIsModalOpen(false);
@@ -108,7 +119,8 @@ const WLPI = () => {
       <Sidebar />
       <div className="wpsi-content">
         <main className="wpsi-main">
-          <div className="wpsi-inner">
+          <div className="wpsi-layout">
+            <div className="wpsi-inner">
             {/* For Review Section */}
             <div className="wpsi-card wpsi-card-review">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +129,7 @@ const WLPI = () => {
               <span>For Review</span>
             </div>
             <div className="wpsi-count-box">
-              <div className="wpsi-count">3</div>
+              <div className="wpsi-count">{transactions.length}</div>
               <div className="wpsi-count-label">Transaction/s</div>
             </div>
 
@@ -180,117 +192,28 @@ const WLPI = () => {
                 </div>
               </div>
             ))}
+
+            </div>
+
+            {isDesktopView && !selectedTransaction && (
+              <aside className="wpsi-desktop-panel">
+                <div className="wpsi-desktop-empty-state">
+                  <h3>Select a transaction</h3>
+                  <p>Choose any record on the left to view and process details here.</p>
+                </div>
+              </aside>
+            )}
+
+            <WpsiTransactionDetailsPanel
+              transaction={selectedTransaction}
+              isDesktopView={isDesktopView}
+              isModalOpen={isModalOpen}
+              isClosing={isClosing}
+              onClose={closeModal}
+            />
           </div>
         </main>
       </div>
-
-      {/* Transaction Detail Bottom Sheet */}
-      {isModalOpen && selectedTransaction && (
-        <>
-          <div className={`modal-backdrop ${isClosing ? 'closing' : ''}`} onClick={closeModal}></div>
-          <div className={`transaction-modal ${isClosing ? 'closing' : ''}`}>
-            <div className="modal-drag-handle" onClick={closeModal}></div>
-            <div className="modal-header">
-              <span className="modal-title">{selectedTransaction.section}</span>
-              <button className="modal-close" onClick={closeModal}>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="modal-content">
-              <div className="modal-section-label">{selectedTransaction.section}</div>
-              <h2 className="modal-transaction-title">{selectedTransaction.title}</h2>
-              <p className="modal-ref-no">{selectedTransaction.refNo}</p>
-
-              <div className="modal-details">
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Date</span>
-                  <span className="modal-detail-value">{selectedTransaction.date}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Payee</span>
-                  <span className="modal-detail-value">{selectedTransaction.payee}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Particulars</span>
-                  <span className="modal-detail-value">{selectedTransaction.particulars}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Vessel / Principal</span>
-                  <span className="modal-detail-value">{selectedTransaction.vessel}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">CWR Amt</span>
-                  <span className="modal-detail-value">PHP {selectedTransaction.amount}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Funding Account</span>
-                  <span className="modal-detail-value">{selectedTransaction.fundingAccount}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Reference / eRFP</span>
-                  <span className="modal-detail-value">{selectedTransaction.reference}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Admin</span>
-                  <span className="modal-detail-value">{selectedTransaction.admin}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">DAM</span>
-                  <span className="modal-detail-value">{selectedTransaction.dam}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">EYA</span>
-                  <span className="modal-detail-value">{selectedTransaction.eya}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">CON</span>
-                  <span className="modal-detail-value">{selectedTransaction.con}</span>
-                </div>
-              </div>
-
-              <div className="modal-section-header">Supporting Docs</div>
-              {/* Remarks Section */}
-              <div className="modal-section-header-remarks">Remarks</div>
-              <div className="modal-remarks">
-                <textarea
-                  className="modal-remarks-input"
-                  placeholder="Optional"
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                />
-              </div>
-
-              {/* CFII CON Action */}
-              <div className="modal-section-header">CFII CON Action</div>
-              <div className="modal-con-actions">
-                {['Approve', 'Hold', 'Void', 'Cancel'].map((action) => (
-                  <button
-                    key={action}
-                    className={`modal-con-button ${selectedAction === action ? 'selected' : ''}`}
-                    onClick={() => setSelectedAction(action)}
-                  >
-                    {action}
-                  </button>
-                ))}
-              </div>
-
-              {/* Icon + Back */}
-              <div className="modal-con-footer">
-                <button className="modal-con-icon-button">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2m-4 0H7a2 2 0 01-2-2V10a2 2 0 012-2h6m0 0V4m0 4l-2-2m2 2l2-2" />
-                  </svg>
-                </button>
-                <button className="modal-con-back-button" onClick={closeModal}>
-                  Back
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </>
   );
 };

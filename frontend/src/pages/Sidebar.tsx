@@ -3,6 +3,7 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import '../styles/style.css';
 import LogoutModal from "./LogoutModal";
 import logo from '../assets/wallemrectangle.png';
+import { ROLES, getDamTabsForRoles, isApproverOrDeputy, parseStoredRoles } from '../utils/roleUtils';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -22,23 +23,16 @@ const Sidebar = () => {
   useEffect(() => {
     localStorage.setItem('sidebarCollapsed', JSON.stringify(sidebarCollapsed));
   }, [sidebarCollapsed]);
-  const userRole = localStorage.getItem('userRole') || '';
-  const isDAM = userRole.startsWith('DAM');
-  const isWorker = userRole === 'Worker';
-  const isApproverOrDeputy = userRole === 'Approver' || userRole === 'Deputy';
+  const userRoles = parseStoredRoles(localStorage.getItem('userRole'));
+  const assignedDamTabs = getDamTabsForRoles(userRoles);
+  const isDAM = assignedDamTabs.length > 0;
+  const isWorker = userRoles.includes(ROLES.WORKER);
+  const isApproverOrDeputyRole = isApproverOrDeputy(userRoles);
 
-  const damCompanyTabs = [
-    { role: 'DAM WPSI', path: '/wpsi', label: 'WPSI' },
-    { role: 'DAM WMSI', path: '/wmsi', label: 'WMSI' },
-    { role: 'DAM WLPI', path: '/wlpi', label: 'WLPI' },
-    { role: 'DAM CFII', path: '/cfii', label: 'CFII' }
-  ];
-
-  const damTab = damCompanyTabs.find(tab => tab.role === userRole);
   const canSeeTab = (path: string) => {
-    if (isApproverOrDeputy) return true;
-    if (isDAM && damTab && damTab.path === path) return true;
-    if (isWorker && damTab && damTab.path === path) return true;
+    if (isApproverOrDeputyRole) return true;
+    if (isDAM && assignedDamTabs.some(tab => tab.path === path)) return true;
+    if (isWorker && assignedDamTabs.some(tab => tab.path === path)) return true;
     return false;
   };
 
@@ -83,7 +77,7 @@ const Sidebar = () => {
   const sidebarClass = `${sidebarCollapsed ? "w-16 px-1" : "w-64 px-4"}`;
 
   // Add 'approver' class to sidebar for Approver/Deputy roles
-  const sidebarRoleClass = isApproverOrDeputy ? 'approver' : '';
+  const sidebarRoleClass = isApproverOrDeputyRole ? 'approver' : '';
 
   return (
     <>
@@ -189,7 +183,7 @@ const Sidebar = () => {
             </li>
           )}
           {/* For Approver/Deputy only*/}
-          {isApproverOrDeputy && (
+          {isApproverOrDeputyRole && (
             <>
               <li className={isActive("/bank-workload") ? "active" : ""}>
                 <Link to="/bank-workload" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
@@ -311,7 +305,7 @@ const Sidebar = () => {
               <span>Profile</span>
             </Link>
           </li> */}
-          {isApproverOrDeputy && (
+          {isApproverOrDeputyRole && (
             <>
               <li className={`mobile-more-menu ${mobileMoreOpen ? 'active' : ''}`}>
                 <button

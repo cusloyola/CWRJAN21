@@ -338,9 +338,7 @@ const AddRfpMonitoring = () => {
                     This RFP is already RELEASED. Editing is no longer allowed and the form is view-only.
                   </div>
                 )}
-
-
-
+                
                 <div className="transaction-form-details">
                   <div className="transaction-form-detail-row">
                     <label className="transaction-form-detail-label">CWR Processed</label>
