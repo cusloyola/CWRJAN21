@@ -3,7 +3,11 @@ import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from decimal import Decimal
+from django.db.models import JSONField
 
+# -------------------------
+# User Role
+# -------------------------
 class UserRole(models.Model):
     ROLE_APPROVER = "APR"
     ROLE_VERIFIER = "DEP"
@@ -31,6 +35,9 @@ class UserRole(models.Model):
     def __str__(self):
         return f"{self.user.email} ({self.role})"
 
+# -------------------------
+# Company
+# -------------------------
 class Company(models.Model):
     company_code = models.CharField(max_length=10, unique=True)
     company_name = models.CharField(max_length=100)
@@ -45,6 +52,9 @@ class Company(models.Model):
     def __str__(self):
         return f"{self.company_name}"
 
+# -------------------------
+# User 
+# -------------------------
 class UserCompany(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     company = models.ForeignKey(Company,on_delete=models.CASCADE)
@@ -54,6 +64,9 @@ class UserCompany(models.Model):
     class Meta:
         unique_together = ('user','company')
 
+# ------------------------------------
+# Category
+# ------------------------------------
 class Category (models.Model):
     category_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     company = models.ForeignKey(Company,on_delete=models.CASCADE)
@@ -69,6 +82,9 @@ class Category (models.Model):
     def __str__(self):
         return f"{self.category_description}"
 
+# ------------------------------------------------
+# Payee
+# ------------------------------------------------
 class Payee (models.Model):
     payee_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     payee_name = models.CharField(max_length=100, unique=True)
@@ -82,6 +98,9 @@ class Payee (models.Model):
     def __str__(self):
         return f"{self.payee_name}"    
 
+# ------------------------------------------------
+# Vessel/Principal
+# ------------------------------------------------
 class VesselPrincipal (models.Model):
     vessel_principal_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     vessel_principal_name = models.CharField(max_length=100,unique=True)
@@ -95,6 +114,9 @@ class VesselPrincipal (models.Model):
     def __str__(self):
         return f"{self.vessel_principal_name}"      
 
+# ------------------------------------
+# Currency
+# ------------------------------------
 class Currency (models.Model):
     currency_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     currency_code = models.CharField(max_length=10, unique=True)
@@ -109,6 +131,9 @@ class Currency (models.Model):
     def __str__(self):
         return f"{self.currency_description}"    
 
+# ------------------------------------
+# Branch to Issue MC
+# ------------------------------------
 class MCBranchIssuance (models.Model):
     branch_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     branch_name = models.CharField(max_length=100, unique=True)
@@ -121,7 +146,10 @@ class MCBranchIssuance (models.Model):
     
     def __str__(self):
         return f"{self.branch_name}"
-
+    
+# ------------------------------------
+# Funding Account
+# ------------------------------------
 class FundingAccount (models.Model):
     funding_acct_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     funding_acct_name = models.CharField(max_length=100, unique=True)
@@ -135,6 +163,9 @@ class FundingAccount (models.Model):
     def __str__(self):
         return f"{self.funding_acct_name}"
 
+# ------------------------------------------------
+# Transactions Batch
+# ------------------------------------------------
 class TransactionBatch (models.Model):
     batch_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
     batch_name = models.CharField(max_length=4,unique=True)
@@ -148,6 +179,9 @@ class TransactionBatch (models.Model):
     def __str__(self):
         return f"{self.batch_name}"
 
+# ------------------------------------------------
+# CWR Transactions
+# ------------------------------------------------
 class Transaction (models.Model):
     def get_default_currency():
         return Currency.objects.get(currency_code="PHP").pk
@@ -181,6 +215,9 @@ class Transaction (models.Model):
     def __str__(self):
         return f"{self.transaction_id}"
 
+# ------------------------------------------------
+# CWR Transactions Log
+# ------------------------------------------------
 class TransactionLog(models.Model):
     ACTION_CREATE = "CREATE"
     ACTION_UPDATE = "UPDATE"
@@ -196,7 +233,7 @@ class TransactionLog(models.Model):
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, related_name="logs",null=True, blank=True)
     action = models.CharField(max_length=10, choices=ACTION_CHOICES, default="CREATE")
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    changes = models.TextField(blank=True, null=True)
+    changes = JSONField(null=True, blank=True) # <--- store JSON
     date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -207,29 +244,3 @@ class TransactionLog(models.Model):
     def __str__(self):
         return f"{self.action}"
 
-# class Check(models.Model):
-
-#     STATUS_DRAFT = "draft"
-#     STATUS_VERIFIED = "verified"
-#     STATUS_DAM_APPROVED = "dam_approved"
-#     STATUS_FINAL_APPROVED = "final_approved"
-#     STATUS_REJECTED = "rejected"
-
-#     STATUS_CHOICES = (
-#         (STATUS_DRAFT, "Draft"),
-#         (STATUS_VERIFIED,"Verified by Deputy"),
-#         (STATUS_DAM_APPROVED,"Approved by DAM"),
-#         (STATUS_FINAL_APPROVED,"Final Approved"),
-#         (STATUS_REJECTED,"Rejected"),
-#     )
-
-#     company = models.ForeignKey(
-#         "api.Company",
-#         on_delete=models.PROTECT,
-#         related_name="checks"
-#     )
-#     check_number = models.CharField(max_length=64, blank=True, null=True)
-#     payee = models.CharField(max_length=255)
-#     amount = models.DecimalField(max_digits=14, decimal_places=2)
-#     currency = models.CharField(max_length=3, default="PHP")
-#     notes = models.TextField(blank=True)

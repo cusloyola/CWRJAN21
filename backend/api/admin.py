@@ -1,3 +1,4 @@
+import json
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -21,7 +22,7 @@ from .models import (
 # -------------------------
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'company_code', 'company_name')
+    list_display = ('company_code', 'company_name')
     search_fields = ('company_code', 'company_name')
     ordering = ('company_code',)
 
@@ -161,9 +162,9 @@ class Batch(admin.ModelAdmin):
 # ------------------------------------------------
 @admin.register(Transaction)
 class ChequesTransactions(admin.ModelAdmin):
-    list_display = ('transaction_ref','category','date_created', )
+    list_display = ('transaction_ref','category','payee','particulars','vessel_principal','date_created', )
     search_fields = ('transaction_ref',)
-    ordering = ('date_created',)
+    ordering = ('-date_created',)
 
     # -------------------------
     # CREATE / UPDATE LOG
@@ -171,12 +172,38 @@ class ChequesTransactions(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         action = "UPDATE" if change else "CREATE"
 
+        def format_value(value,field):
+            """Return a readable representation of the value, handling ForeignKey and None."""
+            if value is None:
+                return None  # Use None in JSON instead of "None" string
+
+            # ForeignKey handling
+            if hasattr(field, "remote_field") and field.remote_field:
+                if hasattr(value, "_meta"):  # Already a model instance
+                    return str(value)
+                try:
+                    return str(field.remote_field.model.objects.get(pk=value))
+                except Exception:
+                    return str(value)
+                
+            return str(value)
+
         changes = []
+
         if change:
-            for field in form.changed_data:
-                old = form.initial.get(field)
-                new = form.cleaned_data.get(field)
-                changes.append(f"{field}: {old} → {new}")
+            for field_name in form.changed_data:
+                field = obj._meta.get_field(field_name)
+                old = form.initial.get(field_name)
+                new = form.cleaned_data.get(field_name)
+
+                old_value = format_value(old, field)
+                new_value = format_value(new, field)
+
+                changes.append({
+                    "field": field_name,
+                    "old": old_value,
+                    "new": new_value
+                })
 
         super().save_model(request, obj, form, change)
 
@@ -184,7 +211,7 @@ class ChequesTransactions(admin.ModelAdmin):
             transaction=obj,
             action=action,
             user=request.user,
-            changes=", ".join(changes) if changes else "Created"
+            changes=json.dumps(changes or [{"field": "ALL", "old": None, "new": "Created"}])
         )
 
 # ------------------------------------------------
@@ -192,8 +219,33 @@ class ChequesTransactions(admin.ModelAdmin):
 # ------------------------------------------------
 @admin.register(TransactionLog)
 class ViewLogs(admin.ModelAdmin):
-    list_display = ('transaction','action','user','date_created', )
-    search_fields = ('transaction','user',)
-    ordering = ('date_created',)
+    list_display = ('transaction', 'action', 'user', 'date_created', 'formatted_changes')
+    search_fields = ('transaction__transaction_ref','user__username',)
+    ordering = ('-date_created',)
+    readonly_fields = ('transaction', 'action', 'user', 'date_created', 'changes', 'formatted_changes')
+
+    # Display formatted JSON changes
+    def formatted_changes(self, obj):
+        if not obj.changes:
+            return "-"
+        try:
+            changes_list = json.loads(obj.changes)
+            return "\n".join(f"{c.get('field','')}: {c.get('old','')} → {c.get('new','')}" for c in changes_list)
+        except Exception:
+            return obj.changes
+    formatted_changes.short_description = "Changes"    
+
+    def get_transaction_ref(self, obj):
+        return obj.transaction.transaction_ref
+    get_transaction_ref.short_description = 'Transaction Ref'
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
