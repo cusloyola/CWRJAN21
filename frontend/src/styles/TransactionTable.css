@@ -7,6 +7,308 @@
     gap: 1rem;
 }
 
+.corp-inventory-main {
+    padding: min(30px, 7%);
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* --- Corp Inventory Summary --- */
+.corp-summary-card {
+    width: 100%;
+    background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+    border: 1px solid rgba(0, 28, 119, 0.15);
+    border-radius: 1rem;
+    box-shadow: 0 6px 18px rgba(0, 28, 119, 0.08);
+    padding: 1rem 1.25rem;
+    box-sizing: border-box;
+}
+
+.corp-summary-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.corp-summary-row + .corp-summary-row {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed rgba(66, 67, 74, 0.2);
+}
+
+.corp-summary-row-primary .corp-summary-value {
+    color: var(--accent-clr);
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.corp-summary-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    color: #334155;
+}
+
+.corp-summary-subtext {
+    font-size: 0.9rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+.corp-summary-value {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #0f172a;
+    text-align: right;
+}
+
+.checks-printed-col,
+.checks-printed-value {
+    text-align: left;
+}
+
+.corp-inventory-table th.checks-printed-col,
+.corp-inventory-table td.checks-printed-value {
+    text-align: left;
+    white-space: nowrap;
+    padding-left: 0.75rem;
+    padding-right: 0.5rem;
+}
+
+.corp-inventory-table td.checks-printed-value {
+    vertical-align: middle;
+    padding-top: 0.5rem;
+}
+
+.corp-inventory-table th:first-child,
+.corp-inventory-table td:first-child {
+    width: 68%;
+    padding-left: 1rem;
+    font-weight: 500;
+}
+
+.corp-inventory-table th.checks-printed-col,
+.corp-inventory-table td.checks-printed-value {
+    width: 32%;
+}
+
+.corp-inventory-page .transactions-table-container {
+    overflow-x: auto;
+}
+
+.corp-inventory-table {
+    min-width: 100%;
+}
+
+/* --- RFP Monitoring Table --- */
+.rfp-monitoring-table th,
+.rfp-monitoring-table td {
+    vertical-align: top;
+    white-space: normal;
+}
+
+.rfp-monitoring-table th {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+.rfp-monitoring-table td {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    line-height: 1.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+/* Override generic second-column tweak used by other tables. */
+.rfp-monitoring-table td:nth-child(2) {
+    padding-top: 0.5rem;
+    vertical-align: middle;
+}
+
+.rfp-monitoring-table .rfp-status-cell {
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.rfp-monitoring-table .rfp-payee-cell,
+.rfp-monitoring-table .rfp-vessel-cell,
+.rfp-monitoring-table .rfp-port-cell {
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rfp-monitoring-table .rfp-payee-text {
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: #1f2937;
+    margin: 0;
+}
+
+.rfp-monitoring-table .rfp-series-col,
+.rfp-monitoring-table .rfp-series-cell {
+    width: 1%;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.rfp-monitoring-table .rfp-nowrap {
+    white-space: nowrap;
+}
+
+.rfp-primary-text {
+    font-weight: 600;
+    line-height: 1.2rem;
+    color: #1f2937;
+    margin: 0;
+}
+
+.rfp-secondary-text {
+    font-size: 0.75rem;
+    color: #64748b;
+    line-height: 1rem;
+    margin: 0.15rem 0 0;
+    word-break: break-word;
+}
+
+.rfp-monitoring-table .rfp-stack {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.25rem;
+}
+
+.rfp-monitoring-table .rfp-eta-col,
+.rfp-monitoring-table .rfp-eta-cell {
+    white-space: nowrap;
+}
+
+.rfp-monitoring-table .rfp-etd-col,
+.rfp-monitoring-table .rfp-etd-cell {
+    white-space: nowrap;
+}
+
+.rfp-monitoring-table .rfp-status-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.rfp-monitoring-table .rfp-view-only-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0.14rem 0.5rem;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    background-color: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fdba74;
+    white-space: nowrap;
+}
+
+.rfp-monitoring-table .rfp-status-approved {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #111111;
+}
+
+.rfp-monitoring-table .rfp-status-released {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    color: #111111;
+}
+
+.rfp-monitoring-table .rfp-status-draft {
+    background-color: rgba(15, 23, 42, 0.1);
+    color: #0f172a;
+}
+
+.rfp-monitoring-table .rfp-status-void {
+    background-color: rgba(107, 114, 128, 0.2);
+    color: #374151;
+}
+
+.rfp-monitoring-table .rfp-amount-col,
+.rfp-monitoring-table .rfp-amount-cell {
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    padding-right: 1rem;
+}
+
+@media (max-width: 768px) {
+    .rfp-monitoring-table .rfp-amount-col,
+    .rfp-monitoring-table .rfp-amount-cell {
+        padding-right: 0.6rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .corp-inventory-main {
+        padding: 0.85rem;
+    }
+
+    .corp-inventory-table {
+        min-width: 0;
+        table-layout: fixed;
+    }
+
+    .corp-inventory-table th,
+    .corp-inventory-table td {
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .corp-inventory-table th:first-child,
+    .corp-inventory-table td:first-child {
+        width: 62%;
+        padding-left: 0.75rem;
+    }
+
+    .corp-inventory-table th.checks-printed-col,
+    .corp-inventory-table td.checks-printed-value {
+        width: 38%;
+        white-space: nowrap;
+        text-align: left;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    .corp-summary-card {
+        padding: 0.85rem 1rem;
+    }
+
+    .corp-summary-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.35rem;
+    }
+
+    .corp-summary-value {
+        text-align: left;
+    }
+
+    .corp-summary-row-primary .corp-summary-value {
+        font-size: 1.5rem;
+    }
+
+}
+
 /* --- Dropdown Container (desktop only; responsive overrides in style.css) --- */
 @media (min-width: 641px) {
     .transactions-page-wrapper .wpsi-dropdown-container {
@@ -26,7 +328,7 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
     position: relative;
     box-sizing: border-box;
 }
@@ -89,14 +391,18 @@
     white-space: nowrap;
     line-height: 1.5rem;
     word-wrap: break-word;
+    cursor: pointer;
 }
 
 /* Allow wrapping for Payee/Particulars column */
 .transactions-table td:nth-child(2) {
     white-space: normal;
-    vertical-align: top;
-    padding-top: 0.2rem;
-}
+/*     vertical-align: top;
+ */}
+.transactions-table td:first-child, .transactions-table th:first-child {
+    padding-left: 1rem;
+/*     vertical-align: top;
+ */}
 
 /* Action column - allow wrapping for buttons */
 .transactions-table td:last-child {
@@ -215,6 +521,10 @@
     .transactions-table td {
         padding: 0.5rem 0.25rem;
         font-size: 0.75rem;
+    }
+
+    .corp-inventory-page .transactions-table-container {
+        overflow-x: auto;
     }
 }
 
@@ -656,5 +966,43 @@
     .wpsi-section-header h1 {
         font-size: 1.25rem;
         text-align: center;
+    }
+}
+
+.rfp-monitoring-table {
+    min-width: 0;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .rfp-monitoring-table td:nth-child(2) {
+        white-space: nowrap;
+    }
+
+    .rfp-monitoring-table .rfp-status-chip {
+        padding: 0.12rem 0.45rem;
+        font-size: 0.65rem;
+        letter-spacing: 0.01em;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        box-sizing: border-box;
+    }
+
+    .rfp-monitoring-table .rfp-view-only-chip {
+        padding: 0.1rem 0.4rem;
+        font-size: 0.58rem;
+        letter-spacing: 0.01em;
+    }
+
+    .rfp-monitoring-table .rfp-stack {
+        gap: 0.12rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .rfp-monitoring-table .rfp-status-chip {
+        padding: 0.1rem 0.38rem;
+        font-size: 0.6rem;
     }
 }

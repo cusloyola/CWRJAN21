@@ -5,6 +5,6 @@ from .views import (
 
 
 urlpatterns = [
-    path("auth/login/", LoginAPIView.as_view(), name="login"),
+    path("user/login/", LoginAPIView.as_view(), name="login"),
 ]
 

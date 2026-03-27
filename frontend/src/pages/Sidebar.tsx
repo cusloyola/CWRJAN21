@@ -3,6 +3,7 @@ import { useLocation, Link, useNavigate } from "react-router-dom";
 import '../styles/style.css';
 import LogoutModal from "./LogoutModal";
 import logo from '../assets/wallemrectangle.png';
+import { ROLES, getDamTabsForRoles, isApproverOrDeputy, parseStoredRoles } from '../utils/roleUtils';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -22,23 +23,16 @@ const Sidebar = () => {
   useEffect(() => {
     localStorage.setItem('sidebarCollapsed', JSON.stringify(sidebarCollapsed));
   }, [sidebarCollapsed]);
-  const userRole = localStorage.getItem('userRole') || '';
-  const isDAM = userRole.startsWith('DAM');
-  const isWorker = userRole === 'Worker';
-  const isApproverOrDeputy = userRole === 'Approver' || userRole === 'Deputy';
+  const userRoles = parseStoredRoles(localStorage.getItem('userRole'));
+  const assignedDamTabs = getDamTabsForRoles(userRoles);
+  const isDAM = assignedDamTabs.length > 0;
+  const isWorker = userRoles.includes(ROLES.WORKER);
+  const isApproverOrDeputyRole = isApproverOrDeputy(userRoles);
 
-  const damCompanyTabs = [
-    { role: 'DAM WPSI', path: '/wpsi', label: 'WPSI' },
-    { role: 'DAM WMSI', path: '/wmsi', label: 'WMSI' },
-    { role: 'DAM WLPI', path: '/wlpi', label: 'WLPI' },
-    { role: 'DAM CFII', path: '/cfii', label: 'CFII' }
-  ];
-
-  const damTab = damCompanyTabs.find(tab => tab.role === userRole);
   const canSeeTab = (path: string) => {
-    if (isApproverOrDeputy) return true;
-    if (isDAM && damTab && damTab.path === path) return true;
-    if (isWorker && damTab && damTab.path === path) return true;
+    if (isApproverOrDeputyRole) return true;
+    if (isDAM && assignedDamTabs.some(tab => tab.path === path)) return true;
+    if (isWorker && assignedDamTabs.some(tab => tab.path === path)) return true;
     return false;
   };
 
@@ -83,7 +77,7 @@ const Sidebar = () => {
   const sidebarClass = `${sidebarCollapsed ? "w-16 px-1" : "w-64 px-4"}`;
 
   // Add 'approver' class to sidebar for Approver/Deputy roles
-  const sidebarRoleClass = isApproverOrDeputy ? 'approver' : '';
+  const sidebarRoleClass = isApproverOrDeputyRole ? 'approver' : '';
 
   return (
     <>
@@ -99,12 +93,12 @@ const Sidebar = () => {
             {!sidebarCollapsed ? (
               // Logo is clickable when sidebar is open - acts as minimize button
               <span className="logo cursor-pointer" onClick={toggleSidebar}>
-                <img src={logo} alt="Wallem Square Logo" style={{ width: '100%', height: '50px', display: 'flex' }} />
+                <img src={logo} alt="Wallem Square Logo" style={{ width: '100%', height: '50px', display: 'flex', cursor: 'pointer' }} />
               </span>
             ) : (
               // Show minimal logo when collapsed
               <span className="logo">
-                <img src={logo} alt="Wallem Square Logo" style={{ width: '32px', height: '32px', display: 'flex' }} />
+                <img src={logo} alt="Wallem Square Logo" style={{ width: '32px', height: '32px', display: 'flex', cursor: 'pointer' }} />
               </span>
             )}
             
@@ -189,7 +183,7 @@ const Sidebar = () => {
             </li>
           )}
           {/* For Approver/Deputy only*/}
-          {isApproverOrDeputy && (
+          {isApproverOrDeputyRole && (
             <>
               <li className={isActive("/bank-workload") ? "active" : ""}>
                 <Link to="/bank-workload" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
@@ -269,7 +263,25 @@ const Sidebar = () => {
                   <span>Transactions</span>
                 </Link>
               </li>
-              <li className={isActive("/archives") ? "active" : ""}>
+              <li className={isActive("/rfp-monitoring") ? "active" : ""}>
+                <Link to="/rfp-monitoring" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor" className="shrink-0">
+                    {isActive("/rfp-monitoring") ? (
+                      <path d="M3 17h3v-7H3v7zm5 0h3V7H8v10zm5 0h3v-4h-3v4zm5 0h3V4h-3v13zM2 19h20v2H2v-2z" />) : (<path d="M3 17h3v-7H3v7zm5 0h3V7H8v10zm5 0h3v-4h-3v4zm5 0h3V4h-3v13zM2 19h20v2H2v-2z" />)}
+                  </svg>
+                  <span>RFP Monitoring</span>
+                </Link>
+              </li>
+              <li className={isActive("/corp-inventory") ? "active" : ""}>
+                <Link to="/corp-inventory" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor" className="shrink-0">
+                    {isActive("/corp-inventory") ? (
+                      <path d="M20 2H4c-1.1 0-2 .9-2 2v3h20V4c0-1.1-.9-2-2-2zm0 7H2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9zm-6 3h4v2h-4v-2zm0 4h4v2h-4v-2z" />) : (<path d="M20 2H4c-1.1 0-2 .9-2 2v3h20V4c0-1.1-.9-2-2-2zm0 7H2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9zm-6 3h4v2h-4v-2zm0 4h4v2h-4v-2z" />)}
+                  </svg>
+                  <span>Cheque Inventory</span>
+                </Link>
+              </li>
+                            <li className={isActive("/archives") ? "active" : ""}>
                 <Link to="/archives" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor" className="shrink-0">
                     {isActive("/archives") ? (
@@ -293,7 +305,7 @@ const Sidebar = () => {
               <span>Profile</span>
             </Link>
           </li> */}
-          {isApproverOrDeputy && (
+          {isApproverOrDeputyRole && (
             <>
               <li className={`mobile-more-menu ${mobileMoreOpen ? 'active' : ''}`}>
                 <button

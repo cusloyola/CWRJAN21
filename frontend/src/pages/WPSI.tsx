@@ -1,125 +1,85 @@
-import { useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import '../styles/WPSI.css';
-
-interface Transaction {
-  id: number;
-  label: string;
-  title: string;
-  amount: string;
-  section: string;
-  refNo: string;
-  date: string;
-  payee: string;
-  particulars: string;
-  vessel: string;
-  fundingAccount: string;
-  reference: string;
-  admin: string;
-  dam: string;
-  eya: string;
-  con: string;
-}
+import '../styles/TransactionTable.css';
+import WpsiTransactionDetailsPanel, { type WpsiTransaction } from "../components/WpsiTransactionDetailsPanel";
+import { wpsiTransactionsData } from "../dummy_data/wpsiTransactionsData";
 
 const WPSI = () => {
-  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<WpsiTransaction | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
-  const [remarks, setRemarks] = useState('');
-  const [selectedAction, setSelectedAction] = useState<string | null>(null);
-  const [offsetY, setOffsetY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const startY = useRef(0);
+  const [isDesktopView, setIsDesktopView] = useState(false);
+  const [viewedRecordIds, setViewedRecordIds] = useState<Set<number>>(new Set());
+  const [activeFilter, setActiveFilter] = useState<'recent' | 'forReview' | 'all' | 'onHold'>('recent');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    startY.current = e.touches[0].clientY;
-    setIsDragging(true);
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1025px)');
+
+    const updateScreenMode = (event: MediaQueryList | MediaQueryListEvent) => {
+      setIsDesktopView(event.matches);
+    };
+
+    updateScreenMode(mediaQuery);
+    mediaQuery.addEventListener('change', updateScreenMode);
+
+    return () => {
+      mediaQuery.removeEventListener('change', updateScreenMode);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktopView) return;
+
+    setIsModalOpen(false);
+    setIsClosing(false);
+  }, [isDesktopView]);
+
+  const transactions: WpsiTransaction[] = wpsiTransactionsData;
+  const displayedTransactions = transactions.slice(0, 4);
+  const itemsPerPage = 5;
+  const unviewedRecordIds = new Set<number>([1, 3]);
+
+  const hasNoAction = (transaction: WpsiTransaction) => {
+    const action = transaction.con.trim().toUpperCase();
+    return action === '' || action === 'PENDING';
   };
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const currentY = e.touches[0].clientY;
-    const diff = currentY - startY.current;
-    if (diff > 0) {
-      setOffsetY(diff);
-    }
+  const isOnHold = (transaction: WpsiTransaction) => {
+    const action = transaction.con.trim().toUpperCase();
+    return action === 'HOLD' || action === 'ON HOLD' || action === 'PENDING';
   };
 
-  const handleTouchEnd = () => {
-    setIsDragging(false);
+  const needsAttention = (transaction: WpsiTransaction) => {
+    if (viewedRecordIds.has(transaction.id)) return false;
 
-    if (offsetY > 150) {
-      closeModal();
-    } else {
-      setOffsetY(0);
-    }
+    const isUnviewed = unviewedRecordIds.has(transaction.id);
+    const hasNoActionYet = hasNoAction(transaction);
+    return isUnviewed || hasNoActionYet;
   };
 
-  // Static transaction data
-  const transactions: Transaction[] = [
-    {
-      id: 1,
-      label: "PAYMENT FOR TRUCKING CHARGES /SI: 068260683",
-      title: "FULL BLAST TRUCKING SERVICES",
-      amount: "109,739.80",
-      section: "CFII-ACA",
-      refNo: "COTS0326202504808",
-      date: "3/26/2025",
-      payee: "FULL BLAST TRUCKING SERVICES",
-      particulars: "PAYMENT FOR TRUCKING CHARGES /SI: 068280683",
-      vessel: "WPSI/PROTANK",
-      fundingAccount: "BDO Check",
-      reference: "PV#04808",
-      admin: "n/a",
-      dam: "Endorsed",
-      eya: "n/a",
-      con: "PENDING"
-    },
-    {
-      id: 2,
-      label: "PAYMENT FOR REFUND FOR OVERPAYMENT TO ONE/BL: MNLF17771600",
-      title: "CAROLYN C. DAKIS",
-      amount: "2,240.00",
-      section: "CFII-ACA",
-      refNo: "COTS0326202504809",
-      date: "3/26/2025",
-      payee: "CAROLYN C. DAKIS",
-      particulars: "PAYMENT FOR REFUND FOR OVERPAYMENT TO ONE/BL: MNLF17771600",
-      vessel: "WPSI/PROTANK",
-      fundingAccount: "BDO Check",
-      reference: "PV#04809",
-      admin: "n/a",
-      dam: "Endorsed",
-      eya: "n/a",
-      con: "PENDING"
-    },
-    {
-      id: 3,
-      label: "CONTAINER DEPOSIT / BL NO: JEADVO/2409/1",
-      title: "WEE ENG CONSTRUCTION, INC.",
-      amount: "604,500.00",
-      section: "CFII-OL REFUND (PHP)",
-      refNo: "COTS0326202504810",
-      date: "3/26/2025",
-      payee: "WEE ENG CONSTRUCTION, INC.",
-      particulars: "CONTAINER DEPOSIT / BL NO: JEADVO/2409/1",
-      vessel: "WPSI/PROTANK",
-      fundingAccount: "BDO Check",
-      reference: "PV#04810",
-      admin: "n/a",
-      dam: "Endorsed",
-      eya: "n/a",
-      con: "PENDING"
-    }
-  ];
-
-  const openModal = (transaction: Transaction) => {
+  const openModal = (transaction: WpsiTransaction) => {
     setSelectedTransaction(transaction);
+    setViewedRecordIds((prev) => {
+      const updated = new Set(prev);
+      updated.add(transaction.id);
+      return updated;
+    });
+
+    if (isDesktopView) return;
+
     setIsModalOpen(true);
     setIsClosing(false);
   };
 
   const closeModal = () => {
+    if (isDesktopView) {
+      setSelectedTransaction(null);
+      return;
+    }
+
     setIsClosing(true);
     setTimeout(() => {
       setIsModalOpen(false);
@@ -128,209 +88,251 @@ const WPSI = () => {
     }, 300);
   };
 
-  const cfiiAcaTransactions = transactions.filter(t => t.section === "CFII-ACA");
-  const cfiiOlTransactions = transactions.filter(t => t.section === "CFII-OL REFUND (PHP)");
+  const baseTransactions =
+    activeFilter === 'forReview'
+      ? transactions.filter(hasNoAction)
+      : activeFilter === 'all'
+        ? transactions
+        : activeFilter === 'onHold'
+          ? transactions.filter(isOnHold)
+          : displayedTransactions;
+
+  const filteredBySearch = baseTransactions.filter(t => {
+    const query = searchQuery.toLowerCase();
+    return (
+      t.title.toLowerCase().includes(query) ||
+      t.payee.toLowerCase().includes(query) ||
+      t.refNo.toLowerCase().includes(query) ||
+      t.label.toLowerCase().includes(query)
+    );
+  });
+
+  const isPaginatedMode = activeFilter !== 'recent';
+  const totalPages = Math.ceil(filteredBySearch.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredBySearch.length);
+  const transactionsToRender = isPaginatedMode
+    ? filteredBySearch.slice(startIndex, endIndex)
+    : filteredBySearch;
+
+  const cfiiAcaTransactions = transactionsToRender.filter(t => t.section === "CFII-ACA");
+  const cfiiOlTransactions = transactionsToRender.filter(t => t.section === "CFII-OL REFUND (PHP)");
+  const unviewedRecordsCount = 7;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter]);
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
 
   return (
     <>
       <Sidebar />
       <div className="wpsi-content">
+
         <main className="wpsi-main">
-          <div className="wpsi-inner">
-            {/* For Review Section */}
-            <div className="wpsi-card wpsi-card-review">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>For Review</span>
-            </div>
-            <div className="wpsi-count-box">
-              <div className="wpsi-count">3</div>
-              <div className="wpsi-count-label">Transaction/s</div>
-            </div>
+          <div className="wpsi-layout">
+            <div className="wpsi-inner">
 
-            {/* List of Transactions */}
-            <div className="wpsi-card wpsi-card-review">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span>List of Transactions</span>
-            </div>
+              {activeFilter === 'recent' && (
+                <div className="wpsi-count-box">
+                  <div className="wpsi-count">{transactions.length}</div>
+                  <div className="wpsi-count-label">Total Transactions</div>
+                </div>
+              )}
+              {/* For Review Section */}
+              {(activeFilter === 'recent' || activeFilter === 'forReview') && (
+                <div
+                  className="wpsi-card wpsi-card-review"
+                  onClick={() => setActiveFilter((prev) => (prev === 'forReview' ? 'recent' : 'forReview'))}
+                >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>For Review</span>
+                <span className="wpsi-review-badge">{unviewedRecordsCount}</span>
+                </div>
+              )}
 
-            {/* On Hold (PENDING) Section */}
-            <div className="wpsi-card wpsi-card-pending">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>On Hold (PENDING)</span>
-            </div>
+              {(activeFilter === 'recent' || activeFilter === 'all') && (
+                <div
+                  className="wpsi-card wpsi-card-review"
+                  onClick={() => setActiveFilter((prev) => (prev === 'all' ? 'recent' : 'all'))}
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>List of Transactions</span>
+                </div>
+              )}
 
-            {/* CFII-ACA Section */}
-            <div className="wpsi-section-header">WPSI Page</div>
+              {(activeFilter === 'recent' || activeFilter === 'onHold') && (
+                <div
+                  className="wpsi-card wpsi-card-pending"
+                  onClick={() => setActiveFilter((prev) => (prev === 'onHold' ? 'recent' : 'onHold'))}
+                >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>On Hold</span>
+                </div>
+              )}
 
-            {cfiiAcaTransactions.map((transaction) => (
-              <div
-                key={transaction.id}
-                className="wpsi-transaction-item"
-                onClick={() => openModal(transaction)}
-              >
-                <div className="wpsi-transaction-label">{transaction.label}</div>
-                <div className="wpsi-transaction-row">
-                  <div>
-                    <div className="wpsi-transaction-title">{transaction.title}</div>
-                    <div className="wpsi-transaction-amount">{transaction.amount}</div>
-                  </div>
-                  <svg className="wpsi-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              {/* CFII-ACA Section */}
+              <div className="wpsi-section-header">
+                {activeFilter === 'forReview'
+                  ? 'For Review Transactions'
+                  : activeFilter === 'all'
+                    ? 'All Transactions'
+                    : activeFilter === 'onHold'
+                      ? 'On Hold Transactions'
+                      : 'Recent Transactions'}
+              </div>
+
+              {activeFilter !== 'recent' && (
+                <div className="wpsi-list-search-container">
+                  <input
+                    type="text"
+                    placeholder="Search transactions..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="wpsi-search-input"
+                  />
+                  <svg
+                    className="wpsi-search-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+                    <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" strokeWidth="2" />
                   </svg>
                 </div>
-              </div>
-            ))}
+              )}
 
-            {/* CFII-OL REFUND (PHP) Section */}
-            <div className="wpsi-section-header">CFII-OL REFUND (PHP)</div>
-
-            {cfiiOlTransactions.map((transaction) => (
-              <div
-                key={transaction.id}
-                className="wpsi-transaction-item"
-                onClick={() => openModal(transaction)}
-              >
-                <div className="wpsi-transaction-label">{transaction.label}</div>
-                <div className="wpsi-transaction-row">
-                  <div>
-                    <div className="wpsi-transaction-title">{transaction.title}</div>
-                    <div className="wpsi-transaction-amount">{transaction.amount}</div>
+              {cfiiAcaTransactions.map((transaction) => (
+                <div
+                  key={transaction.id}
+                  className={`wpsi-transaction-item ${needsAttention(transaction) ? 'wpsi-transaction-item-attention' : ''}`}
+                  onClick={() => openModal(transaction)}
+                >
+                  <div className="wpsi-transaction-label">{transaction.label}</div>
+                  <div className="wpsi-transaction-row">
+                    <div>
+                      <div className="wpsi-transaction-title">{transaction.title}</div>
+                      <div className="wpsi-transaction-amount">{transaction.amount}</div>
+                    </div>
+                    <svg className="wpsi-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
-                  <svg className="wpsi-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
                 </div>
-              </div>
-            ))}
+              ))}
+
+              {/* CFII-OL REFUND (PHP) Section */}
+              {/*             <div className="wpsi-section-header">CFII-OL REFUND (PHP)</div>
+ */}
+              {cfiiOlTransactions.map((transaction) => (
+                <div
+                  key={transaction.id}
+                  className={`wpsi-transaction-item ${needsAttention(transaction) ? 'wpsi-transaction-item-attention' : ''}`}
+                  onClick={() => openModal(transaction)}
+                >
+                  <div className="wpsi-transaction-label">{transaction.label}</div>
+                  <div className="wpsi-transaction-row">
+                    <div>
+                      <div className="wpsi-transaction-title">{transaction.title}</div>
+                      <div className="wpsi-transaction-amount">{transaction.amount}</div>
+                    </div>
+                    <svg className="wpsi-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </div>
+              ))}
+
+              {isPaginatedMode && baseTransactions.length > 0 && totalPages > 1 && (
+                <div className="transactions-pagination">
+                  <button
+                    className="pagination-button"
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </button>
+
+                  <div className="pagination-page-numbers">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                      if (
+                        page === 1 ||
+                        page === totalPages ||
+                        (page >= currentPage - 1 && page <= currentPage + 1)
+                      ) {
+                        return (
+                          <button
+                            key={page}
+                            className={`pagination-page-button ${currentPage === page ? 'active' : ''}`}
+                            onClick={() => handlePageChange(page)}
+                          >
+                            {page}
+                          </button>
+                        );
+                      }
+
+                      if (page === currentPage - 2 || page === currentPage + 2) {
+                        return <span key={page} className="pagination-ellipsis">...</span>;
+                      }
+
+                      return null;
+                    })}
+                  </div>
+
+                  <button
+                    className="pagination-button"
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+
+              {isPaginatedMode && baseTransactions.length > 0 && (
+                <div className="pagination-info">
+                  Showing {startIndex + 1} to {endIndex} of {baseTransactions.length} transactions
+                </div>
+              )}
+
+            </div>
+
+            {isDesktopView && !selectedTransaction && (
+              <aside className="wpsi-desktop-panel">
+                <div className="wpsi-desktop-empty-state">
+                  <h3>Select a transaction</h3>
+                  <p>Choose any record on the left to view and process details here.</p>
+                </div>
+              </aside>
+            )}
+
+            <WpsiTransactionDetailsPanel
+              transaction={selectedTransaction}
+              isDesktopView={isDesktopView}
+              isModalOpen={isModalOpen}
+              isClosing={isClosing}
+              onClose={closeModal}
+            />
           </div>
         </main>
       </div>
-
-      {/* Transaction Detail Bottom Sheet */}
-      {isModalOpen && selectedTransaction && (
-        <>
-          <div className={`modal-backdrop ${isClosing ? 'closing' : ''}`} onClick={closeModal}></div>
-          <div
-            className={`transaction-modal ${isClosing ? 'closing' : ''}`}
-            style={{
-              transform: offsetY > 0 ? `translateY(${offsetY}px)` : undefined,
-              transition: isDragging ? 'none' : 'transform 0.3s ease-out'
-            }}
-          >
-            <div
-              className="modal-drag-handle"
-              onClick={() => { if (offsetY === 0) closeModal() }}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-            ></div>
-            <div className="modal-header">
-              <span className="modal-title">{selectedTransaction.section}</span>
-              <button className="modal-close" onClick={closeModal}>
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="modal-content">
-              <div className="modal-section-label">{selectedTransaction.section}</div>
-              <h2 className="modal-transaction-title">{selectedTransaction.title}</h2>
-              <p className="modal-ref-no">{selectedTransaction.refNo}</p>
-
-              <div className="modal-details">
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Date</span>
-                  <span className="modal-detail-value">{selectedTransaction.date}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Payee</span>
-                  <span className="modal-detail-value">{selectedTransaction.payee}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Particulars</span>
-                  <span className="modal-detail-value">{selectedTransaction.particulars}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Vessel / Principal</span>
-                  <span className="modal-detail-value">{selectedTransaction.vessel}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">CWR Amt</span>
-                  <span className="modal-detail-value">PHP {selectedTransaction.amount}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Funding Account</span>
-                  <span className="modal-detail-value">{selectedTransaction.fundingAccount}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Reference / eRFP</span>
-                  <span className="modal-detail-value">{selectedTransaction.reference}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">Admin</span>
-                  <span className="modal-detail-value">{selectedTransaction.admin}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">DAM</span>
-                  <span className="modal-detail-value">{selectedTransaction.dam}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">EYA</span>
-                  <span className="modal-detail-value">{selectedTransaction.eya}</span>
-                </div>
-                <div className="modal-detail-row">
-                  <span className="modal-detail-label">CON</span>
-                  <span className="modal-detail-value">{selectedTransaction.con}</span>
-                </div>
-              </div>
-
-              <div className="modal-section-header">Supporting Docs</div>
-              {/* Remarks Section */}
-              <div className="modal-section-header-remarks">Remarks</div>
-              <div className="modal-remarks">
-                <textarea
-                  className="modal-remarks-input"
-                  placeholder="Optional"
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                />
-              </div>
-
-              {/* CFII CON Action */}
-              <div className="modal-section-header">CFII CON Action</div>
-              <div className="modal-con-actions">
-                {['Approve', 'Hold', 'Void', 'Cancel'].map((action) => (
-                  <button
-                    key={action}
-                    className={`modal-con-button ${selectedAction === action ? 'selected' : ''}`}
-                    onClick={() => setSelectedAction(action)}
-                  >
-                    {action}
-                  </button>
-                ))}
-              </div>
-
-              {/* Icon + Back */}
-              <div className="modal-con-footer">
-                <button className="modal-con-icon-button">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2m-4 0H7a2 2 0 01-2-2V10a2 2 0 012-2h6m0 0V4m0 4l-2-2m2 2l2-2" />
-                  </svg>
-                </button>
-                <button className="modal-con-back-button" onClick={closeModal}>
-                  Back
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </>
   );
 };

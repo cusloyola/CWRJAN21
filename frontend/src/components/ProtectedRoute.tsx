@@ -1,20 +1,10 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import { ROLES, parseStoredRoles } from '../utils/roleUtils';
 
 interface ProtectedRouteProps {
     children: ReactNode;
 }
-
-// 1. Define Role Constants to avoid typos
-const ROLES = {
-    DAM_WPSI: 'DAM WPSI',
-    DAM_WMSI: 'DAM WMSI',
-    DAM_WLPI: 'DAM WLPI',
-    DAM_CFII: 'DAM CFII',
-    APPROVER: 'Approver',
-    DEPUTY: 'Deputy',
-    WORKER: 'Worker'
-};
 
 // 2. Configuration: Define which paths each role is allowed to visit.
 const ROLE_PERMISSIONS: Record<string, string[]> = {
@@ -23,7 +13,7 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
     [ROLES.DAM_WLPI]: ['/wlpi', '/dashboard', '/profile'],
     [ROLES.DAM_CFII]: ['/cfii', '/dashboard', '/profile'],
     
-    [ROLES.WORKER]: ['/dashboard', '/profile', '/transactions', '/archives', '/add-transaction'], 
+    [ROLES.WORKER]: ['/dashboard', '/profile', '/transactions', '/archives', '/add-transaction', '/edit-transaction', '/corp-inventory', '/rfp-monitoring', '/add-rfp', '/edit-rfp'], 
 
     [ROLES.APPROVER]: [
         '/dashboard', 
@@ -53,7 +43,8 @@ const DEFAULT_REDIRECTS: Record<string, string> = {
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
     const authToken = localStorage.getItem('authToken');
-    const userRole = localStorage.getItem('userRole') || '';
+    const storedRole = localStorage.getItem('userRole');
+    const userRoles = parseStoredRoles(storedRole);
     const location = useLocation();
 
     // 1. Authentication Check
@@ -62,16 +53,20 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
 
     // 2. Identify User Permissions
-    const allowedRoutes = ROLE_PERMISSIONS[userRole] || [];
-    const defaultRedirect = DEFAULT_REDIRECTS[userRole] || '/login';
+    const allowedRoutes = [...new Set(userRoles.flatMap((role) => ROLE_PERMISSIONS[role] || []))];
+    const defaultRedirect = userRoles
+        .map((role) => DEFAULT_REDIRECTS[role])
+        .find(Boolean) || '/login';
 
     // 3. Check Authorization
     // We check if the current pathname starts with any of the allowed paths
     // This allows sub-routing (e.g., access to '/wpsi' grants access to '/wpsi/edit/1')
-    const isAllowed = allowedRoutes.some(route => location.pathname.startsWith(route));
+    const isAllowed = allowedRoutes.some((route) => (
+        location.pathname === route || location.pathname.startsWith(`${route}/`)
+    ));
 
     if (!isAllowed) {
-        console.warn(`Access Denied: Role "${userRole}" attempted to access "${location.pathname}". Redirecting to "${defaultRedirect}".`);
+        console.warn(`Access Denied: Roles "${storedRole || ''}" attempted to access "${location.pathname}". Redirecting to "${defaultRedirect}".`);
         
         return <Navigate 
             to={defaultRedirect} 

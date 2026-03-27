@@ -117,6 +117,7 @@ body {
   display: flex;
   align-items: center;
   gap: 1em;
+  font-weight: 450;
 }
 
 #sidebar ul {
@@ -169,7 +170,7 @@ body {
   #sidebar>ul>li.active>.mobile-more-menu {
     background-color: rgba(94, 99, 255, 0.15);
     position: relative;
-    width: 70px;
+    width: 76px;
     transition: all 0.3s ease;
   }
 
@@ -366,7 +367,6 @@ main {
   /* centers horizontally */
   align-items: center;
   /* centers vertically */
-  min-height: 100vh;
   /* full viewport height */
   width: 100%;
   overflow-x: hidden;

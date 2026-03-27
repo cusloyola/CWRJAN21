@@ -39,7 +39,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           <button onClick={onCancel} className="logout-modal-cancel">
             {cancelText}
           </button>
-          <button onClick={onConfirm} className="logout-modal-confirm">
+          <button onClick={onConfirm} className="logout-modal-confirm confirmation-modal-confirm">
             {confirmText}
           </button>
         </div>

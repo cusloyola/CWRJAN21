@@ -1,94 +1,50 @@
 import Sidebar from "./Sidebar";
 import '../styles/Dashboard.css';
 import { Link } from "react-router-dom";
+import { getDamTabsForRoles, isApproverOrDeputy, parseStoredRoles, ROLES } from '../utils/roleUtils';
 
 const Dashboard = () => {
-  const userRole = localStorage.getItem('userRole');
+  const storedRole = localStorage.getItem('userRole');
+  const userRoles = parseStoredRoles(storedRole);
+  const canViewAllCompanies = isApproverOrDeputy(userRoles);
+  const assignedDamTabs = getDamTabsForRoles(userRoles);
+  const isWorker = userRoles.includes(ROLES.WORKER);
+
+  const companyStats = [
+    { path: '/wpsi', label: 'WPSI', value: '22' },
+    { path: '/wmsi', label: 'WMSI', value: '2' },
+    { path: '/wlpi', label: 'WLPI', value: '19' },
+    { path: '/cfii', label: 'CFII', value: '9' }
+  ];
+
+  const visibleCompanyStats = canViewAllCompanies
+    ? companyStats
+    : companyStats.filter((companyStat) => assignedDamTabs.some((tab) => tab.path === companyStat.path));
 
   let statsContent;
-  if (userRole === 'Approver' || userRole === 'Deputy') {
+  if (visibleCompanyStats.length > 0) {
     statsContent = (
       <>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">22</span>
-            <span className="stats-label"><Link to="/wpsi">WPSI</Link></span>
+        {visibleCompanyStats.map((companyStat) => (
+          <div className="dashboard-wrapper px-4 sm:px-6" key={companyStat.path}>
+            <div className="stats-card">
+              <span className="stats-value">{companyStat.value}</span>
+              <span className="stats-label"><Link to={companyStat.path}>{companyStat.label}</Link></span>
+            </div>
           </div>
-        </div>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">2</span>
-            <span className="stats-label"><Link to="/wmsi">WMSI</Link></span>
-          </div>
-        </div>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">19</span>
-            <span className="stats-label"><Link to="/wlpi">WLPI</Link></span>
-          </div>
-        </div>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">9</span>
-            <span className="stats-label"><Link to="/cfii">CFII</Link></span>
-          </div>
-        </div>
+        ))}
       </>
     );
-  } else if (userRole === 'DAM WPSI') {
+  } else if (isWorker) {
     statsContent = (
       <>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">22</span>
-            <span className="stats-label"><Link to="/wpsi">WPSI</Link></span>
-          </div>
-        </div>
-      </>
-    );
-  } else if (userRole === 'DAM WMSI') {
-    statsContent = (
-      <>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">2</span>
-            <span className="stats-label"><Link to="/wmsi">WMSI</Link></span>
-          </div>
-        </div>
-      </>
-    );
-  } else if (userRole === 'DAM WLPI') {
-    statsContent = (
-      <>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">22</span>
-            <span className="stats-label"><Link to="/wlpi">WLPI</Link></span>
-          </div>
-        </div>
-      </>
-    );
-  } else if (userRole === 'DAM CFII') {
-    statsContent = (
-      <>
-        <div className="dashboard-wrapper px-4 sm:px-6">
-          <div className="stats-card">
-            <span className="stats-value">22</span>
-            <span className="stats-label"><Link to="/cfii">CFII</Link></span>
-          </div>
-        </div>
-      </>
-    );
-  } else if (userRole === 'Worker') {
-    statsContent = (
-      <>
-        <div className="dashboard-wrapper px-4 sm:px-6" style={{ marginBottom: '1rem', marginTop: '1rem'  }}>
+{/*         <div className="dashboard-wrapper px-4 sm:px-6" style={{ marginBottom: '1rem', marginTop: '1rem'  }}>
           <div className="wpsi-add-button-container" style={{ justifyContent: 'flex-end', textAlign: 'right', fontSize: '1.125rem' }}>
             <Link to="/add-transaction" className="wpsi-add-button" style={{ textDecoration: 'none' }}>
               + Add
             </Link>
           </div>
-        </div>
+        </div> */}
         <div className="dashboard-wrapper px-4 sm:px-6">
           <div className="stats-card">
             <span className="stats-value">22</span>
@@ -133,8 +89,8 @@ const Dashboard = () => {
 
               {/* User Info */}
               <div>
-                <h2 className="profile-name">Juan Dela Cruz</h2>
-                <p className="profile-role">{localStorage.getItem('userRole')}</p>
+                <h2 className="profile-name">{localStorage.getItem('userName')}</h2>
+                <p className="profile-role">{userRoles.length > 0 ? userRoles.join(' / ') : storedRole}</p>
               </div>
             </div>
           </div>

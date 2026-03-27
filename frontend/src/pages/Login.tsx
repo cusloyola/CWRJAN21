@@ -6,43 +6,65 @@ import logo from '../assets/wallemrectangle.png';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Footer } from '../components/Footer';
+import { ROLES } from '../utils/roleUtils';
+
+interface StaticUser {
+    role?: string;
+    roles?: string[];
+    email: string;
+    password: string;
+    name: string;
+}
 
 // Static users for demo purposes
-export const STATIC_USERS = [
+export const STATIC_USERS: StaticUser[] = [
     {
-        role: "Approver",
+        role: ROLES.APPROVER,
         email: "approver@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "Jane Doe"
     },
     {
-        role: "Deputy",
+        role: ROLES.DEPUTY,
         email: "deputy@demo.com",
-        password: "admin123"
+        password: "admin123",  
+        name: "John Smith"
     },
     {
-        role: "DAM WPSI",
+        role: ROLES.DAM_WPSI,
         email: "damwpsi@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "Alice Johnson"
     },
     {
-        role: "DAM WMSI",
+        role: ROLES.DAM_WMSI,
         email: "damwmsi@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "Bob Williams"
     },
     {
-        role: "DAM WLPI",
+        role: ROLES.DAM_WLPI,
         email: "damwlpi@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "Charlie Brown"
     },
     {
-        role: "DAM CFII",
+        role: ROLES.DAM_CFII,
         email: "damcfii@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "David Davis"
     },
     {
-        role: "Worker",
+        roles: [ROLES.DAM_WPSI, ROLES.DAM_WMSI],
+        email: "dammulticompany@demo.com",
+        password: "admin123",
+        name: "Morgan Lee"
+    },
+    {
+        role: ROLES.WORKER,
         email: "worker@demo.com",
-        password: "admin123"
+        password: "admin123",
+        name: "Eve Miller"
     }
 ];
 
@@ -139,10 +161,13 @@ function Login() {
                     u => u.email === formData.email && u.password === formData.password
                 );
                 if (user) {
+                    const persistedRole = user.roles?.length ? JSON.stringify(user.roles) : (user.role || '');
+
                     // AuthToken placed in localStorage for demo purposes
                     localStorage.setItem('authToken', 'demo-token-' + Date.now());
                     localStorage.setItem('userEmail', user.email);
-                    localStorage.setItem('userRole', user.role);
+                    localStorage.setItem('userRole', persistedRole);
+                    localStorage.setItem('userName', user.name);
 
                     const toastId = toast.success("Login successful! Redirecting...");
 

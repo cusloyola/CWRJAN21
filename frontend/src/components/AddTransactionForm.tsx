@@ -7,6 +7,10 @@ interface AddTransactionFormProps {
     newTransaction: Partial<Transaction>;
     categories: string[];
     currencies: string[];
+    mode?: 'add' | 'edit';
+    formTitle?: string;
+    submitLabel?: string;
+    displayRef?: string;
     isSubmitting?: boolean;
     onChange: (field: keyof Partial<Transaction>, value: any) => void;
     onSave: () => void;
@@ -18,15 +22,23 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
     newTransaction,
     categories,
     currencies,
+    mode = 'add',
+    formTitle,
+    submitLabel,
+    displayRef,
     isSubmitting = false,
     onChange,
     onSave,
     onCancel
 }) => {
+    const referenceDisplay = displayRef || `TRX${String(nextTrxNumber).padStart(3, '0')}`;
+    const heading = formTitle || (mode === 'edit' ? 'Edit Transaction' : 'Add New Transaction');
+    const primaryButtonLabel = submitLabel || (mode === 'edit' ? 'Save Changes' : 'Add Transaction');
+
     return (
         <div className="transaction-form-container">
             <div className="transaction-form-header">
-                <h2 className="transaction-form-title">Add New Transaction</h2>
+                <h2 className="transaction-form-title">{heading}</h2>
             </div>
 
             <form className="transaction-form dashboard-wrapper" onSubmit={(e) => { e.preventDefault(); onSave(); }}>
@@ -36,7 +48,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             Transaction Ref
                         </span>
                         <h3 className="transaction-form-ref-title" style={{ textAlign: 'center', margin: 0 }}>
-                            TRX{String(nextTrxNumber).padStart(3, '0')}
+                            {referenceDisplay}
                         </h3>
                     </div>
 
@@ -44,7 +56,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Category</label>
                             <select
-                                className="transaction-form-detail-value"
+                                className="transaction-form-detail-value transaction-form-select"
                                 value={newTransaction.category || ''}
                                 onChange={e => onChange('category', e.target.value)}
                                 required
@@ -114,7 +126,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Currency</label>
                             <select
-                                className="transaction-form-detail-value"
+                                className="transaction-form-detail-value transaction-form-select"
                                 value={newTransaction.currency || ''}
                                 onChange={e => onChange('currency', e.target.value)}
                                 required
@@ -130,7 +142,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             <label className="transaction-form-detail-label">Amount</label>
                             <input
                                 type="number"
-                                step="0.01"
+                                step="1"
                                 className="transaction-form-detail-value"
                                 value={newTransaction.amount ?? ''}
                                 onChange={e => onChange('amount', e.target.value ? Number(e.target.value) : null)}
@@ -220,7 +232,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             className="transaction-form-save-button"
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? 'Saving...' : 'Add Transaction'}
+                            {isSubmitting ? 'Saving...' : primaryButtonLabel}
                         </button>
                     </div>
                 </div>
