@@ -3,8 +3,25 @@ import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
 import { transactionsData, type Transaction } from '../dummy_data/transactionsData';
+import {
+    type CompanyCode,
+    transactionCategories,
+    transactionCategoriesByCompany,
+} from '../dummy_data/transactionCategoriesData';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+const isCompanyCode = (value: string): value is CompanyCode => (
+    Object.prototype.hasOwnProperty.call(transactionCategoriesByCompany, value)
+);
+
+const normalizeTransaction = (transaction: any): Transaction => ({
+    ...transaction,
+    status: transaction.status || 'pending',
+    pendingApprovalFrom: transaction.pendingApprovalFrom,
+    rejectedBy: transaction.rejectedBy,
+    approvedBy: transaction.approvedBy,
+});
 
 const Transactions: React.FC = () => {
     const navigate = useNavigate();
@@ -23,12 +40,22 @@ const Transactions: React.FC = () => {
         const savedTransactions = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
         if (savedTransactions) {
             try {
-                return JSON.parse(savedTransactions) as Transaction[];
+                const parsedTransactions = JSON.parse(savedTransactions) as Transaction[];
+                const hasKnownCategory = parsedTransactions.some((transaction) =>
+                    transactionCategories.includes(transaction.category),
+                );
+
+                // Fallback for legacy localStorage records that used placeholder categories.
+                if (!hasKnownCategory) {
+                    return [...transactionsData].map(normalizeTransaction);
+                }
+
+                return parsedTransactions.map(normalizeTransaction);
             } catch {
-                return [...transactionsData];
+                return [...transactionsData].map(normalizeTransaction);
             }
         }
-        return [...transactionsData];
+        return [...transactionsData].map(normalizeTransaction);
     });
 
     // Edit modal states
@@ -40,22 +67,50 @@ const Transactions: React.FC = () => {
 
     const transactions = staticTransactions;
 
+    const allowedCategories = useMemo(() => {
+        const storedAlias = localStorage.getItem('userCompanyAlias') || '';
+        const aliases = storedAlias
+            .split(/[|,;]/)
+            .map(alias => alias.trim().toUpperCase())
+            .filter(Boolean);
+
+        if (aliases.length === 0 || aliases.includes('ALL')) {
+            return transactionCategories;
+        }
+
+        const matchedCompanies = aliases.filter(isCompanyCode);
+        if (matchedCompanies.length === 0) {
+            return transactionCategories;
+        }
+
+        return Array.from(
+            new Set(matchedCompanies.flatMap(company => transactionCategoriesByCompany[company])),
+        );
+    }, []);
+
+    const companyScopedTransactions = useMemo(
+        () => transactions.filter(t => allowedCategories.includes(t.category)),
+        [transactions, allowedCategories],
+    );
+
 
 
     // Unique filter values
     const categories = useMemo(() => {
-        const unique = Array.from(new Set(transactions.map(t => t.category))).sort();
+        const unique = Array.from(
+            new Set(companyScopedTransactions.map(t => t.category).filter(cat => allowedCategories.includes(cat))),
+        ).sort();
         return unique;
-    }, [transactions]);
+    }, [companyScopedTransactions, allowedCategories]);
 
     const currencies = useMemo(() => {
-        const unique = Array.from(new Set(transactions.map(t => t.currency))).sort();
+        const unique = Array.from(new Set(companyScopedTransactions.map(t => t.currency))).sort();
         return unique;
-    }, [transactions]);
+    }, [companyScopedTransactions]);
 
     // Filtered & paginated transactions
     const filteredTransactions = useMemo(() => {
-        return transactions.filter(t => {
+        return companyScopedTransactions.filter(t => {
             const matchesSearch = searchQuery === '' ||
                 Object.values(t).some(v => String(v).toLowerCase().includes(searchQuery.toLowerCase()));
 
@@ -65,7 +120,7 @@ const Transactions: React.FC = () => {
 
             return matchesSearch && matchesCategory && matchesCurrency && matchesDate;
         });
-    }, [transactions, searchQuery, categoryFilter, currencyFilter, dateFilter]);
+    }, [companyScopedTransactions, searchQuery, categoryFilter, currencyFilter, dateFilter]);
 
     const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -219,28 +274,30 @@ const Transactions: React.FC = () => {
                         <div className="transactions-table-container">
                             <table className="transactions-table table">
                                 <colgroup>
-                                    <col style={{ width: '16%' }} />
-                                    <col style={{ width: isMobile ? '36%' : '26%' }} />
+                                    <col style={{ width: isMobile ? '22%' : '12%' }} />
+                                    <col style={{ width: isMobile ? (isVerySmall ? '50%' : '42%') : '20%' }} />
+                                    {!isMobile && <col style={{ width: '12%' }} />}
                                     {!isMobile && <col style={{ width: '14%' }} />}
-                                    {!isVerySmall && <col style={{ width: isMobile ? '18%' : '16%' }} />}
-                                    {!isVerySmall && <col style={{ width: isMobile ? '14%' : '12%' }} />}
-                                    <col style={{ width: isMobile ? '16%' : '16%' }} />
+                                    {!isVerySmall && <col style={{ width: isMobile ? '12%' : '10%' }} />}
+                                    <col style={{ width: isMobile ? (isVerySmall ? '28%' : '20%') : '12%' }} />
+                                    {!isMobile && <col style={{ width: '12%' }} />}
                                 </colgroup>
                                 <thead>
                                     <tr>
-                                        <th>Transaction Ref</th>
+                                        <th style={{ whiteSpace: 'nowrap' }}>{isMobile ? 'Tx Ref' : 'Transaction Ref'}</th>
                                         <th>Payee / Particulars</th>
-                                        <th>Batch</th>
+                                        {!isMobile && <th>Batch</th>}
                                         {!isMobile && <th>Vessel</th>}
                                         {!isVerySmall && <th>Date</th>}
                                         <th>Amount</th>
+                                        {!isMobile && <th>Status</th>}
                                     </tr>
                                 </thead>
                                 <tbody className="odd:bg-gray-50 even:bg-white">
                                     {paginatedTransactions.length === 0 ? (
                                         <tr>
                                             <td colSpan={
-                                                isVerySmall ? 3 : isMobile ? 5 : 6
+                                                isVerySmall ? 3 : isMobile ? 4 : 7
                                             } className="transactions-table-empty">
                                                 No transactions found
                                             </td>
@@ -259,13 +316,20 @@ const Transactions: React.FC = () => {
                                                         {transaction.particulars}
                                                     </div>
                                                 </td>
-                                                <td>{transaction.batch}</td>
+                                                {!isMobile && <td>{transaction.batch}</td>}
                                                 {!isMobile && <td>{transaction.vesselPrincipal}</td>}
                                                 {!isVerySmall && <td>{transaction.date}</td>}
                                                 <td>
                                                     {new Intl.NumberFormat('en-US', { style: 'currency', currency: transaction.currency || 'USD' })
                                                         .format(transaction.amount || 0)}
                                                 </td>
+                                                {!isMobile && (
+                                                    <td>
+                                                        <div className={`status-badge ${transaction.status === 'approved' ? 'completed' : transaction.status === 'pending' ? 'pending' : 'failed'}`}>
+                                                            {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
+                                                        </div>
+                                                    </td>
+                                                )}
                                             </tr>
                                         ))
                                     )}
@@ -498,7 +562,7 @@ const Transactions: React.FC = () => {
                                             />
                                         </div>
 
-                                        <div className="transaction-modal-detail-row">
+{/*                                         <div className="transaction-modal-detail-row">
                                             <span className="transaction-modal-detail-label">Drive File Link</span>
                                             <input
                                                 type="text"
@@ -506,7 +570,7 @@ const Transactions: React.FC = () => {
                                                 value={editableTransaction.driveFileLink}
                                                 onChange={e => handleEditChange('driveFileLink', e.target.value)}
                                             />
-                                        </div>
+                                        </div> */}
 
                                         <div className="transaction-modal-detail-row">
                                             <span className="transaction-modal-detail-label">Supporting Docs</span>
@@ -517,6 +581,59 @@ const Transactions: React.FC = () => {
                                                 onChange={e => handleEditChange('supportingDocs', e.target.value)}
                                             />
                                         </div>
+
+                                        <div className="transaction-modal-detail-row">
+                                            <span className="transaction-modal-detail-label">Status</span>
+                                            <select
+                                                className="transaction-modal-detail-value"
+                                                value={editableTransaction.status}
+                                                onChange={e => handleEditChange('status', e.target.value)}
+                                            >
+                                                <option value="pending">Pending</option>
+                                                <option value="approved">Approved</option>
+                                                <option value="rejected">Rejected</option>
+                                            </select>
+                                        </div>
+
+                                        {editableTransaction.status === 'pending' && (
+                                            <div className="transaction-modal-detail-row">
+                                                <span className="transaction-modal-detail-label">Pending Approval From</span>
+                                                <select
+                                                    className="transaction-modal-detail-value"
+                                                    value={editableTransaction.pendingApprovalFrom || ''}
+                                                    onChange={e => handleEditChange('pendingApprovalFrom', e.target.value === '' ? undefined : (e.target.value as 'DAM' | 'Deputy' | 'Approver'))}
+                                                >
+                                                    <option value="">-- Select --</option>
+                                                    <option value="DAM">DAM</option>
+                                                    <option value="Deputy">Deputy</option>
+                                                    <option value="Approver">Approver</option>
+                                                </select>
+                                            </div>
+                                        )}
+
+                                        {editableTransaction.status === 'rejected' && (
+                                            <div className="transaction-modal-detail-row">
+                                                <span className="transaction-modal-detail-label">Rejected By</span>
+                                                <input
+                                                    type="text"
+                                                    className="transaction-modal-detail-value"
+                                                    value={editableTransaction.rejectedBy || ''}
+                                                    onChange={e => handleEditChange('rejectedBy', e.target.value)}
+                                                />
+                                            </div>
+                                        )}
+
+                                        {editableTransaction.status === 'approved' && (
+                                            <div className="transaction-modal-detail-row">
+                                                <span className="transaction-modal-detail-label">Approved By</span>
+                                                <input
+                                                    type="text"
+                                                    className="transaction-modal-detail-value"
+                                                    value={editableTransaction.approvedBy || ''}
+                                                    onChange={e => handleEditChange('approvedBy', e.target.value)}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>

@@ -1,0 +1,54 @@
+export type CompanyCode = 'CFII' | 'WLPI' | 'WMSI' | 'WPSI';
+
+export const transactionCategoriesByCompany: Record<CompanyCode, string[]> = {
+  CFII: [
+    'CFII-ACA',
+    'CFII-BPI BIZLINK (PHP)',
+    'CFII-CORP CHECK OL (PHP)',
+    'CFII-MANUAL TRANSACTION (OTHERS)',
+    'CFII-MANUAL TRANSACTION (PHP)',
+    'CFII-MANUAL TRANSACTION (USD)',
+    'CFII-OL REFUND (PHP)',
+    'CFII-OUTWARD PAYMENT (PHP)',
+    'CFII-PAYROLL BDO (PHP)',
+    'CFII-WIRE TRANSFER (USD)',
+  ],
+  WLPI: [
+    'WLPI-ACA',
+    'WLPI-BPI BIZLINK (PHP)',
+    'WLPI-CONDEP REFUND (PHP)',
+    'WLPI-CORP CHECK OL (PHP)',
+    'WLPI-MANUAL TRANSACTION (OTHERS)',
+    'WLPI-MANUAL TRANSACTION (PHP)',
+    'WLPI-MANUAL TRANSACTION (USD)',
+    'WLPI-OUTWARD PAYMENT (PHP)',
+    'WLPI-PAYROLL BDO (PHP)',
+    'WLPI-SHIPPING LINE REG ACCT (PHP)',
+    'WLPI-WIRE TRANSFER (USD)',
+  ],
+  WMSI: [
+    'WMSI-ACA',
+    'WMSI-BPI BIZLINK (PHP)',
+    'WMSI-CORP CHECK OL (PHP)',
+    'WMSI-FUND TRANSFER OTHER PARTY (USD)',
+    'WMSI-MANUAL TRANSACTION (OTHERS)',
+    'WMSI-MANUAL TRANSACTION (PHP)',
+    'WMSI-MANUAL TRANSACTION (USD)',
+    'WMSI-OUTWARD PAYMENT (PHP)',
+    'WMSI-PAYROLL BPI (PHP)',
+    'WMSI-WIRE TRANSFER (USD)',
+  ],
+  WPSI: [
+    'WPSI-ACA',
+    'WPSI-BPI BIZLINK',
+    'WPSI-CONDEP H-A',
+    'WPSI-CONDEP REFUND',
+    'WPSI-CORP CHECK OL',
+    'WPSI-FUND TRANSFER OTHER PARTY',
+    'WPSI-MANUAL TRANSACTION',
+    'WPSI-OUTWARD PAYMENT',
+    'WPSI-PAYROLL BPI',
+  ],
+};
+
+export const transactionCategories = Object.values(transactionCategoriesByCompany).flat();

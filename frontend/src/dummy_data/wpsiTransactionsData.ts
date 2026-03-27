@@ -58,7 +58,7 @@ export const wpsiTransactionsData: WpsiTransaction[] = [
   {
     id: 4,
     label: 'CONTAINER DEPOSIT 2 / BL NO: JEADVO/2409/1',
-    title: 'WEE ENG CONSTRUCTION, INC.',
+    title: 'JOHN SMITH CONSTRUCTION, INC.',
     amount: '604,500.00',
     section: 'CFII-OL REFUND (PHP)',
     refNo: 'COTS0326202504810',
