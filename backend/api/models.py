@@ -87,6 +87,7 @@ class Category (models.Model):
 # ------------------------------------------------
 class Payee (models.Model):
     payee_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE) 
     payee_name = models.CharField(max_length=100, unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -94,6 +95,7 @@ class Payee (models.Model):
         verbose_name = "Payee"
         verbose_name_plural = "Payees"
         ordering = ['payee_name']
+        unique_together = ('company', 'payee_name')
     
     def __str__(self):
         return f"{self.payee_name}"    
@@ -152,6 +154,7 @@ class MCBranchIssuance (models.Model):
 # ------------------------------------
 class FundingAccount (models.Model):
     funding_acct_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     funding_acct_name = models.CharField(max_length=100, unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -159,7 +162,8 @@ class FundingAccount (models.Model):
         verbose_name = "Funding Account"
         verbose_name_plural = "Funding Accounts"
         ordering = ['funding_acct_name']
-    
+        unique_together = ('company', 'funding_acct_name')
+
     def __str__(self):
         return f"{self.funding_acct_name}"
 
@@ -190,6 +194,7 @@ class Transaction (models.Model):
         return TransactionBatch.objects.get(batch_name="1ST").pk
     
     transaction_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    company = models.ForeignKey(Company,on_delete=models.PROTECT)
     transaction_ref = models.CharField(max_length=100,unique=True)
     category = models.ForeignKey(Category,on_delete=models.PROTECT)
     payee = models.ForeignKey(Payee,on_delete=models.PROTECT)
@@ -213,7 +218,7 @@ class Transaction (models.Model):
         ordering = ['date_created']
     
     def __str__(self):
-        return f"{self.transaction_id}"
+        return f"{self.transaction_ref}"
 
 # ------------------------------------------------
 # CWR Transactions Log

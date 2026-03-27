@@ -6,7 +6,7 @@ import logo from '../assets/wallemrectangle.png';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Footer } from '../components/Footer';
-import { ROLES } from '../utils/roleUtils';
+// import { ROLES } from '../utils/roleUtils';
 
 interface StaticUser {
     role?: string;
@@ -14,7 +14,6 @@ interface StaticUser {
     email: string;
     password: string;
     name: string;
-    companyAlias?: string;
 }
 
 // Static users for demo purposes
@@ -23,79 +22,50 @@ export const STATIC_USERS: StaticUser[] = [
         role: ROLES.APPROVER,
         email: "approver@demo.com",
         password: "admin123",
-        name: "Jane Doe",
-        companyAlias:"All"
+        name: "Jane Doe"
     },
     {
         role: ROLES.DEPUTY,
         email: "deputy@demo.com",
         password: "admin123",  
-        name: "John Smith",
-        companyAlias:"All"
+        name: "John Smith"
     },
     {
         role: ROLES.DAM_WPSI,
         email: "damwpsi@demo.com",
         password: "admin123",
-        name: "Alice Johnson",
-        companyAlias:"WPSI"
+        name: "Alice Johnson"
     },
     {
         role: ROLES.DAM_WMSI,
         email: "damwmsi@demo.com",
         password: "admin123",
-        name: "Bob Williams",
-        companyAlias:"WMSI"
+        name: "Bob Williams"
     },
     {
         role: ROLES.DAM_WLPI,
         email: "damwlpi@demo.com",
         password: "admin123",
-        name: "Charlie Brown",
-        companyAlias:"WLPI"
+        name: "Charlie Brown"
     },
     {
         role: ROLES.DAM_CFII,
         email: "damcfii@demo.com",
         password: "admin123",
-        name: "David Davis",
-        companyAlias:"CFII"
+        name: "David Davis"
     },
     {
         roles: [ROLES.DAM_WPSI, ROLES.DAM_WMSI],
         email: "dammulticompany@demo.com",
         password: "admin123",
-        name: "Morgan Lee",
-        companyAlias:"WPSI, WMSI"
+        name: "Morgan Lee"
     },
     {
         role: ROLES.WORKER,
-        email: "workerwpsi@demo.com",
+        email: "worker@demo.com",
         password: "admin123",
-        name: "Eve Miller",
-        companyAlias:"WPSI"
-    },
-    {
-        role: ROLES.WORKER,
-        email: "workerwlpi@demo.com",
-        password: "admin123",
-        name: "Sarah Wilson",
-        companyAlias:"WLPI"
-    },
-    {
-        role: ROLES.WORKER,
-        email: "workerwmsi@demo.com",
-        password: "admin123",
-        name: "Karen Taylor",
-        companyAlias:"WMSI"
-    },
-    {
-        role: ROLES.WORKER,
-        email: "workercfii@demo.com",
-        password: "admin123",
-        name: "Frank Anderson",
-        companyAlias:"CFII"
-    },
+        name: "Eve Miller"
+    }
 ];
 
 interface LoginFormData {
