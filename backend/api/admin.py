@@ -61,11 +61,11 @@ class CompanyFilterAdminMixin:
 
     def save_model(self, request, obj, form, change):
         # Auto assign company if only one
-        if not request.user.is_superuser and hasattr(obj, 'company'):
+        if not request.user.is_superuser:
             role = getattr(request.user, 'userrole', None)
             role_code = role.role if role else None
 
-            if role_code not in ['APR', 'DEP']:
+            if role_code not in ['APR', 'DEP'] and hasattr(obj, 'company'):
                 user_companies = UserCompany.objects.filter(user=request.user)
 
                 if user_companies.count() == 1:
