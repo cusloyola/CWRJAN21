@@ -59,7 +59,6 @@ body {
   flex-direction: column;
   height: 100%;
   flex: 1;
-  gap: 0.5em;
 }
 
 #sidebar > ul > li:last-child {
@@ -397,11 +396,11 @@ main p {
     flex-shrink: 0;
   }
 
-  #sidebar a,
+/*   #sidebar a,
   #sidebar .dropdown-btn,
   #sidebar .logo {
     padding: 1em;
-  }
+  } */
 }
 
 /* Large screens (1024px to 1279px) - Tablet landscape & smaller desktops */
@@ -508,7 +507,7 @@ main p {
     }
 
     /* Approver mobile grid override */
-    &.approver ul {
+    &.approver > ul {
       grid-template-columns: repeat(6, 1fr) !important;
     }
 
@@ -853,7 +852,7 @@ main p {
 /* === Filter Bar & Dropdowns (Responsive) === */
 /* Applies to .wpsi-controls, .wpsi-dropdown, .wpsi-dropdown-container, .wpsi-search-* used on Transactions, CWR pages */
 
-.wpsi-controls {
+/* .wpsi-controls {
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -861,7 +860,7 @@ main p {
   margin-bottom: 0.5rem;
   width: 100%;
   flex-wrap: wrap;
-}
+} */
 
 .wpsi-search-container {
   flex: 1 1 200px;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -6,6 +6,11 @@ import Sidebar from './Sidebar';
 import AddTransactionForm from '../components/AddTransactionForm';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { type Transaction, transactionsData } from '../dummy_data/transactionsData';
+import {
+  type CompanyCode,
+  transactionCategories,
+  transactionCategoriesByCompany,
+} from '../dummy_data/transactionCategoriesData';
 
 const AddTransaction = () => {
   const navigate = useNavigate();
@@ -21,8 +26,31 @@ const AddTransaction = () => {
   const TRANSACTIONS_STORAGE_KEY = 'transactionsData';
   const getEditDraftKey = (ref: string) => `pendingTransactionEditDraft:${ref}`;
 
+  const isCompanyCode = (value: string): value is CompanyCode => (
+    Object.prototype.hasOwnProperty.call(transactionCategoriesByCompany, value)
+  );
+
   // Sample data - in real app, these would come from API
-  const categories = ['Category 1', 'Category 2', 'Category 3'];
+  const categories = useMemo(() => {
+    const storedAlias = localStorage.getItem('userCompanyAlias') || '';
+    const aliases = storedAlias
+      .split(/[|,;]/)
+      .map(alias => alias.trim().toUpperCase())
+      .filter(Boolean);
+
+    if (aliases.length === 0 || aliases.includes('ALL')) {
+      return transactionCategories;
+    }
+
+    const matchedCompanies = aliases.filter(isCompanyCode);
+    if (matchedCompanies.length === 0) {
+      return transactionCategories;
+    }
+
+    return Array.from(
+      new Set(matchedCompanies.flatMap(company => transactionCategoriesByCompany[company])),
+    );
+  }, []);
   const currencies = ['USD', 'PHP'];
 
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
@@ -115,6 +143,7 @@ const AddTransaction = () => {
     batch: value.batch || '',
     driveFileLink: value.driveFileLink || '',
     supportingDocs: value.supportingDocs || '',
+    status: value.status || 'pending',
   });
 
   const hasUnsavedEditChanges = isEditMode
@@ -160,32 +189,32 @@ const AddTransaction = () => {
   // Form validation function
   const validateForm = (): boolean => {
     const errors: string[] = [];
-    
+
     if (!newTransaction.category?.trim()) {
       errors.push('Category is required');
     }
-    
+
     if (!newTransaction.date) {
       errors.push('Date is required');
     }
-    
+
     if (!newTransaction.payee?.trim()) {
       errors.push('Payee is required');
     }
-    
+
     if (!newTransaction.currency) {
       errors.push('Currency is required');
     }
-    
+
     if (!newTransaction.amount || newTransaction.amount <= 0) {
       errors.push('Amount must be greater than 0');
     }
-    
+
     if (errors.length > 0) {
       toast.error(`Please fix the following: ${errors.join(', ')}`);
       return false;
     }
-    
+
     return true;
   };
 
@@ -201,20 +230,20 @@ const AddTransaction = () => {
     }
 
     setIsSubmitting(true);
-    
+
     try {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       if (isEditMode && transactionRef) {
         setTransactions(prev =>
           prev.map(t =>
             t.transactionRef === transactionRef
               ? {
-                  ...t,
-                  ...newTransaction,
-                  transactionRef: t.transactionRef,
-                } as Transaction
+                ...t,
+                ...newTransaction,
+                transactionRef: t.transactionRef,
+              } as Transaction
               : t,
           ),
         );
@@ -237,6 +266,8 @@ const AddTransaction = () => {
           batch: String(newTransaction.batch || ''),
           driveFileLink: String(newTransaction.driveFileLink || ''),
           supportingDocs: String(newTransaction.supportingDocs || ''),
+          status: 'pending',
+          pendingApprovalFrom: 'DAM',
         };
         setTransactions(prev => [transactionToAdd, ...prev]);
       }
@@ -245,16 +276,16 @@ const AddTransaction = () => {
       if (isEditMode && transactionRef) {
         localStorage.removeItem(getEditDraftKey(transactionRef));
       }
-      
+
       // Show success toast and store its ID
       const toastId = toast.success(isEditMode ? 'Transaction updated successfully!' : 'Transaction saved successfully!');
-      
+
       // Navigate back to dashboard after a short delay
       setTimeout(() => {
         toast.dismiss(toastId); // Dismiss the toast before navigating
         navigate('/transactions');
       }, 1000);
-      
+
     } catch (error) {
       console.error('Error saving transaction:', error);
       toast.error('Failed to save transaction. Please try again.');

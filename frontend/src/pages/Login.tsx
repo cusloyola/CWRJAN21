@@ -6,69 +6,97 @@ import logo from '../assets/wallemrectangle.png';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Footer } from '../components/Footer';
-// import { ROLES } from '../utils/roleUtils';
+import { ROLES } from '../utils/roleUtils';
 
-// interface StaticUser {
-//     role?: string;
-//     roles?: string[];
-//     email: string;
-//     password: string;
-//     name: string;
-// }
+interface StaticUser {
+    role?: string;
+    roles?: string[];
+    email: string;
+    password: string;
+    name: string;
+    companyAlias: string;
+}
 
-// // Static users for demo purposes
-// export const STATIC_USERS: StaticUser[] = [
-//     {
-//         role: ROLES.APPROVER,
-//         email: "approver@demo.com",
-//         password: "admin123",
-//         name: "Jane Doe"
-//     },
-//     {
-//         role: ROLES.DEPUTY,
-//         email: "deputy@demo.com",
-//         password: "admin123",  
-//         name: "John Smith"
-//     },
-//     {
-//         role: ROLES.DAM_WPSI,
-//         email: "damwpsi@demo.com",
-//         password: "admin123",
-//         name: "Alice Johnson"
-//     },
-//     {
-//         role: ROLES.DAM_WMSI,
-//         email: "damwmsi@demo.com",
-//         password: "admin123",
-//         name: "Bob Williams"
-//     },
-//     {
-//         role: ROLES.DAM_WLPI,
-//         email: "damwlpi@demo.com",
-//         password: "admin123",
-//         name: "Charlie Brown"
-//     },
-//     {
-//         role: ROLES.DAM_CFII,
-//         email: "damcfii@demo.com",
-//         password: "admin123",
-//         name: "David Davis"
-//     },
-//     {
-//         roles: [ROLES.DAM_WPSI, ROLES.DAM_WMSI],
-//         email: "dammulticompany@demo.com",
-//         password: "admin123",
-//         name: "Morgan Lee"
-//     },
-//     {
-//         role: ROLES.WORKER,
-//         email: "worker@demo.com",
-//         password: "admin123",
-//         name: "Eve Miller"
-//     }
-// ];
-
-
+// Static users for demo purposes
+export const STATIC_USERS: StaticUser[] = [
+    {
+        role: ROLES.APPROVER,
+        email: "approver@demo.com",
+        password: "admin123",
+        name: "Jane Doe",
+        companyAlias: "All"
+    },
+    {
+        role: ROLES.DEPUTY,
+        email: "deputy@demo.com",
+        password: "admin123",  
+        name: "John Smith",
+        companyAlias: "All"
+    },
+    {
+        role: ROLES.DAM_WPSI,
+        email: "damwpsi@demo.com",
+        password: "admin123",
+        name: "Alice Johnson",
+        companyAlias: "WPSI"
+    },
+    {
+        role: ROLES.DAM_WMSI,
+        email: "damwmsi@demo.com",
+        password: "admin123",
+        name: "Bob Williams",
+        companyAlias: "WMSI"
+    },
+    {
+        role: ROLES.DAM_WLPI,
+        email: "damwlpi@demo.com",
+        password: "admin123",
+        name: "Charlie Brown",
+        companyAlias: "WLPI"
+    },
+    {
+        role: ROLES.DAM_CFII,
+        email: "damcfii@demo.com",
+        password: "admin123",
+        name: "David Davis",
+        companyAlias: "CFII"
+    },
+    {
+        roles: [ROLES.DAM_WPSI, ROLES.DAM_WMSI],
+        email: "dammulticompany@demo.com",
+        password: "admin123",
+        name: "Morgan Lee",
+        companyAlias: "Multiple"
+    },
+    {
+        role: ROLES.WORKER,
+        email: "workerwpsi@demo.com",
+        password: "admin123",
+        name: "Eve Miller",
+        companyAlias: "WPSI"
+    },
+    {
+        role: ROLES.WORKER,
+        email: "workercfii@demo.com",
+        password: "admin123",
+        name: "John Doe",
+        companyAlias: "CFII"
+    },
+    {
+        role: ROLES.WORKER,
+        email: "workerwlpi@demo.com",
+        password: "admin123",
+        name: "Jane Smith",
+        companyAlias: "WLPI"
+    },
+    {
+        role: ROLES.WORKER,
+        email: "workerwmsi@demo.com",
+        password: "admin123",
+        name: "Bob Johnson",
+        companyAlias: "WMSI"
+    },
+];
 
 interface LoginFormData {
     email: string
@@ -170,7 +198,13 @@ function Login() {
                     localStorage.setItem('userEmail', user.email);
                     localStorage.setItem('userRole', persistedRole);
                     localStorage.setItem('userName', user.name);
-
+                    localStorage.setItem('userCompanyAlias', user.companyAlias || '');
+                    console.log('User logged in:', {
+                        email: user.email,
+                        role: persistedRole,
+                        name: user.name,
+                        companyAlias: user.companyAlias || ''
+                    });
                     const toastId = toast.success("Login successful! Redirecting...");
 
                     setTimeout(() => {
