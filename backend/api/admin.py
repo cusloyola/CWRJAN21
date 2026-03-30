@@ -16,7 +16,52 @@ from .models import (
     VesselPrincipal,
     TransactionLog,
     UserLoginLog,
+    PayeeLog,
+    VesselPrincipalLog,
+    CategoryLog,
+    FundingAccountLog,
+    MCBranchIssuanceLog,
 )
+
+# ---------------------------------
+# Company Filter Mixin
+# ---------------------------------
+class AdminLogMixin:
+    def save_model(self, request, obj, form, change):
+        action = "UPDATE" if change else "CREATE"
+        changes = []
+
+        if change:
+            for field_name in form.changed_data:
+                old = form.initial.get(field_name)
+                new = form.cleaned_data.get(field_name)
+                changes.append({"field": field_name, "old": str(old), "new": str(new)})
+        else:
+            changes.append({"field": "ALL", "old": None, "new": "Created"})
+
+        super().save_model(request, obj, form, change)
+
+        # Dynamically create log
+        log_model = getattr(self, "log_model", None)
+        if log_model:
+            log_model.objects.create(
+                **{self.log_fk_field: obj},
+                action=action,
+                user=request.user,
+                changes=json.dumps(changes)
+            )
+
+    def delete_model(self, request, obj):
+        log_model = getattr(self, "log_model", None)
+        if log_model:
+            log_model.objects.create(
+                **{self.log_fk_field: obj},
+                action="DELETE",
+                user=request.user,
+                changes=json.dumps([{"field": "ALL", "old": str(obj), "new": None}])
+            )
+        super().delete_model(request, obj)
+
 
 # ---------------------------------
 # Company Filter Mixin
@@ -166,6 +211,18 @@ class CompanyCategory(CompanyFilterAdminMixin,admin.ModelAdmin):
     ordering = ('company', 'category_type',)
 
 # ------------------------------------
+# Category Log
+# ------------------------------------
+# @admin.register(Category)
+# class CategoryAdmin(AdminLogMixin, CompanyFilterAdminMixin, admin.ModelAdmin):
+#     log_model = CategoryLog
+#     log_fk_field = "category"
+#     list_display = ('company', 'category_type', 'category_description')
+#     search_fields = ('company', 'category_description')
+#     ordering = ('company', 'category_type')
+
+
+# ------------------------------------
 # Currency
 # ------------------------------------
 @admin.register(Currency)
@@ -173,6 +230,8 @@ class CompanyAdmin(CompanyFilterAdminMixin,admin.ModelAdmin):
     list_display = ('currency_code', 'currency_description')
     search_fields = ('currency_code',)
     ordering = ('currency_code',)
+
+
 
 # ------------------------------------
 # Branch to Issue MC
@@ -184,6 +243,17 @@ class CompanyBranch(admin.ModelAdmin):
     ordering = ('branch_name',)
 
 # ------------------------------------
+# Branch to Issue MC Log
+# ------------------------------------
+# @admin.register(MCBranchIssuance)
+# class MCBranchIssuanceAdmin(AdminLogMixin, admin.ModelAdmin):
+#     log_model = MCBranchIssuanceLog
+#     log_fk_field = "branch"
+#     list_display = ('branch_name',)
+#     search_fields = ('branch_name',)
+#     ordering = ('branch_name',)
+
+# ------------------------------------
 # Funding Account
 # ------------------------------------
 @admin.register(FundingAccount)
@@ -191,6 +261,17 @@ class CompanyFundingAccount(CompanyFilterAdminMixin,admin.ModelAdmin):
     list_display = ('funding_acct_name', )
     search_fields = ('funding_acct_name',)
     ordering = ('funding_acct_name',)    
+
+# ------------------------------------
+# Funding Account Log
+# ------------------------------------
+# @admin.register(FundingAccount)
+# class FundingAccountAdmin(AdminLogMixin, CompanyFilterAdminMixin, admin.ModelAdmin):
+#     log_model = FundingAccountLog
+#     log_fk_field = "funding_account"
+#     list_display = ('funding_acct_name', 'company')
+#     search_fields = ('funding_acct_name',)
+#     ordering = ('funding_acct_name',)
 
 # ------------------------------------------------
 # Transactions Batch
@@ -205,16 +286,27 @@ class Batch(admin.ModelAdmin):
 # Payee
 # ------------------------------------------------
 @admin.register(Payee)
-class Batch(CompanyFilterAdminMixin,admin.ModelAdmin):
+class Payee(CompanyFilterAdminMixin,admin.ModelAdmin):
     list_display = ('payee_name',)
     search_fields = ('payee_name',)
     ordering = ('payee_name',)
 
 # ------------------------------------------------
+# Payee Log
+# ------------------------------------------------
+# @admin.register(Payee)
+# class PayeeAdmin(AdminLogMixin, CompanyFilterAdminMixin, admin.ModelAdmin):
+#     log_model = PayeeLog
+#     log_fk_field = "payee"
+#     list_display = ('payee_name',)
+#     search_fields = ('payee_name',)
+#     ordering = ('payee_name',)
+
+# ------------------------------------------------
 # Vessel/Principal
 # ------------------------------------------------
 @admin.register(VesselPrincipal)
-class Batch(admin.ModelAdmin):
+class Batch(AdminLogMixin,admin.ModelAdmin):
     list_display = ('vessel_principal_name',)
     search_fields = ('vessel_principal_name',)
     ordering = ('vessel_principal_name',)
@@ -394,3 +486,4 @@ class UserLoginLogAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+    
