@@ -225,7 +225,7 @@ class Batch(admin.ModelAdmin):
 # ------------------------------------------------
 @admin.register(Transaction)
 class ChequesTransactions(CompanyFilterAdminMixin,admin.ModelAdmin):
-    list_display = ('transaction_ref','company','category','payee','particulars','vessel_principal','date_created', )
+    list_display = ('transaction_ref','category','payee','particulars','vessel_principal','date_created', )
     search_fields = ('transaction_ref',)
     ordering = ('-date_created',)
 

@@ -127,15 +127,15 @@ function Login() {
                 localStorage.setItem('refreshToken', data.refresh);
                 localStorage.setItem('user', JSON.stringify(data.user));
                 localStorage.setItem('userRole', data.user.role.code);
-                console.log(response.status)
-                console.log(data.user.id)
-                console.log(data.user.full_name)
-
+                console.log(response.status);
+                console.log(data.user.id);
+                console.log(data.user.full_name);
                 // Save user info
                 localStorage.setItem('user', JSON.stringify(data.user));
-                localStorage.setItem('userRole', data.user.role?.code || '');
+                localStorage.setItem('userRoleName', data.user.role.name || '');
                 localStorage.setItem('userName', data.user.full_name || '');
 
+                console.log(localStorage.getItem('userRoleName'));
                 // Handle multi-company
                 if (data.user.companies.length === 1) {
                 localStorage.setItem('selectedCompany', JSON.stringify(data.user.companies[0]));

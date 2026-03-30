@@ -26,7 +26,7 @@ const Sidebar = () => {
   const userRoles = parseStoredRoles(localStorage.getItem('userRole'));
   const assignedDamTabs = getDamTabsForRoles(userRoles);
   const isDAM = assignedDamTabs.length > 0;
-  const isWorker = userRoles.includes(ROLES.WORKER);
+  const isWorker = userRoles.includes(ROLES.MAKER);
   const isApproverOrDeputyRole = isApproverOrDeputy(userRoles);
 
   const canSeeTab = (path: string) => {
