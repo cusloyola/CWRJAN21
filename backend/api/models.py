@@ -249,3 +249,21 @@ class TransactionLog(models.Model):
     def __str__(self):
         return f"{self.action}"
 
+
+# ------------------------------------------------
+# View Logs: User Login
+# ------------------------------------------------
+class UserLoginLog(models.Model):
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=300, null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "User Login Log"
+        verbose_name_plural = "User Login Logs"
+        ordering = ['-date_created']
+
+    def __str__(self):
+        return f"{self.user.username} logged in at {self.date_created}"

@@ -5,7 +5,7 @@ export const ROLES = {
     DAM_CFII: 'DAM CFII',
     APPROVER: 'Approver',
     DEPUTY: 'Deputy',
-    WORKER: 'Worker'
+    MKR: 'Maker'
 } as const;
 
 export const DAM_COMPANY_TABS = [

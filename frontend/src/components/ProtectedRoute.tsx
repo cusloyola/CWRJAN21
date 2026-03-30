@@ -41,33 +41,37 @@ const DEFAULT_REDIRECTS: Record<string, string> = {
     [ROLES.DEPUTY]: '/dashboard',
 };
 
-function ProtectedRoute({ children }: ProtectedRouteProps) {
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
+    const location = useLocation();
     const authToken = localStorage.getItem('authToken');
     const storedRole = localStorage.getItem('userRole');
     const userRoles = parseStoredRoles(storedRole);
-    const location = useLocation();
+    const userStr = localStorage.getItem('user');
+    const user = userStr ? JSON.parse(userStr) : null;
+    const selectedCompany = localStorage.getItem('selectedCompany');
 
-    // 1. Authentication Check
-    if (!authToken) {
+    // --- Authentication Check ---
+    if (!authToken || !user) {
         return <Navigate to="/login" replace state={{ message: 'Please login first to access this page' }} />;
     }
 
-    // 2. Identify User Permissions
+    // --- Multi-Company Handling ---
+    if (user.companies?.length > 1 && !selectedCompany) {
+        return <Navigate to="/select-company" replace />;
+    }
+
+    // --- Authorization Check ---
     const allowedRoutes = [...new Set(userRoles.flatMap((role) => ROLE_PERMISSIONS[role] || []))];
     const defaultRedirect = userRoles
         .map((role) => DEFAULT_REDIRECTS[role])
-        .find(Boolean) || '/login';
+        .find(Boolean) || '/dashboard';
 
-    // 3. Check Authorization
-    // We check if the current pathname starts with any of the allowed paths
-    // This allows sub-routing (e.g., access to '/wpsi' grants access to '/wpsi/edit/1')
     const isAllowed = allowedRoutes.some((route) => (
         location.pathname === route || location.pathname.startsWith(`${route}/`)
     ));
 
     if (!isAllowed) {
         console.warn(`Access Denied: Roles "${storedRole || ''}" attempted to access "${location.pathname}". Redirecting to "${defaultRedirect}".`);
-        
         return <Navigate 
             to={defaultRedirect} 
             replace 
@@ -78,4 +82,41 @@ function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <>{children}</>;
 }
 
-export default ProtectedRoute;
+// function ProtectedRoute({ children }: ProtectedRouteProps) {
+//     const authToken = localStorage.getItem('authToken');
+//     const storedRole = localStorage.getItem('userRole');
+//     const userRoles = parseStoredRoles(storedRole);
+//     const location = useLocation();
+
+//     // 1. Authentication Check
+//     if (!authToken) {
+//         return <Navigate to="/login" replace state={{ message: 'Please login first to access this page' }} />;
+//     }
+
+//     // 2. Identify User Permissions
+//     const allowedRoutes = [...new Set(userRoles.flatMap((role) => ROLE_PERMISSIONS[role] || []))];
+//     const defaultRedirect = userRoles
+//         .map((role) => DEFAULT_REDIRECTS[role])
+//         .find(Boolean) || '/login';
+
+//     // 3. Check Authorization
+//     // We check if the current pathname starts with any of the allowed paths
+//     // This allows sub-routing (e.g., access to '/wpsi' grants access to '/wpsi/edit/1')
+//     const isAllowed = allowedRoutes.some((route) => (
+//         location.pathname === route || location.pathname.startsWith(`${route}/`)
+//     ));
+
+//     if (!isAllowed) {
+//         console.warn(`Access Denied: Roles "${storedRole || ''}" attempted to access "${location.pathname}". Redirecting to "${defaultRedirect}".`);
+        
+//         return <Navigate 
+//             to={defaultRedirect} 
+//             replace 
+//             state={{ message: 'Access denied: You do not have permission to view this page' }} 
+//         />;
+//     }
+
+//     return <>{children}</>;
+// }
+
+// export default ProtectedRoute;

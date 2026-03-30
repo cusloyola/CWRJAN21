@@ -15,6 +15,7 @@ from .models import (
     Payee,
     VesselPrincipal,
     TransactionLog,
+    UserLoginLog,
 )
 
 # ---------------------------------
@@ -299,7 +300,7 @@ class ChequesTransactions(CompanyFilterAdminMixin,admin.ModelAdmin):
         )
 
 # ------------------------------------------------
-# ansactions Log
+# Transactions Log
 # ------------------------------------------------
 @admin.register(TransactionLog)
 class ViewLogs(admin.ModelAdmin):
@@ -351,3 +352,45 @@ class ViewLogs(admin.ModelAdmin):
         return False
 
 
+# ------------------------------------------------
+# View Logs: User Login
+# ------------------------------------------------
+@admin.register(UserLoginLog)
+class UserLoginLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'ip_address', 'user_agent', 'date_created')
+    search_fields = ('user__username', 'ip_address')
+    ordering = ('-date_created',)
+    readonly_fields = ('user', 'ip_address', 'user_agent', 'date_created')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        # Superuser sees all logs
+        if request.user.is_superuser:
+            return qs
+
+        # Get role
+        role = getattr(request.user, 'userrole', None)
+        role_code = role.role if role else None
+
+        # APR / DEP see all logs
+        if role_code in ['APR', 'DEP']:
+            return qs
+
+        # Get companies assigned to current user
+        company_ids = UserCompany.objects.filter(
+            user=request.user
+        ).values_list('company_id', flat=True)
+
+        # Only show logs of users assigned to these companies
+        users_in_companies = UserCompany.objects.filter(company_id__in=company_ids).values_list('user_id', flat=True)
+        return qs.filter(user_id__in=users_in_companies)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False

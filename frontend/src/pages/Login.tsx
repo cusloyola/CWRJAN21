@@ -6,11 +6,37 @@ import logo from '../assets/wallemrectangle.png';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Footer } from '../components/Footer';
+// import { userInfo } from 'os';
 
 interface LoginFormData {
     email: string
     password: string
 }
+
+interface UserCompany {
+    id: number;
+    company_code: string;
+    company_name: string;
+}
+
+interface UserRole {
+    code: string;
+    name: string;
+}
+
+interface User {
+    id: number;
+    full_name: string;
+    email: string;
+    role: UserRole;
+    companies: UserCompany[];
+}
+
+interface LoginResponse {
+    access: string;
+    refresh: string;
+    user: User;
+} 
 
 interface LoginErrors {
     email?: string
@@ -99,7 +125,11 @@ function Login() {
                 // Save JWT tokens
                 localStorage.setItem('authToken', data.access);
                 localStorage.setItem('refreshToken', data.refresh);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('userRole', data.user.role.code);
                 console.log(response.status)
+                console.log(data.user.id)
+                console.log(data.user.full_name)
 
                 // Save user info
                 localStorage.setItem('user', JSON.stringify(data.user));
@@ -107,10 +137,16 @@ function Login() {
                 localStorage.setItem('userName', data.user.full_name || '');
 
                 // Handle multi-company
-                if (data.user.companies?.length > 1) {
-                    toast.info('Select a company after login');
-                    // Could navigate to company select page
+                if (data.user.companies.length === 1) {
+                localStorage.setItem('selectedCompany', JSON.stringify(data.user.companies[0]));
+                // navigate('/dashboard');
+                } else {
+                    navigate('/select-company'); // redirect to a company selection page
                 }
+                // if (data.user.companies?.length > 1) {
+                //     toast.info('Select a company after login');
+                //     // Could navigate to company select page
+                // }
 
                 toast.success('Login successful! Redirecting...');
                 setTimeout(() => navigate('/dashboard'), 1000);
