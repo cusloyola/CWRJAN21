@@ -105,6 +105,7 @@ class Payee (models.Model):
 # ------------------------------------------------
 class VesselPrincipal (models.Model):
     vessel_principal_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     vessel_principal_name = models.CharField(max_length=100,unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -138,6 +139,7 @@ class Currency (models.Model):
 # ------------------------------------
 class MCBranchIssuance (models.Model):
     branch_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     branch_name = models.CharField(max_length=100, unique=True)
     date_created = models.DateTimeField(auto_now_add=True)
 
@@ -222,7 +224,7 @@ class Transaction (models.Model):
 # ------------------------------------------------
 # CWR Transactions Log
 # ------------------------------------------------
-class TransactionLog(models.Model):
+class LogTransaction(models.Model):
     ACTION_CREATE = "CREATE"
     ACTION_UPDATE = "UPDATE"
     ACTION_DELETE = "DELETE"
@@ -242,7 +244,7 @@ class TransactionLog(models.Model):
 
     class Meta:
         verbose_name = "Transaction Log"
-        verbose_name_plural = "Transaction Logs"
+        verbose_name_plural = "Logs - Transactions"
         ordering = ['date_created']
     
     def __str__(self):
@@ -252,7 +254,7 @@ class TransactionLog(models.Model):
 # ------------------------------------------------
 # View Logs: User Login
 # ------------------------------------------------
-class UserLoginLog(models.Model):
+class LogUserLogin(models.Model):
     log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
@@ -260,8 +262,8 @@ class UserLoginLog(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "User Login Log"
-        verbose_name_plural = "User Login Logs"
+        verbose_name = "Log User Login"
+        verbose_name_plural = "Logs - User Login"
         ordering = ['-date_created']
 
     def __str__(self):
@@ -270,7 +272,7 @@ class UserLoginLog(models.Model):
 # -------------------------
 # Payee Log
 # -------------------------
-class PayeeLog(models.Model):
+class LogPayee(models.Model):
     ACTION_CREATE = "CREATE"
     ACTION_UPDATE = "UPDATE"
     ACTION_DELETE = "DELETE"
@@ -298,7 +300,7 @@ class PayeeLog(models.Model):
 # -------------------------
 # Vessel / Principal Log
 # -------------------------
-class VesselPrincipalLog(models.Model):
+class LogVesselPrincipal(models.Model):
     ACTION_CREATE = "CREATE"
     ACTION_UPDATE = "UPDATE"
     ACTION_DELETE = "DELETE"
@@ -326,7 +328,7 @@ class VesselPrincipalLog(models.Model):
 # -------------------------
 # Funding Account Log
 # -------------------------
-class FundingAccountLog(models.Model):
+class LogFundingAccount(models.Model):
     ACTION_CREATE = "CREATE"
     ACTION_UPDATE = "UPDATE"
     ACTION_DELETE = "DELETE"
@@ -345,7 +347,7 @@ class FundingAccountLog(models.Model):
 
     class Meta:
         verbose_name = "Funding Account Log"
-        verbose_name_plural = "Funding Account Logs"
+        verbose_name_plural = "Log - Funding Account"
         ordering = ["-date_created"]
 
     def __str__(self):
@@ -354,7 +356,7 @@ class FundingAccountLog(models.Model):
 # -------------------------
 # Category Log
 # -------------------------
-class CategoryLog(models.Model):
+class LogCategory(models.Model):
     ACTION_CREATE = "CREATE"
     ACTION_UPDATE = "UPDATE"
     ACTION_DELETE = "DELETE"
@@ -382,7 +384,7 @@ class CategoryLog(models.Model):
 # -------------------------
 # MC Branch Issuance Log
 # -------------------------
-class MCBranchIssuanceLog(models.Model):
+class LogMCBranchIssuance(models.Model):
     ACTION_CREATE = "CREATE"
     ACTION_UPDATE = "UPDATE"
     ACTION_DELETE = "DELETE"

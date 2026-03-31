@@ -90,7 +90,7 @@ const Dashboard = () => {
               {/* User Info */}
               <div>
                 <h2 className="profile-name">{localStorage.getItem('userName')}</h2>
-                <p className="profile-role">{localStorage.getItem('userRoleName')}</p>
+                <p className="profile-role">{localStorage.getItem('companyCode')} - {localStorage.getItem('userRoleName')}</p>
               </div>
             </div>
           </div>

@@ -5,9 +5,10 @@ from django.contrib.auth.hashers import check_password
 from .models import (
     Company, 
     UserCompany,
-    UserLoginLog,
+    LogUserLogin,
     Category,
     Currency,
+    Transaction,
 )
 
 # ------------------------------------------
@@ -75,7 +76,7 @@ class EmailTokenSerializer(serializers.Serializer):
             ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.META.get("REMOTE_ADDR")
             user_agent = request.META.get("HTTP_USER_AGENT", "")
         
-        UserLoginLog.objects.create(
+        LogUserLogin.objects.create(
             user=user,
             ip_address=ip,
             user_agent=user_agent
@@ -126,3 +127,38 @@ class CurrencySerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['currency_id', 'date_created']
 
+# -------------------------
+# Transaction Serializer
+# -------------------------
+class TransactionSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.category_description', read_only=True)
+    payee_name = serializers.CharField(source='payee.payee_name', read_only=True)
+    vessel_principal_name = serializers.CharField(source='vessel_principal.vessel_principal_name', read_only=True)
+    currency_code = serializers.CharField(source='currency.currency_code', read_only=True)
+
+    class Meta:
+        model = Transaction
+        fields = [
+            'transaction_id',
+            'transaction_ref',
+            'company',
+            'category',
+            'category_name',
+            'payee',
+            'payee_name',
+            'particulars',
+            'vessel_principal',
+            'vessel_principal_name',
+            'etd',
+            'currency',
+            'currency_code',
+            'transaction_amount',
+            'reference_erfp',
+            'mc_branch_issuance',
+            'funding_account',
+            'batch',
+            'supporting_docs',
+            'endorsement_complete',
+            'date_created'
+        ]
+        read_only_fields = ['transaction_id', 'date_created']

@@ -4,6 +4,7 @@ from .views import (
     LoginAPIView,
     CategoryAPIView,
     CurrencyAPIView,
+    TransactionAPIView,
 )
 
 
@@ -12,5 +13,6 @@ urlpatterns = [
     path("user/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("categories/", CategoryAPIView.as_view(), name='categories'),
     path("currencies/", CurrencyAPIView.as_view(), name='currencies'),
+    path('transactions/', TransactionAPIView.as_view(), name='transactions'),
 ]
 

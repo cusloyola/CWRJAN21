@@ -5,13 +5,16 @@ from rest_framework import status
 from .models import (
     Category,
     Currency,
-    UserCompany
+    UserCompany,
+    Transaction,
 )
 from .serializers import (
     EmailTokenSerializer,
     CategorySerializer,
     CurrencySerializer,
+    TransactionSerializer
 )
+
 
 # -------------------------
 # Login API
@@ -88,3 +91,52 @@ class CurrencyAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# -------------------------
+# Transaction API
+# -------------------------
+class TransactionAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_user_companies(self, request):
+        return UserCompany.objects.filter(
+            user=request.user
+        ).values_list('company_id', flat=True)
+
+    def get(self, request):
+        user = request.user
+        role = getattr(user, 'userrole', None)
+        role_code = role.role if role else None
+
+        if role_code in ['APR', 'DEP']:
+            queryset = Transaction.objects.all()
+        else:
+            company_ids = self.get_user_companies(request)
+            queryset = Transaction.objects.filter(company_id__in=company_ids)
+
+        serializer = TransactionSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        user = request.user
+        role = getattr(user, 'userrole', None)
+        role_code = role.role if role else None
+
+        data = request.data.copy()
+
+        # Auto assign company if needed
+        if role_code not in ['APR', 'DEP']:
+            user_companies = UserCompany.objects.filter(user=user)
+
+            if user_companies.count() == 1:
+                data['company'] = user_companies.first().company.id
+
+        serializer = TransactionSerializer(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+

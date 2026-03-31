@@ -1,13 +1,13 @@
 from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from django.utils.timezone import now
-from .models import UserLoginLog
+from .models import LogUserLogin
 
 @receiver(user_logged_in)
 def log_user_login(sender, request, user, **kwargs):
     ip = get_client_ip(request)
     user_agent = request.META.get('HTTP_USER_AGENT', '')
-    UserLoginLog.objects.create(
+    LogUserLogin.objects.create(
         user=user,
         ip_address=ip,
         user_agent=user_agent,
