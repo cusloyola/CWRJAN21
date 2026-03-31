@@ -40,18 +40,6 @@ const Transactions: React.FC = () => {
 
     const transactions = staticTransactions;
 
-
-
-    // // Unique filter values
-    // const categories = useMemo(() => {
-    //     const unique = Array.from(new Set(transactions.map(t => t.category))).sort();
-    //     return unique;
-    // }, [transactions]);
-
-    // const currencies = useMemo(() => {
-    //     const unique = Array.from(new Set(transactions.map(t => t.currency))).sort();
-    //     return unique;
-    // }, [transactions]);
     const [categories, setCategories] = useState<string[]>([]);
     const [currencies, setCurrencies] = useState<string[]>([]);
     const [categoriesLoaded, setCategoriesLoaded] = useState(false);
@@ -75,7 +63,7 @@ const Transactions: React.FC = () => {
 
             const mapped = data.map((c: any) => c.category_description);
             setCategories(mapped);
-            setCategoriesLoaded(true);
+            // setCategoriesLoaded(true);
         } catch {
             toast.error("Failed to load categories");
         }
@@ -95,11 +83,16 @@ const Transactions: React.FC = () => {
 
             const mapped = data.map((c: any) => c.currency_code);
             setCurrencies(mapped);
-            setCurrenciesLoaded(true);
+            // setCurrenciesLoaded(true);
         } catch {
             toast.error("Failed to load currencies");
         }
     };
+
+    useEffect(() => {
+        fetchCategories();
+        fetchCurrencies();
+    }, []);
 
     // Filtered & paginated transactions
     const filteredTransactions = useMemo(() => {
@@ -222,7 +215,7 @@ const Transactions: React.FC = () => {
                             </Link>
 
                             <div className="wpsi-dropdown-container">
-                                <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} onClick={fetchCategories} className="wpsi-dropdown">
+                                <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="wpsi-dropdown">
                                     <option value="All">Categories</option>
                                     {categories.map(cat => (
                                         <option key={cat} value={cat}>{cat}</option>
@@ -231,7 +224,7 @@ const Transactions: React.FC = () => {
                             </div>
 
                             <div className="wpsi-dropdown-container">
-                                <select value={currencyFilter} onChange={e => setCurrencyFilter(e.target.value)} onClick={fetchCurrencies} className="wpsi-dropdown">
+                                <select value={currencyFilter} onChange={e => setCurrencyFilter(e.target.value)} className="wpsi-dropdown">
                                     <option value="All">Currencies</option>
                                     {currencies.map(cur => (
                                         <option key={cur} value={cur}>{cur}</option>

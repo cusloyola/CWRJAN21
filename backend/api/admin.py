@@ -90,7 +90,16 @@ class CompanyFilterAdminMixin:
 
             if db_field.name == "category":
                 kwargs["queryset"] = Category.objects.filter(company_id__in=company_ids)
+            
+            if db_field.name == "payee_name":
+                kwargs["queryset"] = Payee.objects.filter(company_id__in=company_ids)
+            
+            if db_field.name == "branch_name":  # MCBranchIssuance field
+                kwargs["queryset"] = MCBranchIssuance.objects.filter(company_id__in=company_ids)
 
+            if db_field.name == "funding_account":  # FundingAccount field
+                kwargs["queryset"] = FundingAccount.objects.filter(company_id__in=company_ids)
+            
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
