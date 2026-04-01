@@ -5,8 +5,15 @@ from django.contrib.auth.hashers import check_password
 from .models import (
     Company, 
     UserCompany,
+    LogUserLogin,
+    Category,
+    Currency,
+    Transaction,
 )
 
+# ------------------------------------------
+#  Email Authentication Serializer
+# ------------------------------------------
 
 class EmailTokenSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -60,6 +67,21 @@ class EmailTokenSerializer(serializers.Serializer):
             for c in companies_qs
         ]
 
+        # --- Log user login ---
+        request = self.context.get("request")
+        ip = None
+        user_agent = None
+        if request:
+            x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
+            ip = x_forwarded_for.split(",")[0] if x_forwarded_for else request.META.get("REMOTE_ADDR")
+            user_agent = request.META.get("HTTP_USER_AGENT", "")
+        
+        LogUserLogin.objects.create(
+            user=user,
+            ip_address=ip,
+            user_agent=user_agent
+        )
+
         return {
             "access": str(refresh.access_token),
             "refresh": str(refresh),
@@ -75,3 +97,68 @@ class EmailTokenSerializer(serializers.Serializer):
             }
         }
 
+# -------------------------
+# Category Serializer
+# -------------------------
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = [
+            'category_id',
+            'company',
+            'category_type',
+            'category_description',
+            'date_created'
+        ]
+        read_only_fields = ['category_id', 'date_created']
+
+
+# -------------------------
+# Currency Serializer
+# -------------------------
+class CurrencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Currency
+        fields = [
+            'currency_id',
+            'currency_code',
+            'currency_description',
+            'date_created'
+        ]
+        read_only_fields = ['currency_id', 'date_created']
+
+# -------------------------
+# Transaction Serializer
+# -------------------------
+class TransactionSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.category_description', read_only=True)
+    payee_name = serializers.CharField(source='payee.payee_name', read_only=True)
+    vessel_principal_name = serializers.CharField(source='vessel_principal.vessel_principal_name', read_only=True)
+    currency_code = serializers.CharField(source='currency.currency_code', read_only=True)
+
+    class Meta:
+        model = Transaction
+        fields = [
+            'transaction_id',
+            'transaction_ref',
+            'company',
+            'category',
+            'category_name',
+            'payee',
+            'payee_name',
+            'particulars',
+            'vessel_principal',
+            'vessel_principal_name',
+            'etd',
+            'currency',
+            'currency_code',
+            'transaction_amount',
+            'reference_erfp',
+            'mc_branch_issuance',
+            'funding_account',
+            'batch',
+            'supporting_docs',
+            'endorsement_complete',
+            'date_created'
+        ]
+        read_only_fields = ['transaction_id', 'date_created']

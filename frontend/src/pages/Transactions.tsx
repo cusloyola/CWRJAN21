@@ -67,46 +67,59 @@ const Transactions: React.FC = () => {
 
     const transactions = staticTransactions;
 
-    const allowedCategories = useMemo(() => {
-        const storedAlias = localStorage.getItem('userCompanyAlias') || '';
-        const aliases = storedAlias
-            .split(/[|,;]/)
-            .map(alias => alias.trim().toUpperCase())
-            .filter(Boolean);
+    const [categories, setCategories] = useState<string[]>([]);
+    const [currencies, setCurrencies] = useState<string[]>([]);
+    const [categoriesLoaded, setCategoriesLoaded] = useState(false);
+    const [currenciesLoaded, setCurrenciesLoaded] = useState(false);
 
-        if (aliases.length === 0 || aliases.includes('ALL')) {
-            return transactionCategories;
+    const getAuthHeader = () => ({
+        Authorization: `Bearer ${localStorage.getItem('authToken')}`
+    });
+
+    const fetchCategories = async () => {
+        if (categoriesLoaded) return;
+
+        try {
+            const res = await fetch('http://localhost:8000/api/v1/categories/', {
+                headers: getAuthHeader()
+            });
+
+            if (!res.ok) throw new Error();
+
+            const data = await res.json();
+
+            const mapped = data.map((c: any) => c.category_description);
+            setCategories(mapped);
+            // setCategoriesLoaded(true);
+        } catch {
+            toast.error("Failed to load categories");
         }
+    };
 
-        const matchedCompanies = aliases.filter(isCompanyCode);
-        if (matchedCompanies.length === 0) {
-            return transactionCategories;
+    const fetchCurrencies = async () => {
+        if (currenciesLoaded) return;
+
+        try {
+            const res = await fetch('http://localhost:8000/api/v1/currencies/', {
+                headers: getAuthHeader()
+            });
+
+            if (!res.ok) throw new Error();
+
+            const data = await res.json();
+
+            const mapped = data.map((c: any) => c.currency_code);
+            setCurrencies(mapped);
+            // setCurrenciesLoaded(true);
+        } catch {
+            toast.error("Failed to load currencies");
         }
+    };
 
-        return Array.from(
-            new Set(matchedCompanies.flatMap(company => transactionCategoriesByCompany[company])),
-        );
+    useEffect(() => {
+        fetchCategories();
+        fetchCurrencies();
     }, []);
-
-    const companyScopedTransactions = useMemo(
-        () => transactions.filter(t => allowedCategories.includes(t.category)),
-        [transactions, allowedCategories],
-    );
-
-
-
-    // Unique filter values
-    const categories = useMemo(() => {
-        const unique = Array.from(
-            new Set(companyScopedTransactions.map(t => t.category).filter(cat => allowedCategories.includes(cat))),
-        ).sort();
-        return unique;
-    }, [companyScopedTransactions, allowedCategories]);
-
-    const currencies = useMemo(() => {
-        const unique = Array.from(new Set(companyScopedTransactions.map(t => t.currency))).sort();
-        return unique;
-    }, [companyScopedTransactions]);
 
     // Filtered & paginated transactions
     const filteredTransactions = useMemo(() => {
@@ -178,29 +191,6 @@ const Transactions: React.FC = () => {
         toast.success("Changes saved successfully!");
         closeEditModal();
     };
-
-/*     const handleAdd = () => {
-        setNewTransaction({
-            category: '',
-            date: '',
-            payee: '',
-            particulars: '',
-            vesselPrincipal: '',
-            etd: '',
-            currency: '',
-            amount: 0,
-            referenceErfp: '',
-            branchToIssueMc: '',
-            fundingAccount: '',
-            batch: '',
-            driveFileLink: '',
-            supportingDocs: '',
-        });
-        setIsAddModalOpen(true);
-        setIsAddModalClosing(false);
-    }; */
-
-
 
     const handlePageChange = (page: number) => {
         if (page < 1 || page > totalPages) return;

@@ -6,16 +6,6 @@ import logo from '../assets/wallemrectangle.png';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Footer } from '../components/Footer';
-import { ROLES } from '../utils/roleUtils';
-
-interface StaticUser {
-    role?: string;
-    roles?: string[];
-    email: string;
-    password: string;
-    name: string;
-    companyAlias: string;
-}
 
 // Static users for demo purposes
 export const STATIC_USERS: StaticUser[] = [
@@ -145,14 +135,6 @@ function Login() {
             newErrors.password = 'Password must be at least 6 characters'
         }
 
-        // Check if user exists in STATIC_USERS
-        const user = STATIC_USERS.find(
-            u => u.email === formData.email && u.password === formData.password
-        );
-        if (formData.email && formData.password && !user) {
-            newErrors.general = 'Invalid email or password';
-        }
-
         setErrors(newErrors)
 
         // Trigger Toast for the first error found
@@ -185,41 +167,50 @@ function Login() {
 
         setIsLoading(true);
 
-        setTimeout(() => {
-            try {
-                const user = STATIC_USERS.find(
-                    u => u.email === formData.email && u.password === formData.password
-                );
-                if (user) {
-                    const persistedRole = user.roles?.length ? JSON.stringify(user.roles) : (user.role || '');
+        try {
+            const response = await fetch('http://localhost:8000/api/v1/user/login/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
 
-                    // AuthToken placed in localStorage for demo purposes
-                    localStorage.setItem('authToken', 'demo-token-' + Date.now());
-                    localStorage.setItem('userEmail', user.email);
-                    localStorage.setItem('userRole', persistedRole);
-                    localStorage.setItem('userName', user.name);
-                    localStorage.setItem('userCompanyAlias', user.companyAlias || '');
-                    console.log('User logged in:', {
-                        email: user.email,
-                        role: persistedRole,
-                        name: user.name,
-                        companyAlias: user.companyAlias || ''
-                    });
-                    const toastId = toast.success("Login successful! Redirecting...");
+            const data = await response.json();
 
-                    setTimeout(() => {
-                        toast.dismiss(toastId); // Dismiss the toast before navigating
-                        navigate('/dashboard');
-                    }, 1000);
+            if (response.ok) {
+                // Save JWT tokens
+                localStorage.setItem('authToken', data.access);
+                localStorage.setItem('refreshToken', data.refresh);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('userRole', data.user.role.code);
+
+                // Save user info
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('userRoleName', data.user.role.name || '');
+                localStorage.setItem('userName', data.user.full_name || '');
+                localStorage.setItem('companyCode', data.user.companies[0].company_code || '');
+
+                // Handle multi-company
+                if (data.user.companies.length === 1) {
+                localStorage.setItem('selectedCompany', JSON.stringify(data.user.companies[0]));
+                // navigate('/dashboard');
                 } else {
-                    toast.error("Invalid email or password");
-                    setIsLoading(false);
+                    navigate('/select-company'); // redirect to a company selection page
                 }
-            } catch (error) {
-                toast.error("An unexpected error occurred");
-                setIsLoading(false);
+
+                toast.success('Login successful! Redirecting...');
+                setTimeout(() => navigate('/dashboard'), 1000);
+            } else {
+                const errorMsg =
+                    data?.non_field_errors?.[0] ||
+                    data?.detail ||
+                    'Login failed. Check credentials.';
+                toast.error(errorMsg);
             }
-        }, 1000);
+        } catch (err) {
+            toast.error('Server error. Try again later.');
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

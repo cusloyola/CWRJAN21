@@ -8,7 +8,7 @@ const Dashboard = () => {
   const userRoles = parseStoredRoles(storedRole);
   const canViewAllCompanies = isApproverOrDeputy(userRoles);
   const assignedDamTabs = getDamTabsForRoles(userRoles);
-  const isWorker = userRoles.includes(ROLES.WORKER);
+  const isWorker = userRoles.includes(ROLES.MAKER);
 
   const companyStats = [
     { path: '/wpsi', label: 'WPSI', value: '22' },
@@ -90,7 +90,7 @@ const Dashboard = () => {
               {/* User Info */}
               <div>
                 <h2 className="profile-name">{localStorage.getItem('userName')}</h2>
-                <p className="profile-role">{userRoles.length > 0 ? userRoles.join(' / ') : storedRole}</p>
+                <p className="profile-role">{localStorage.getItem('companyCode')} - {localStorage.getItem('userRoleName')}</p>
               </div>
             </div>
           </div>

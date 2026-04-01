@@ -14,8 +14,42 @@ from .models import (
     TransactionBatch,
     Payee,
     VesselPrincipal,
-    TransactionLog,
+    LogTransaction,
+    LogUserLogin,
+    LogPayee,
+    LogVesselPrincipal,
+    LogCategory,
+    LogFundingAccount,
+    LogMCBranchIssuance,
 )
+
+# ---------------------------------
+# Admin Log Mixin
+# ---------------------------------
+class AdminLogMixin:
+    def save_model(self, request, obj, form, change):
+        action = "UPDATE" if change else "CREATE"
+        changes = []
+
+        if change:
+            for field_name in form.changed_data:
+                old = form.initial.get(field_name)
+                new = form.cleaned_data.get(field_name)
+                changes.append({"field": field_name, "old": str(old), "new": str(new)})
+        else:
+            changes.append({"field": "ALL", "old": None, "new": "Created"})
+
+        super().save_model(request, obj, form, change)
+
+        # Dynamically create log
+        log_model = getattr(self, "log_model", None)
+        if log_model:
+            log_model.objects.create(
+                **{self.log_fk_field: obj},
+                action=action,
+                user=request.user,
+                changes=json.dumps(changes)
+            )
 
 # ---------------------------------
 # Company Filter Mixin
@@ -56,16 +90,25 @@ class CompanyFilterAdminMixin:
 
             if db_field.name == "category":
                 kwargs["queryset"] = Category.objects.filter(company_id__in=company_ids)
+            
+            if db_field.name == "payee_name":
+                kwargs["queryset"] = Payee.objects.filter(company_id__in=company_ids)
+            
+            if db_field.name == "branch_name":  # MCBranchIssuance field
+                kwargs["queryset"] = MCBranchIssuance.objects.filter(company_id__in=company_ids)
 
+            if db_field.name == "funding_account":  # FundingAccount field
+                kwargs["queryset"] = FundingAccount.objects.filter(company_id__in=company_ids)
+            
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
         # Auto assign company if only one
-        if not request.user.is_superuser and hasattr(obj, 'company'):
+        if not request.user.is_superuser:
             role = getattr(request.user, 'userrole', None)
             role_code = role.role if role else None
 
-            if role_code not in ['APR', 'DEP']:
+            if role_code not in ['APR', 'DEP'] and hasattr(obj, 'company'):
                 user_companies = UserCompany.objects.filter(user=request.user)
 
                 if user_companies.count() == 1:
@@ -77,7 +120,7 @@ class CompanyFilterAdminMixin:
 # ---------------------------------
 #  Admin Site Branding
 # ---------------------------------
-admin.site.site_header = "CWR Administration"        # Top header
+admin.site.site_header = "CWR Administration"        # Top header title
 admin.site.site_title = "CWR Admin Portal"           # Browser tab title
 admin.site.index_title = "Welcome to CWR Admin"     # Main index page title
 
@@ -159,25 +202,34 @@ admin.site.register(User, UserAdmin)
 # Category
 # ------------------------------------
 @admin.register(Category)
-class CompanyCategory(CompanyFilterAdminMixin,admin.ModelAdmin):
+class CompanyCategory(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
+    log_model = LogCategory
+    log_fk_field = "category"
+
     list_display = ('company', 'category_type','category_description')
     search_fields = ('company', 'category_description')
     ordering = ('company', 'category_type',)
+
 
 # ------------------------------------
 # Currency
 # ------------------------------------
 @admin.register(Currency)
-class CompanyAdmin(CompanyFilterAdminMixin,admin.ModelAdmin):
+class CurrencyAdmin(CompanyFilterAdminMixin,admin.ModelAdmin):
     list_display = ('currency_code', 'currency_description')
     search_fields = ('currency_code',)
     ordering = ('currency_code',)
+
+
 
 # ------------------------------------
 # Branch to Issue MC
 # ------------------------------------
 @admin.register(MCBranchIssuance)
-class CompanyBranch(admin.ModelAdmin):
+class CompanyBranch(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
+    log_model = LogMCBranchIssuance
+    log_fk_field = "branch"
+
     list_display = ('branch_name', )
     search_fields = ('branch_name',)
     ordering = ('branch_name',)
@@ -186,7 +238,10 @@ class CompanyBranch(admin.ModelAdmin):
 # Funding Account
 # ------------------------------------
 @admin.register(FundingAccount)
-class CompanyFundingAccount(CompanyFilterAdminMixin,admin.ModelAdmin):
+class CompanyFundingAccount(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
+    log_model = LogFundingAccount
+    log_fk_field = "funding_account"
+
     list_display = ('funding_acct_name', )
     search_fields = ('funding_acct_name',)
     ordering = ('funding_acct_name',)    
@@ -204,7 +259,10 @@ class Batch(admin.ModelAdmin):
 # Payee
 # ------------------------------------------------
 @admin.register(Payee)
-class Batch(CompanyFilterAdminMixin,admin.ModelAdmin):
+class Payee(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
+    log_model = LogPayee
+    log_fk_field = "payee"    
+
     list_display = ('payee_name',)
     search_fields = ('payee_name',)
     ordering = ('payee_name',)
@@ -213,7 +271,10 @@ class Batch(CompanyFilterAdminMixin,admin.ModelAdmin):
 # Vessel/Principal
 # ------------------------------------------------
 @admin.register(VesselPrincipal)
-class Batch(admin.ModelAdmin):
+class VesselPrincipal(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
+    log_model = LogVesselPrincipal
+    log_fk_field = "vessel_principal"
+
     list_display = ('vessel_principal_name',)
     search_fields = ('vessel_principal_name',)
     ordering = ('vessel_principal_name',)
@@ -224,7 +285,7 @@ class Batch(admin.ModelAdmin):
 # ------------------------------------------------
 @admin.register(Transaction)
 class ChequesTransactions(CompanyFilterAdminMixin,admin.ModelAdmin):
-    list_display = ('transaction_ref','company','category','payee','particulars','vessel_principal','date_created', )
+    list_display = ('transaction_ref','category','payee','particulars','vessel_principal','date_created', )
     search_fields = ('transaction_ref',)
     ordering = ('-date_created',)
 
@@ -291,7 +352,7 @@ class ChequesTransactions(CompanyFilterAdminMixin,admin.ModelAdmin):
 
         super().save_model(request, obj, form, change)
 
-        TransactionLog.objects.create(
+        LogTransaction.objects.create(
             transaction=obj,
             action=action,
             user=request.user,
@@ -299,9 +360,9 @@ class ChequesTransactions(CompanyFilterAdminMixin,admin.ModelAdmin):
         )
 
 # ------------------------------------------------
-# ansactions Log
+# Transactions Log
 # ------------------------------------------------
-@admin.register(TransactionLog)
+@admin.register(LogTransaction)
 class ViewLogs(admin.ModelAdmin):
     list_display = ('transaction', 'action', 'user', 'date_created', 'formatted_changes')
     search_fields = ('transaction__transaction_ref','user__username',)
@@ -351,3 +412,46 @@ class ViewLogs(admin.ModelAdmin):
         return False
 
 
+# ------------------------------------------------
+# View Logs: User Login
+# ------------------------------------------------
+@admin.register(LogUserLogin)
+class UserLoginLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'ip_address', 'user_agent', 'date_created')
+    search_fields = ('user__username', 'ip_address')
+    ordering = ('-date_created',)
+    readonly_fields = ('user', 'ip_address', 'user_agent', 'date_created')
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+
+        # Superuser sees all logs
+        if request.user.is_superuser:
+            return qs
+
+        # Get role
+        role = getattr(request.user, 'userrole', None)
+        role_code = role.role if role else None
+
+        # APR / DEP see all logs
+        if role_code in ['APR', 'DEP']:
+            return qs
+
+        # Get companies assigned to current user
+        company_ids = UserCompany.objects.filter(
+            user=request.user
+        ).values_list('company_id', flat=True)
+
+        # Only show logs of users assigned to these companies
+        users_in_companies = UserCompany.objects.filter(company_id__in=company_ids).values_list('user_id', flat=True)
+        return qs.filter(user_id__in=users_in_companies)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+    
