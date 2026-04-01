@@ -8,13 +8,13 @@ import { ROLES, getDamTabsForRoles, isApproverOrDeputy, parseStoredRoles } from 
 const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // Initialize sidebar collapsed state from localStorage
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebarCollapsed');
     return saved ? JSON.parse(saved) : false;
   });
-  
+
   const [activityLogOpen, setActivityLogOpen] = useState(false);
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
@@ -37,6 +37,21 @@ const Sidebar = () => {
   };
 
   const isActive = (path: string) => location.pathname === path && !mobileMoreOpen;
+
+  const handleWpsiTabClick = () => {
+    // When already on WPSI, notify the page to reset to its default view.
+    if (location.pathname === "/wpsi") {
+      window.dispatchEvent(new CustomEvent('wpsi:reset-filter'));
+    } else if (location.pathname === "/wmsi") {
+      window.dispatchEvent(new CustomEvent('wmsi:reset-filter'));
+    }
+      else if (location.pathname === "/wlpi") {
+      window.dispatchEvent(new CustomEvent('wlpi:reset-filter'));
+    }
+        else if (location.pathname === "/cfii") {
+      window.dispatchEvent(new CustomEvent('cfii:reset-filter'));
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
@@ -101,7 +116,7 @@ const Sidebar = () => {
                 <img src={logo} alt="Wallem Square Logo" style={{ width: '32px', height: '32px', display: 'flex', cursor: 'pointer' }} />
               </span>
             )}
-            
+
             {sidebarCollapsed && (
               // Arrow button only shows when sidebar is closed - acts as expand button
               <button onClick={toggleSidebar} id="toggle-btn">
@@ -127,7 +142,11 @@ const Sidebar = () => {
 
           {canSeeTab("/wpsi") && (
             <li className={isActive("/wpsi") ? "active" : ""}>
-              <Link to="/wpsi" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
+              <Link
+                to="/wpsi"
+                onClick={handleWpsiTabClick}
+                className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="shrink-0">
                   {isActive("/wpsi") ? (
                     <path d="M480-240q-60 0-105-40l-45-40q-37 37-83.5 56T145-243L50-540l66-17v-123q0-33 23.5-56.5T196-760h124v-80h320v80h124q33 0 56.5 23.5T844-680v123l66 17-95 297q-54-2-101.5-21T730-320l-45 40q-45 40-105 40ZM152-80h-32v-80h32q48 0 91.5-10.5T341-204q38 19 66.5 31.5T480-160q44 0 72.5-12.5T619-204q53 23 97.5 33.5T809-160h31v80h-31q-49 0-95.5-9T622-116q-40 19-73 27t-69 8q-36 0-68.5-8T339-116q-45 18-91.5 27T152-80Z" />
@@ -141,7 +160,9 @@ const Sidebar = () => {
           )}
           {canSeeTab("/wmsi") && (
             <li className={isActive("/wmsi") ? "active" : ""}>
-              <Link to="/wmsi" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
+              <Link to="/wmsi"
+                onClick={handleWpsiTabClick}
+                className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="shrink-0">
                   {isActive("/wmsi") ? (
                     <path d="M40-120v-112q0-33 17-62t47-44q51-26 115-44t141-18q77 0 141 18t115 44q30 15 47 44t17 62v112H40Zm322-320q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47Zm320 160-6-30q-6-2-11.5-4.5T652-322l-28 10-20-36 22-20v-24l-22-20 20-36 28 10q4-4 10-7t12-5l6-30h40l6 30q6 2 12 5t10 7l28-10 20 36-22 20v24l22 20-20 36-28-10q-5 5-10.5 7.5T726-310l-6 30h-40Zm102-210-8-42q-9-3-16.5-7.5T734-540l-42 14-28-48 34-30q-2-5-2-8v-16q0-3 2-8l-34-30 28-48 42 14q6-6 13.5-10.5T764-718l8-42h56l8 42q9 3 16.5 7.5T866-700l42-14 28 48-34 30q2 5 2 8v16q0 3-2 8l34 30-28 48-42-14q-6 6-13.5 10.5T836-522l-8 42h-56Z" />
@@ -156,7 +177,9 @@ const Sidebar = () => {
 
           {canSeeTab("/wlpi") && (
             <li className={isActive("/wlpi") ? "active" : ""}>
-              <Link to="/wlpi" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
+              <Link to="/wlpi"
+                onClick={handleWpsiTabClick}
+                className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="shrink-0">
                   {isActive("/wlpi") ? (
                     <path d="M240-160q-50 0-85-35t-35-85H40v-440q0-33 23.5-56.5T120-800h560v240h120l120 160v160h-80q0 50-35 85t-85 35q-50 0-85-35t-35-85H360q0 50-35 85t-85 35Zm0-80q17 0 28.5-11.5T280-280q0-17-11.5-28.5T240-320q-17 0-28.5 11.5T200-280q0 17 11.5 28.5T240-240Zm480 0q17 0 28.5-11.5T760-280q0-17-11.5-28.5T720-320q-17 0-28.5 11.5T680-280q0 17 11.5 28.5T720-240Zm-40-200h170l-90-120h-80v120Z" />
@@ -170,7 +193,9 @@ const Sidebar = () => {
           )}
           {canSeeTab("/cfii") && (
             <li className={isActive("/cfii") ? "active" : ""}>
-              <Link to="/cfii" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
+              <Link to="/cfii"
+                onClick={handleWpsiTabClick} 
+                className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="shrink-0">
                   {isActive("/cfii") ? (
                     <path d="M120-520v-320h320v320H120Zm0 400v-320h320v320H120Zm400-400v-320h320v320H520Zm0 400v-320h320v320H520Z" />
@@ -217,7 +242,7 @@ const Sidebar = () => {
                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="shrink-0">
                           <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                         </svg>
-                        <span>WPSI-CWR</span>
+                        <span>WPSI</span>
                       </Link>
                     </li>
                     <li>
@@ -225,7 +250,7 @@ const Sidebar = () => {
                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="shrink-0">
                           <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                         </svg>
-                        <span>WMSI-CWR</span>
+                        <span>WMSI</span>
                       </a>
                     </li>
                     <li>
@@ -233,7 +258,7 @@ const Sidebar = () => {
                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="shrink-0">
                           <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                         </svg>
-                        <span>WLPI-CWR</span>
+                        <span>WLPI</span>
                       </a>
                     </li>
                     <li>
@@ -241,7 +266,7 @@ const Sidebar = () => {
                         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="currentColor" className="shrink-0">
                           <path d="M440-278v-394q-41-24-87-36t-93-12q-36 0-71.5 7T120-692v396q35-12 69.5-18t70.5-6q47 0 91.5 10.5T440-278Zm40 118q-48-38-104-59t-116-21q-42 0-82.5 11T100-198q-21 11-40.5-1T40-234v-482q0-11 5.5-21T62-752q46-24 96-36t102-12q74 0 126 17t112 52q11 6 16.5 14t5.5 21v418q44-21 88.5-31.5T700-320q36 0 70.5 6t69.5 18v-481q15 5 29.5 11t28.5 14q11 5 16.5 15t5.5 21v482q0 23-19.5 35t-40.5 1q-37-20-77.5-31T700-240q-60 0-116 21t-104 59Zm140-240v-440l120-40v440l-120 40Zm-340-99Z" />
                         </svg>
-                        <span>CFII-CWR</span>
+                        <span>CFII</span>
                       </a>
                     </li>
                   </div>
@@ -281,7 +306,7 @@ const Sidebar = () => {
                   <span>Cheque Inventory</span>
                 </Link>
               </li>
-                            <li className={isActive("/archives") ? "active" : ""}>
+              <li className={isActive("/archives") ? "active" : ""}>
                 <Link to="/archives" className="flex items-center gap-4 p-3.5 rounded-lg text-gray-900 no-underline transition-colors">
                   <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor" className="shrink-0">
                     {isActive("/archives") ? (
