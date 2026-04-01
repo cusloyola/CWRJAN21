@@ -144,7 +144,7 @@
     flex-wrap: wrap;
     gap: 8px;
     margin-top: 16px;
-    margin-bottom: 16px;
+/*     margin-bottom: 16px; */
     justify-content: center;
 }
 
@@ -260,6 +260,7 @@
     margin-bottom: 0.25rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.1);
 }
 
 .wpsi-transaction-item-attention {
@@ -653,7 +654,7 @@
     font-size: 0.875rem;
     font-weight: 600;
     color: #1f2937;
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
     border-bottom: 2px solid #e5e7eb;
@@ -673,7 +674,7 @@
     border: 1px solid #dbe2ea;
     border-radius: 1rem;
     min-height: 48rem;
-    max-height: calc(100vh - 7rem);
+    max-height: auto;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -739,7 +740,7 @@
     padding: 1.5rem;
     color: #64748b;
     vertical-align: middle;
-    min-height: 84vh;
+    min-height: 88vh;
 }
 
 .wpsi-desktop-empty-state h3 {
@@ -791,8 +792,8 @@
     }
 
     .wpsi-transaction-item {
-        border-radius: 1rem;
-        margin-bottom: 0.5rem;
+/*         border-radius: 1rem;
+ */        margin-bottom: 0.5rem;
     }
 
     .modal-content {

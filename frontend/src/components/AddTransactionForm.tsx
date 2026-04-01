@@ -195,7 +195,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             />
                         </div>
 
-                        <div className="transaction-form-detail-row">
+{/*                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Drive File Link</label>
                             <input
                                 type="url"
@@ -204,16 +204,16 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                                 onChange={e => onChange('driveFileLink', e.target.value)}
                                 placeholder="https://drive.google.com/..."
                             />
-                        </div>
+                        </div> */}
 
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Supporting Docs</label>
                             <input
-                                type="text"
+                                type="url"
                                 className="transaction-form-detail-value"
                                 value={newTransaction.supportingDocs || ''}
                                 onChange={e => onChange('supportingDocs', e.target.value)}
-                                placeholder="List supporting documents"
+                                placeholder="https://drive.google.com/..."
                             />
                         </div>
                     </div>
