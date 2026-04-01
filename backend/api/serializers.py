@@ -9,6 +9,7 @@ from .models import (
     Category,
     Currency,
     Transaction,
+    RFPMonitoring,
 )
 
 # ------------------------------------------
@@ -162,3 +163,25 @@ class TransactionSerializer(serializers.ModelSerializer):
             'date_created'
         ]
         read_only_fields = ['transaction_id', 'date_created']
+
+# -------------------------
+# RFP Record Serializer
+# -------------------------
+class RFPMonitoringSerializer(serializers.ModelSerializer):
+    payee_name = serializers.CharField(source='payee.payee_name', read_only=True)
+    vessel_principal_name = serializers.CharField(source='vessel_principal.vessel_principal_name', read_only=True)
+    
+    class Meta:
+        model = RFPMonitoring
+        fields = [
+            'rfp_id',
+            'company',
+            'rfp_ref',
+            'vessel_principal',
+            'payee_name',
+            'vessel_principal_name',
+            'etd',
+            'rfp_status',
+            'date_created'
+        ]
+        read_only_fields = ['rfp_id', 'date_created']

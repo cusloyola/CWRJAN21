@@ -11,6 +11,7 @@ from .models import (
     MCBranchIssuance,
     FundingAccount,
     Transaction,
+    RFPMonitoring,
     TransactionBatch,
     Payee,
     VesselPrincipal,
@@ -455,3 +456,21 @@ class UserLoginLogAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
     
+# ------------------------------------------------
+# RFP Monitoring
+# ------------------------------------------------
+@admin.register(RFPMonitoring)
+class RFPMonitoringAdmin(admin.ModelAdmin):
+    list_display = (
+        'expected_series',
+        'cwr_processed',
+        'cwr_usage',
+        'trampsys_status',
+        'status_cwr',
+        'etd',
+        'eta',
+        'payee',
+        'vessel_principal',
+    )
+    search_fields = ('expected_series',)
+    ordering = ('-etd',)

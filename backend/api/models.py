@@ -408,3 +408,42 @@ class LogMCBranchIssuance(models.Model):
 
     def __str__(self):
         return f"{self.action} | {self.branch}"
+    
+# -------------------------
+# RFP Record
+# -------------------------
+class RFPMonitoring(models.Model):
+    expected_series = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # Tentative - Refer to Series Helper
+    cwr_processed = models.UUIDField(default=uuid.uuid4, editable=False)
+    cwr_usage = models.PositiveSmallIntegerField(choices=((0, "0"), (1, "1")), default=0)
+    
+    
+    trampsys_status = models.CharField(
+        max_length=20,
+        choices=(
+            ("Draft", "Draft"),
+            ("For AGM Approval", "For AGM Approval"),
+            ("For OM Approval", "For OM Approval"),
+            ("Approved", "Approved"),
+            ("Released", "Released"),
+        ),
+        default="Draft",
+    )
+    status_cwr = models.DateTimeField(null=True, blank=True)
+    remarks_cwr = models.CharField(max_length=1000, null=True, blank=True)
+    etd = models.DateField()
+    eta = models.DateField()
+    payee = models.ForeignKey(Payee,on_delete=models.PROTECT)
+    # Ask if vessel to use in RFP Monitoring is same as vessel in Transaction
+    vessel_principal = models.ForeignKey(VesselPrincipal,on_delete=models.PROTECT)
+    voy = models.CharField(max_length=100, null=True, blank=True)
+    port = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "RFP Record"
+        verbose_name_plural = "RFP Records"
+        ordering = ['expected_series']
+    
+    def __str__(self):
+        return f"{self.expected_series}"
