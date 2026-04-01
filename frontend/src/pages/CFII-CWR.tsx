@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import '../styles/ActivityLog.css';
 
@@ -30,6 +30,8 @@ const CFIICWR: React.FC = () => {
 
   const [filter, setFilter] = useState<'All' | 'Completed' | 'Pending' | 'In Progress'>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 6;
 
   const filteredActivities = activities.filter(activity => {
     const matchesFilter = filter === 'All' || activity.status === filter;
@@ -42,17 +44,30 @@ const CFIICWR: React.FC = () => {
     return matchesFilter && matchesSearch;
   });
 
+  const totalPages = Math.ceil(filteredActivities.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, filteredActivities.length);
+  const activitiesToDisplay = filteredActivities.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
+
   return (
     <>
       <Sidebar />
       <div className="wpsi-content">
+        <div className="transaction-form-header">
+          <h2 className="transaction-form-title">ACTIVITY LOG - CFII</h2>
+        </div>
         <main className="wpsi-main">
 
           <div className="wpsi-inner">
-
-            <div className="transaction-form-header">
-              <h2 className="transaction-form-title">CFII - CWR</h2>
-            </div>
             <div className="wpsi-controls mb-4">
               <div className="wpsi-search-container">
                 <input
@@ -94,22 +109,22 @@ const CFIICWR: React.FC = () => {
             <div className="wpsi-wrapper px-4 sm:px-6">
               <div className="activity-card-container">
 
-                {filteredActivities.length > 0 ? (
-                  filteredActivities.map((activity) => (
-                    <div key={activity.id} className="wpsi-transaction-item">
+                {activitiesToDisplay.length > 0 ? (
+                  activitiesToDisplay.map((activity) => (
+                    <div key={activity.id} className="wpsi-transaction-item-logs">
                       <div className="wpsi-transaction-row">
-                        <div>
-                          <div className="wpsi-title-row">
-                            <div className="wpsi-transaction-title">{activity.description}</div>
-                            <div className={`status-badge ${activity.status.toLowerCase().replace(' ', '-')}`}>
-                              {activity.status}
-                            </div>
-                          </div>
+                        <div className="wpsi-transaction-content">
+                          <div className="wpsi-transaction-title">{activity.description}</div>
                           <div className="wpsi-transaction-label">{activity.date}</div>
                         </div>
-                        <svg className="wpsi-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+                        <div className="wpsi-right-actions">
+                          <div className={`status-badge ${activity.status.toLowerCase().replace(' ', '-')}`}>
+                            {activity.status}
+                          </div>
+                          <svg className="wpsi-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -120,6 +135,57 @@ const CFIICWR: React.FC = () => {
                   </div>
                 )}
 
+                {activitiesToDisplay.length > 0 && filteredActivities.length > 0 && totalPages > 1 && (
+                  <div className="transactions-pagination">
+                    <button
+                      className="pagination-button"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </button>
+
+                    <div className="pagination-page-numbers">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+                        if (
+                          page === 1 ||
+                          page === totalPages ||
+                          (page >= currentPage - 1 && page <= currentPage + 1)
+                        ) {
+                          return (
+                            <button
+                              key={page}
+                              className={`pagination-page-button ${currentPage === page ? 'active' : ''}`}
+                              onClick={() => handlePageChange(page)}
+                            >
+                              {page}
+                            </button>
+                          );
+                        }
+
+                        if (page === currentPage - 2 || page === currentPage + 2) {
+                          return <span key={page} className="pagination-ellipsis">...</span>;
+                        }
+
+                        return null;
+                      })}
+                    </div>
+
+                    <button
+                      className="pagination-button"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+
+                {activitiesToDisplay.length > 0 && filteredActivities.length > 0 && (
+                  <div className="pagination-info">
+                    Showing {startIndex + 1} to {endIndex} of {filteredActivities.length} records
+                  </div>
+                )}
               </div>
             </div>
           </div>

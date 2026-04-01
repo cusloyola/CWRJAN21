@@ -19,11 +19,15 @@ export interface Transaction {
   batch: string;
   driveFileLink: string;
   supportingDocs: string;
+  status: 'pending' | 'rejected' | 'approved';
+  pendingApprovalFrom?: 'DAM' | 'Deputy' | 'Approver';
+  rejectedBy?: string;
+  approvedBy?: string;
 }
 
 export const transactionsData: Transaction[] = [
   {
-    category: 'Category 1',
+    category: 'CFII-ACA',
     transactionRef: 'TRX001',
     date: '2026-01-20',
     payee: 'John Doe',
@@ -31,16 +35,18 @@ export const transactionsData: Transaction[] = [
     vesselPrincipal: 'Vessel A',
     etd: '2026-01-25',
     currency: 'USD',
-      amount: 500.00,
+    amount: 500.00,
     referenceErfp: 'eRFP001',
     branchToIssueMc: 'Branch A',
     fundingAccount: 'FA001',
     batch: 'Batch 1',
     driveFileLink: 'https://link-to-file.com',
     supportingDocs: 'https://docs-link.com',
+    status: 'pending',
+    pendingApprovalFrom: 'DAM',
   },
   {
-    category: 'Category 2',
+    category: 'WLPI-BPI BIZLINK (PHP)',
     transactionRef: 'TRX002',
     date: '2026-01-21',
     payee: 'Jane Smith',
@@ -55,9 +61,11 @@ export const transactionsData: Transaction[] = [
     batch: 'Batch 2',
     driveFileLink: 'https://link-to-file2.com',
     supportingDocs: 'https://docs-link2.com',
+    status: 'pending',
+    pendingApprovalFrom: 'Deputy',
   },
   {
-    category: 'Category 1',
+    category: 'WMSI-ACA',
     transactionRef: 'TRX003',
     date: '2026-01-22',
     payee: 'Bob Johnson',
@@ -72,9 +80,11 @@ export const transactionsData: Transaction[] = [
     batch: 'Batch 1',
     driveFileLink: 'https://link-to-file3.com',
     supportingDocs: 'https://docs-link3.com',
+    status: 'approved',
+    approvedBy: 'Final Approver',
   },
   {
-    category: 'Category 3',
+    category: 'WPSI-ACA',
     transactionRef: 'TRX004',
     date: '2026-01-23',
     payee: 'Marine Supplies Co',
@@ -89,9 +99,11 @@ export const transactionsData: Transaction[] = [
     batch: 'Batch 2',
     driveFileLink: 'https://link-to-file4.com',
     supportingDocs: 'https://docs-link4.com',
+    status: 'pending',
+    pendingApprovalFrom: 'Approver',
   },
   {
-    category: 'Category 2',
+    category: 'CFII-OUTWARD PAYMENT (PHP)',
     transactionRef: 'TRX005',
     date: '2026-01-24',
     payee: 'Port Authority Ltd',
@@ -106,9 +118,11 @@ export const transactionsData: Transaction[] = [
     batch: 'Batch 3',
     driveFileLink: 'https://link-to-file5.com',
     supportingDocs: 'https://docs-link5.com',
+    status: 'rejected',
+    rejectedBy: 'DAM',
   },
   {
-    category: 'Category 1',
+    category: 'WLPI-WIRE TRANSFER (USD)',
     transactionRef: 'TRX006',
     date: '2026-01-25',
     payee: 'Global Freight Inc',
@@ -123,9 +137,11 @@ export const transactionsData: Transaction[] = [
     batch: 'Batch 1',
     driveFileLink: 'https://link-to-file6.com',
     supportingDocs: 'https://docs-link6.com',
+    status: 'pending',
+    pendingApprovalFrom: 'Deputy',
   },
   {
-    category: 'Category 3',
+    category: 'WMSI-PAYROLL BPI (PHP)',
     transactionRef: 'TRX007',
     date: '2026-01-26',
     payee: 'Philippine Shipyard',
@@ -140,9 +156,11 @@ export const transactionsData: Transaction[] = [
     batch: 'Batch 4',
     driveFileLink: 'https://link-to-file7.com',
     supportingDocs: 'https://docs-link7.com',
+    status: 'approved',
+    approvedBy: 'Final Approver',
   },
   {
-    category: 'Category 2',
+    category: 'WPSI-FUND TRANSFER OTHER PARTY',
     transactionRef: 'TRX008',
     date: '2026-01-27',
     payee: 'Crew Management Ltd',
@@ -157,9 +175,11 @@ export const transactionsData: Transaction[] = [
     batch: 'Batch 2',
     driveFileLink: 'https://link-to-file8.com',
     supportingDocs: 'https://docs-link8.com',
+    status: 'pending',
+    pendingApprovalFrom: 'Approver',
   },
   {
-    category: 'Category 1',
+    category: 'CFII-WIRE TRANSFER (USD)',
     transactionRef: 'TRX009',
     date: '2026-01-28',
     payee: 'Insurance Partners',
@@ -174,9 +194,11 @@ export const transactionsData: Transaction[] = [
     batch: 'Batch 1',
     driveFileLink: 'https://link-to-file9.com',
     supportingDocs: 'https://docs-link9.com',
+    status: 'rejected',
+    rejectedBy: 'Deputy',
   },
   {
-    category: 'Category 3',
+    category: 'WLPI-SHIPPING LINE REG ACCT (PHP)',
     transactionRef: 'TRX010',
     date: '2026-01-29',
     payee: 'Tech Marine Solutions',
@@ -191,5 +213,7 @@ export const transactionsData: Transaction[] = [
     batch: 'Batch 5',
     driveFileLink: 'https://link-to-file10.com',
     supportingDocs: 'https://docs-link10.com',
+    status: 'pending',
+    pendingApprovalFrom: 'DAM',
   },
 ];
