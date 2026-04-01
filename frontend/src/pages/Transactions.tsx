@@ -97,19 +97,19 @@ const Transactions: React.FC = () => {
         fetchCategories();
     }, []);
 
-    // Filtered & paginated transactions
-    const filteredTransactions = useMemo(() => {
-        return companyScopedTransactions.filter(t => {
-            const matchesSearch = searchQuery === '' ||
-                Object.values(t).some(v => String(v).toLowerCase().includes(searchQuery.toLowerCase()));
+    // // Filtered & paginated transactions
+    // const filteredTransactions = useMemo(() => {
+    //     return transactions.filter(t => {
+    //         const matchesSearch = searchQuery === '' ||
+    //             Object.values(t).some(v => String(v).toLowerCase().includes(searchQuery.toLowerCase()));
 
-            const matchesCategory = categoryFilter === 'All' || t.category === categoryFilter;
-            const matchesCurrency = currencyFilter === 'All' || t.currency === currencyFilter;
-            const matchesDate = dateFilter === 'All' || t.date.includes(dateFilter);
+    //         const matchesCategory = categoryFilter === 'All' || t.category === categoryFilter;
+    //         const matchesCurrency = currencyFilter === 'All' || t.currency === currencyFilter;
+    //         const matchesDate = dateFilter === 'All' || t.date.includes(dateFilter);
 
-            return matchesSearch && matchesCategory && matchesCurrency && matchesDate;
-        });
-    }, [companyScopedTransactions, searchQuery, categoryFilter, currencyFilter, dateFilter]);
+    //         return matchesSearch && matchesCategory && matchesCurrency && matchesDate;
+    //     });
+    // }, [transactions, searchQuery, categoryFilter, currencyFilter, dateFilter]);
 
     const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
