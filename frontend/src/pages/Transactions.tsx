@@ -12,10 +12,8 @@ const Transactions: React.FC = () => {
     const [categoryFilter, setCategoryFilter] = useState<string>('All');
     const [currencyFilter, setCurrencyFilter] = useState<string>('All');
     const [dateFilter] = useState<string>('All');
-
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 6;
-
     const TRANSACTIONS_STORAGE_KEY = 'transactionsData';
 
     // Transactions data
@@ -35,63 +33,41 @@ const Transactions: React.FC = () => {
     const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
     const [editableTransaction, setEditableTransaction] = useState<Transaction | null>(null);
     const [isClosing, setIsClosing] = useState<boolean>(false);
-
-
-
     const transactions = staticTransactions;
-
+    // Dropdown data
     const [categories, setCategories] = useState<string[]>([]);
     const [currencies, setCurrencies] = useState<string[]>([]);
-    const [categoriesLoaded, setCategoriesLoaded] = useState(false);
-    const [currenciesLoaded, setCurrenciesLoaded] = useState(false);
+    const [isLoadingDropdowns, setIsLoadingDropdowns] = useState(true);
 
     const getAuthHeader = () => ({
         Authorization: `Bearer ${localStorage.getItem('authToken')}`
     });
 
     const fetchCategories = async () => {
-        if (categoriesLoaded) return;
+            try {
+                setIsLoadingDropdowns(true);  
 
-        try {
-            const res = await fetch('http://localhost:8000/api/v1/categories/', {
-                headers: getAuthHeader()
-            });
+                const [catRes, curRes] = await Promise.all([
+                    fetch('http://localhost:8000/api/v1/categories/', { headers: getAuthHeader() }),
+                    fetch('http://localhost:8000/api/v1/currencies/', { headers: getAuthHeader() })
+                ]);
 
-            if (!res.ok) throw new Error();
+                if (!catRes.ok || !curRes.ok) throw new Error();
 
-            const data = await res.json();
+                const catData = await catRes.json();
+                const curData = await curRes.json();
 
-            const mapped = data.map((c: any) => c.category_description);
-            setCategories(mapped);
-            // setCategoriesLoaded(true);
-        } catch {
-            toast.error("Failed to load categories");
-        }
-    };
-
-    const fetchCurrencies = async () => {
-        if (currenciesLoaded) return;
-
-        try {
-            const res = await fetch('http://localhost:8000/api/v1/currencies/', {
-                headers: getAuthHeader()
-            });
-
-            if (!res.ok) throw new Error();
-
-            const data = await res.json();
-
-            const mapped = data.map((c: any) => c.currency_code);
-            setCurrencies(mapped);
-            // setCurrenciesLoaded(true);
-        } catch {
-            toast.error("Failed to load currencies");
+                setCategories(catData.map((c: any) => c.category_description));
+                setCurrencies(curData.map((c: any) => c.currency_code))
+        } catch (error) {
+                toast.error("Failed to load categories");
+        } finally {
+            setIsLoadingDropdowns(false);
         }
     };
 
     useEffect(() => {
         fetchCategories();
-        fetchCurrencies();
     }, []);
 
     // Filtered & paginated transactions
@@ -215,8 +191,10 @@ const Transactions: React.FC = () => {
                             </Link>
 
                             <div className="wpsi-dropdown-container">
-                                <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="wpsi-dropdown">
-                                    <option value="All">Categories</option>
+                                <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="wpsi-dropdown" disabled={isLoadingDropdowns}>
+                                    <option value="All">
+                                        {isLoadingDropdowns ? "Loading..." : "Categories"}
+                                    </option>
                                     {categories.map(cat => (
                                         <option key={cat} value={cat}>{cat}</option>
                                     ))}
@@ -224,8 +202,10 @@ const Transactions: React.FC = () => {
                             </div>
 
                             <div className="wpsi-dropdown-container">
-                                <select value={currencyFilter} onChange={e => setCurrencyFilter(e.target.value)} className="wpsi-dropdown">
-                                    <option value="All">Currencies</option>
+                                <select value={currencyFilter} onChange={e => setCurrencyFilter(e.target.value)} className="wpsi-dropdown" disabled={isLoadingDropdowns} >
+                                    <option value="All">
+                                        {isLoadingDropdowns ? "Loading..." : "Currencies"}
+                                    </option>
                                     {currencies.map(cur => (
                                         <option key={cur} value={cur}>{cur}</option>
                                     ))}
