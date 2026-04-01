@@ -124,7 +124,7 @@ const CorpInventory: React.FC = () => {
                             <table className="transactions-table table corp-inventory-table">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
+                                        <th style={{fontWeight:'600'}}>Date</th>
                                         <th className="checks-printed-col">Checks Printed</th>
                                     </tr>
                                 </thead>

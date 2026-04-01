@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from 'react-toastify';
 import ConfirmationModal from './ConfirmationModal';
-import { getDamTabsForRoles, parseStoredRoles } from "../utils/roleUtils";
+import { ROLES, getDamTabsForRoles, parseStoredRoles } from "../utils/roleUtils";
 
 export interface WpsiTransaction {
   id: number;
@@ -47,11 +47,17 @@ const WpsiTransactionDetailsPanel = ({
   const startY = useRef(0);
 
   const userRoles = parseStoredRoles(localStorage.getItem('userRole'));
+  const isDeputyUser = userRoles.includes(ROLES.DEPUTY);
   const isDamUser = getDamTabsForRoles(userRoles).length > 0;
-  const actionSectionLabel = isDamUser ? 'DAM Action' : 'CFII CON Action';
-  const actionOptions = isDamUser ? ['Reject','Endorse' ] : ['Approve', 'Hold', 'Void', 'Cancel'];
+  const actionSectionLabel = isDeputyUser ? 'Deputy Action' : isDamUser ? 'DAM Action' : 'CFII CON Action';
+  const actionOptions = isDeputyUser
+    ? ['Reject', 'Endorse to Final Approver']
+    : isDamUser
+      ? ['Reject', 'Endorse']
+      : ['Approve', 'Hold', 'Void', 'Cancel'];
   const actionResultLabel: Record<string, string> = {
     Endorse: 'endorsed',
+    'Endorse to Final Approver': 'endorsed to final approver',
     Reject: 'rejected',
     Approve: 'approved',
     Hold: 'put on hold',
@@ -149,9 +155,9 @@ const WpsiTransactionDetailsPanel = ({
 
   const renderTransactionDetails = (isDesktopPanel = false) => (
     <>
-      <div className="modal-section-label">{transaction.section}</div>
+{/*       <div className="modal-section-label">{transaction.section}</div>
       <h2 className="modal-transaction-title">{transaction.title}</h2>
-      <p className="modal-ref-no">{transaction.refNo}</p>
+      <p className="modal-ref-no" style={{marginBottom:"5px"}}>{transaction.refNo}</p> */}
 
       <div className="modal-details">
         <div className="modal-detail-row">
@@ -182,7 +188,7 @@ const WpsiTransactionDetailsPanel = ({
           <span className="modal-detail-label">Reference / eRFP</span>
           <span className="modal-detail-value">{transaction.reference}</span>
         </div>
-        <div className="modal-detail-row">
+{/*         <div className="modal-detail-row">
           <span className="modal-detail-label">Admin</span>
           <span className="modal-detail-value">{transaction.admin}</span>
         </div>
@@ -197,7 +203,7 @@ const WpsiTransactionDetailsPanel = ({
         <div className="modal-detail-row">
           <span className="modal-detail-label">CON</span>
           <span className="modal-detail-value">{transaction.con}</span>
-        </div>
+        </div> */}
       </div>
 
       <div className="modal-section-header">Supporting Docs</div>
@@ -214,7 +220,7 @@ const WpsiTransactionDetailsPanel = ({
       <div className="modal-section-header">{actionSectionLabel}</div>
       <div className="modal-con-actions">
         {hasExistingAction ? (
-          <p className="modal-action-note" style={{textAlign:'center'}}>
+          <p className="modal-action-note" style={{textAlign:'center', marginBottom:'0'}}>
             An action has already been committed for this record{selectedAction ? ` (${selectedAction}).` : '.'}
           </p>
         ) : (
@@ -250,10 +256,11 @@ const WpsiTransactionDetailsPanel = ({
       <>
         {confirmationModal}
         <aside className="wpsi-desktop-panel">
+
           <div className="wpsi-desktop-panel-header">
             <div>
-              <p className="wpsi-desktop-panel-subtitle">Transaction Details</p>
-              <h3 className="wpsi-desktop-panel-title">{transaction.section}</h3>
+              <p className="modal-section-label" style={{marginBottom:"0"}}>{transaction.section}</p>
+              <h3 className="wpsi-desktop-panel-title modal-transaction-title">{transaction.title}</h3>
             </div>
             <button className="wpsi-desktop-close" onClick={onClose} aria-label="Close details panel">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22">

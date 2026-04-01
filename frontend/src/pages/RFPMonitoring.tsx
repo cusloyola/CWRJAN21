@@ -94,21 +94,6 @@ const RFPMonitoring: React.FC = () => {
         if (container) container.scrollTop = 0;
     };
 
-    const getStatusClass = (status: RfpStatus) => {
-        if (status === 'APPROVED') return 'rfp-status-approved';
-        if (status === 'RELEASED') return 'rfp-status-released';
-        if (status === 'VOID') return 'rfp-status-void';
-        return 'rfp-status-draft';
-    };
-
-    const getStatusLabel = (status: RfpStatus) => {
-        if (!isMobile) return status;
-        if (status === 'APPROVED') return 'APP';
-        if (status === 'RELEASED') return 'REL';
-        if (status === 'VOID') return 'VOD';
-        return 'DRF';
-    };
-
     return (
         <>
             <Sidebar />
@@ -165,27 +150,29 @@ const RFPMonitoring: React.FC = () => {
                         <div className="transactions-table-container">
                             <table className="transactions-table table rfp-monitoring-table">
                                 <colgroup>
-                                    <col style={{ width: isMobile ? '18%' : '13%' }} />
                                     <col style={{ width: isMobile ? '24%' : '13%' }} />
                                     {!isMobile && <col style={{ width: isTablet ? '0%' : '21%' }} />}
-                                    <col style={{ width: isMobile ? '30%' : isTablet ? '37%' : '20%' }} />
-                                    <col style={{ width: isMobile ? '28%' : isTablet ? '30%' : '14%' }} />
+                                    <col style={{ width: isMobile ? '36%' : isTablet ? '37%' : '20%' }} />
+                                    <col style={{ width: isMobile ? '40%' : isTablet ? '30%' : '14%' }} />
                                     {!isTablet && <col style={{ width: '19%' }} />}
+                                    {!isMobile && <col style={{ width: '13%' }} />}
+
                                 </colgroup>
                                 <thead>
                                     <tr>
                                         <th className="rfp-series-col">Expected Series</th>
-                                        <th>TRAMPSYS Status</th>
                                         {!isMobile && <th>Status (CWR)</th>}
                                         <th>Payee per TRAMPSYS</th>
                                         <th>Vessel / Voy</th>
                                         {!isTablet && <th>Port</th>}
+                                        {!isMobile && <th>TRAMPSYS Status</th>}
+
                                     </tr>
                                 </thead>
                                 <tbody className="odd:bg-gray-50 even:bg-white">
                                     {paginatedRecords.length === 0 ? (
                                         <tr>
-                                            <td colSpan={isMobile ? 4 : isTablet ? 5 : 6} className="transactions-table-empty">
+                                            <td colSpan={isMobile ? 3 : isTablet ? 5 : 6} className="transactions-table-empty">
                                                 No RFP records found
                                             </td>
                                         </tr>
@@ -199,15 +186,6 @@ const RFPMonitoring: React.FC = () => {
                                                 aria-label={record.trampsysStatus === 'RELEASED' ? 'Open released record in view-only mode' : 'Open record for editing'}
                                             >
                                                 <td className="rfp-series-cell">{record.expectedSeries}</td>
-                                                <td className="rfp-status-cell">
-                                                    <span
-                                                        className={`rfp-status-chip ${getStatusClass(record.trampsysStatus)}`}
-                                                        title={record.trampsysStatus}
-                                                        aria-label={record.trampsysStatus}
-                                                    >
-                                                        {getStatusLabel(record.trampsysStatus)}
-                                                    </span>
-                                                </td>
                                                 {!isMobile && <td>{record.statusCwr || '-'}</td>}
                                                 <td className="rfp-payee-cell">
                                                     <div className="rfp-payee-text">{record.payeePerTrampsys || '-'}</div>
@@ -219,6 +197,20 @@ const RFPMonitoring: React.FC = () => {
                                                     </div>
                                                 </td>
                                                 {!isTablet && <td className="rfp-port-cell">{record.port || '-'}</td>}
+                                                {!isMobile && (
+                                                    <td className="rfp-status-cell">
+                                                        <div
+                                                            className={`status-badge ${record.trampsysStatus === 'APPROVED' || record.trampsysStatus === 'RELEASED' ? 'completed' :
+                                                                record.trampsysStatus === 'DRAFT' ? 'pending' :
+                                                                    'failed'
+                                                                }`}
+                                                            title={record.trampsysStatus}
+                                                            aria-label={record.trampsysStatus}
+                                                        >
+                                                            {record.trampsysStatus}
+                                                        </div>
+                                                    </td>
+                                                )}
                                             </tr>
                                         ))
                                     )}

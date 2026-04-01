@@ -37,6 +37,20 @@ const WPSI = () => {
     setIsClosing(false);
   }, [isDesktopView]);
 
+  useEffect(() => {
+    const resetToRecentFilter = () => {
+      setActiveFilter('recent');
+      setSearchQuery('');
+      setCurrentPage(1);
+    };
+
+    window.addEventListener('wpsi:reset-filter', resetToRecentFilter);
+
+    return () => {
+      window.removeEventListener('wpsi:reset-filter', resetToRecentFilter);
+    };
+  }, []);
+
   const transactions: WpsiTransaction[] = wpsiTransactionsData;
   const displayedTransactions = transactions.slice(0, 4);
   const itemsPerPage = 5;
