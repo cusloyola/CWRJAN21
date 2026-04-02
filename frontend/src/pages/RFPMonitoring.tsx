@@ -3,38 +3,82 @@ import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
 import {
-    rfpMonitoringData,
     type RfpMonitoringRecord,
     type RfpStatus,
-} from '../dummy_data/rfpMonitoringData';
+} from '../types/rfp';
+import { RfpApi } from '../services/rfpApi';
 import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 const RFPMonitoring: React.FC = () => {
     const navigate = useNavigate();
-    const RFP_STORAGE_KEY = 'rfpMonitoringData';
 
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [statusFilter, setStatusFilter] = useState<string>('All');
-
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 6;
 
-    const [records] = useState<RfpMonitoringRecord[]>(() => {
-        const savedRecords = localStorage.getItem(RFP_STORAGE_KEY);
-        if (savedRecords) {
-            try {
-                return JSON.parse(savedRecords) as RfpMonitoringRecord[];
-            } catch {
-                return [...rfpMonitoringData];
-            }
-        }
-        return [...rfpMonitoringData];
-    });
+    const [records, setRecords] = useState<RfpMonitoringRecord[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
 
+    // Load RFP records and foreign key data from backend
+    useEffect(() => {
+        const loadAllData = async () => {
+            try {
+                setLoading(true);
+                
+                // Load all data in parallel
+                const [rfpResponse, payeesResponse, vesselResponse, portsResponse] = await Promise.all([
+                    RfpApi.getAllRfpRecords(),
+                    RfpApi.getPayees(),
+                    RfpApi.getVesselPrincipals(), 
+                    RfpApi.getPorts()
+                ]);
+                
+                console.log('All API Responses:', {
+                    rfp: rfpResponse.data,
+                    payees: payeesResponse.data,
+                    vessels: vesselResponse.data,
+                    ports: portsResponse.data
+                });
+                
+                if (rfpResponse.success) {
+                    // Resolve foreign key relationships
+                    const enrichedRecords = rfpResponse.data.map((record: any) => {
+                        const payeeId = typeof record.payee === 'string' ? record.payee : record.payee?.payee_id;
+                        const vesselId = typeof record.vessel_principal === 'string' ? record.vessel_principal : record.vessel_principal?.vessel_principal_id;
+                        const portId = typeof record.port === 'string' ? record.port : record.port?.port_id;
+                        
+                        return {
+                            ...record,
+                            payee_data: payeesResponse.success ? payeesResponse.data.find((p: any) => p.payee_id === payeeId) : null,
+                            vessel_principal_data: vesselResponse.success ? vesselResponse.data.find((v: any) => v.vessel_principal_id === vesselId) : null,
+                            port_data: portsResponse.success ? portsResponse.data.find((p: any) => p.port_id === portId) : null,
+                        };
+                    });
+                    
+                    setRecords(enrichedRecords);
+                } else {
+                    setError(rfpResponse.error || 'Failed to load RFP records');
+                    toast.error('Failed to load RFP records');
+                }
+            } catch (err) {
+                const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+                setError(errorMessage);
+                toast.error(errorMessage);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadAllData();
+    }, []);
+
     const statuses = useMemo(() => {
-        const unique = Array.from(new Set(records.map(r => r.trampsysStatus))).sort();
+        const unique = Array.from(new Set(records.map(r => r.trampsys_status))).sort();
         return unique as RfpStatus[];
     }, [records]);
 
@@ -47,6 +91,25 @@ const RFPMonitoring: React.FC = () => {
     const isTablet = screenWidth <= 1024;
     const isMobile = screenWidth <= 768;
 
+    // Helper functions to safely get display names
+    const getPayeeName = (record: RfpMonitoringRecord) => {
+        return record.payee_data?.payee_name || 
+               (typeof record.payee === 'object' ? record.payee?.payee_name : null) || 
+               '-';
+    };
+    
+    const getVesselName = (record: RfpMonitoringRecord) => {
+        return record.vessel_principal_data?.vessel_principal_name || 
+               (typeof record.vessel_principal === 'object' ? record.vessel_principal?.vessel_principal_name : null) || 
+               '-';
+    };
+    
+    const getPortName = (record: RfpMonitoringRecord) => {
+        return record.port_data?.port_name || 
+               (typeof record.port === 'object' ? record.port?.port_name : null) || 
+               '-';
+    };
+
     const filteredRecords = useMemo(() => {
         const loweredQuery = searchQuery.toLowerCase();
 
@@ -54,21 +117,21 @@ const RFPMonitoring: React.FC = () => {
             const matchesSearch =
                 searchQuery === '' ||
                 [
-                    record.expectedSeries,
-                    record.cwrProcessed,
-                    record.cwrUsage,
-                    record.payeePerTrampsys,
-                    record.vessel,
+                    record.expected_series,
+                    record.cwr_processed,
+                    record.cwr_usage,
+                    getPayeeName(record),
+                    getVesselName(record),
                     record.voy,
-                    record.port,
-                    record.etaTrampsys,
-                    record.etdTrampsys,
-                    record.trampsysStatus,
-                    record.statusCwr,
-                    record.remarksCwr,
+                    getPortName(record),
+                    record.eta,
+                    record.etd,
+                    record.trampsys_status,
+                    record.status_cwr,
+                    record.remarks_cwr,
                 ].some(value => String(value).toLowerCase().includes(loweredQuery));
 
-            const matchesStatus = statusFilter === 'All' || record.trampsysStatus === statusFilter;
+            const matchesStatus = statusFilter === 'All' || record.trampsys_status === statusFilter;
 
             return matchesSearch && matchesStatus;
         });
@@ -84,7 +147,7 @@ const RFPMonitoring: React.FC = () => {
     }, [searchQuery, statusFilter]);
 
     const openEditPage = (record: RfpMonitoringRecord) => {
-        navigate(`/edit-rfp/${record.expectedSeries}`);
+        navigate(`/edit-rfp/${record.expected_series}`);
     };
 
     const handlePageChange = (page: number) => {
@@ -103,8 +166,20 @@ const RFPMonitoring: React.FC = () => {
                 </div>
                 <main style={{ padding: 'min(30px, 7%)', width: '100%', overflowX: 'hidden' }}>
                     <div className="transactions-page-wrapper">
+                        {loading && (
+                            <div className="flex justify-center items-center p-8">
+                                <div className="text-lg">Loading RFP records...</div>
+                            </div>
+                        )}
 
+                        {error && (
+                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                                Error: {error}
+                            </div>
+                        )}
 
+                        {!loading && !error && (
+                            <>
                         <div className="wpsi-controls">
                             <div className="wpsi-search-container">
                                 <input
@@ -179,35 +254,35 @@ const RFPMonitoring: React.FC = () => {
                                     ) : (
                                         paginatedRecords.map(record => (
                                             <tr
-                                                key={record.expectedSeries}
+                                                key={record.expected_series}
                                                 onClick={() => openEditPage(record)}
                                                 className="cursor-pointer hover:bg-gray-50 transition-colors"
-                                                title={record.trampsysStatus === 'RELEASED' ? 'Released records are view-only.' : 'Open record for editing'}
-                                                aria-label={record.trampsysStatus === 'RELEASED' ? 'Open released record in view-only mode' : 'Open record for editing'}
+                                                title={record.trampsys_status === 'Released' ? 'Released records are view-only.' : 'Open record for editing'}
+                                                aria-label={record.trampsys_status === 'Released' ? 'Open released record in view-only mode' : 'Open record for editing'}
                                             >
-                                                <td className="rfp-series-cell">{record.expectedSeries}</td>
-                                                {!isMobile && <td>{record.statusCwr || '-'}</td>}
+                                                <td className="rfp-series-cell">{record.expected_series}</td>
+                                                {!isMobile && <td>{record.status_cwr ? new Date(record.status_cwr).toLocaleString() : '-'}</td>}
                                                 <td className="rfp-payee-cell">
-                                                    <div className="rfp-payee-text">{record.payeePerTrampsys || '-'}</div>
+                                                    <div className="rfp-payee-text">{getPayeeName(record)}</div>
                                                 </td>
                                                 <td className="rfp-vessel-cell">
                                                     <div className="rfp-stack">
-                                                        <div className="rfp-primary-text">{record.vessel || '-'}</div>
+                                                        <div className="rfp-primary-text">{getVesselName(record)}</div>
                                                         <div className="rfp-secondary-text">{record.voy || '-'}</div>
                                                     </div>
                                                 </td>
-                                                {!isTablet && <td className="rfp-port-cell">{record.port || '-'}</td>}
+                                                {!isTablet && <td className="rfp-port-cell">{getPortName(record)}</td>}
                                                 {!isMobile && (
                                                     <td className="rfp-status-cell">
                                                         <div
-                                                            className={`status-badge ${record.trampsysStatus === 'APPROVED' || record.trampsysStatus === 'RELEASED' ? 'completed' :
-                                                                record.trampsysStatus === 'DRAFT' ? 'pending' :
+                                                            className={`status-badge ${record.trampsys_status === 'Approved' || record.trampsys_status === 'Released' ? 'completed' :
+                                                                record.trampsys_status === 'Draft' ? 'pending' :
                                                                     'failed'
                                                                 }`}
-                                                            title={record.trampsysStatus}
-                                                            aria-label={record.trampsysStatus}
+                                                            title={record.trampsys_status}
+                                                            aria-label={record.trampsys_status}
                                                         >
-                                                            {record.trampsysStatus}
+                                                            {record.trampsys_status}
                                                         </div>
                                                     </td>
                                                 )}
@@ -266,6 +341,8 @@ const RFPMonitoring: React.FC = () => {
                             <div className="pagination-info">
                                 Showing {startIndex + 1} to {endIndex} of {filteredRecords.length} records
                             </div>
+                        )}
+                            </>
                         )}
                     </div>
 

@@ -6,8 +6,7 @@ import logo from '../assets/wallemrectangle.png';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Footer } from '../components/Footer';
-
-//
+import { RfpApi } from '../services/rfpApi';
 
 interface LoginFormData {
     email: string
@@ -89,45 +88,35 @@ function Login() {
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:8000/api/v1/user/login/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            });
+            // Use the new RfpApi service for login
+            const response = await RfpApi.login(formData.email, formData.password);
 
-            const data = await response.json();
+            if (response.success) {
+                const userData = response.data;
+                
+                // Store additional user info (tokens are handled by RfpApi)
+                localStorage.setItem('user', JSON.stringify(userData.user));
+                localStorage.setItem('userRole', userData.user.role.code);
+                localStorage.setItem('userRoleName', userData.user.role.name || '');
+                localStorage.setItem('userName', userData.user.full_name || '');
+                localStorage.setItem('companyCode', userData.user.companies[0]?.company_code || '');
 
-            if (response.ok) {
-                // Save JWT tokens
-                localStorage.setItem('authToken', data.access);
-                localStorage.setItem('refreshToken', data.refresh);
-                localStorage.setItem('user', JSON.stringify(data.user));
-                localStorage.setItem('userRole', data.user.role.code);
-
-                // Save user info
-                localStorage.setItem('user', JSON.stringify(data.user));
-                localStorage.setItem('userRoleName', data.user.role.name || '');
-                localStorage.setItem('userName', data.user.full_name || '');
-                localStorage.setItem('companyCode', data.user.companies[0].company_code || '');
-
-                // Handle multi-company
-                if (data.user.companies.length === 1) {
-                localStorage.setItem('selectedCompany', JSON.stringify(data.user.companies[0]));
-                // navigate('/dashboard');
+                // Handle multi-company scenario
+                if (userData.user.companies.length === 1) {
+                    localStorage.setItem('selectedCompany', JSON.stringify(userData.user.companies[0]));
                 } else {
                     navigate('/select-company'); // redirect to a company selection page
+                    return;
                 }
 
                 toast.success('Login successful! Redirecting...');
                 setTimeout(() => navigate('/dashboard'), 1000);
             } else {
-                const errorMsg =
-                    data?.non_field_errors?.[0] ||
-                    data?.detail ||
-                    'Login failed. Check credentials.';
+                const errorMsg = response.error || 'Login failed. Check credentials.';
                 toast.error(errorMsg);
             }
         } catch (err) {
+            console.error('Login error:', err);
             toast.error('Server error. Try again later.');
         } finally {
             setIsLoading(false);
