@@ -161,6 +161,7 @@ class TransactionAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 # -------------------------
 # Transaction Detail API
@@ -202,9 +203,24 @@ class TransactionDetailAPIView(APIView):
     # -------------------------
     def put(self, request, pk):
         transaction = self.get_object(pk, request)
+
+        old_data = TransactionSerializer(transaction).data
+
         serializer = TransactionSerializer(transaction, data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        updated_transaction = serializer.save()
+
+        # UPDATE LOG
+        LogTransaction.objects.create(
+            transaction=updated_transaction,
+            action=LogTransaction.ACTION_UPDATE,
+            user=request.user,
+            changes=json.loads(json.dumps({
+                "before": old_data,
+                "after": serializer.data
+            }, default=str))
+        )
+
         return Response(serializer.data)
 
     # -------------------------
@@ -212,8 +228,23 @@ class TransactionDetailAPIView(APIView):
     # -------------------------
     def patch(self, request, pk):
         transaction = self.get_object(pk, request)
+
+        old_data = TransactionSerializer(transaction).data
+
         serializer = TransactionSerializer(transaction, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        updated_transaction = serializer.save()
+
+        # UPDATE LOG
+        LogTransaction.objects.create(
+            transaction=updated_transaction,
+            action=LogTransaction.ACTION_UPDATE,
+            user=request.user,
+            changes=json.loads(json.dumps({
+                "before": old_data,
+                "after": serializer.data
+            }, default=str))
+        )
+
         return Response(serializer.data)
 
