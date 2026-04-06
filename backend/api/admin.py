@@ -15,6 +15,7 @@ from .models import (
     TransactionBatch,
     Payee,
     VesselPrincipal,
+    Port,
     LogTransaction,
     LogUserLogin,
     LogPayee,
@@ -22,6 +23,8 @@ from .models import (
     LogCategory,
     LogFundingAccount,
     LogMCBranchIssuance,
+    LogPort,
+    LogRFPMonitoring,
 )
 
 # ---------------------------------
@@ -100,6 +103,12 @@ class CompanyFilterAdminMixin:
 
             if db_field.name == "funding_account":  # FundingAccount field
                 kwargs["queryset"] = FundingAccount.objects.filter(company_id__in=company_ids)
+            
+            if db_field.name == "vessel_principal":
+                kwargs["queryset"] = VesselPrincipal.objects.filter(company_id__in=company_ids)
+            
+            if db_field.name == "port":
+                kwargs["queryset"] = Port.objects.filter(company_id__in=company_ids)
             
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
@@ -260,31 +269,50 @@ class Batch(admin.ModelAdmin):
 # Payee
 # ------------------------------------------------
 @admin.register(Payee)
-class Payee(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
+class PayeeAdmin(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
     log_model = LogPayee
     log_fk_field = "payee"    
 
-    list_display = ('payee_name',)
+    list_display = ('payee_name', 'company')
     search_fields = ('payee_name',)
     ordering = ('payee_name',)
 
 # ------------------------------------------------
-# Vessel/Principal
+# Port
 # ------------------------------------------------
-@admin.register(VesselPrincipal)
-class VesselPrincipal(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
-    log_model = LogVesselPrincipal
-    log_fk_field = "vessel_principal"
+@admin.register(Port)
+class PortAdmin(AdminLogMixin, CompanyFilterAdminMixin, admin.ModelAdmin):
+    log_model = LogPort
+    log_fk_field = "port"
 
-    list_display = ('vessel_principal_name',)
-    search_fields = ('vessel_principal_name',)
-    ordering = ('vessel_principal_name',)
+    list_display = ('port_name', 'port_code', 'company')
+    search_fields = ('port_name', 'port_code')
+    ordering = ('port_name',)
+
+# -------------------------
+# Port Log
+# -------------------------
+@admin.register(LogPort)
+class LogPortAdmin(admin.ModelAdmin):
+    list_display = ('port', 'action', 'user', 'date_created')
+    search_fields = ('port__port_name', 'user__username')
+    ordering = ('-date_created',)
+    readonly_fields = ('port', 'action', 'user', 'date_created', 'changes')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 # ------------------------------------------------
 # CWR Transactions
 # ------------------------------------------------
-@admin.register(Transaction)
+# ------------------------------------------------\n# Vessel/Principal\n# ------------------------------------------------\n@admin.register(VesselPrincipal)\nclass VesselPrincipalAdmin(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):\n    log_model = LogVesselPrincipal\n    log_fk_field = \"vessel_principal\"\n\n    list_display = ('vessel_principal_name', 'company')\n    search_fields = ('vessel_principal_name',)\n    ordering = ('vessel_principal_name',)\n\n@admin.register(Transaction)
 class ChequesTransactions(CompanyFilterAdminMixin,admin.ModelAdmin):
     list_display = ('transaction_ref','category','payee','particulars','vessel_principal','date_created', )
     search_fields = ('transaction_ref',)
@@ -460,7 +488,48 @@ class UserLoginLogAdmin(admin.ModelAdmin):
 # RFP Monitoring
 # ------------------------------------------------
 @admin.register(RFPMonitoring)
-class RFPMonitoringAdmin(admin.ModelAdmin):
+class RFPMonitoringAdmin(AdminLogMixin, admin.ModelAdmin):
+    log_model = LogRFPMonitoring
+    log_fk_field = "rfp_monitoring"
+    
+    list_display = (
+        'expected_series',
+        'cwr_processed', 
+        'cwr_usage',
+        'trampsys_status',
+        'status_cwr',
+        'eta',
+        'etd',
+        'payee',
+        'vessel_principal',
+        'port',
+        'voy',
+    )
+    
+    # Exclude auto-generated fields from the form
+    exclude = ('expected_series', 'cwr_processed')
+    
+    # Or alternatively, specify only the fields you want to show
+    fields = (
+        'cwr_usage',
+        'trampsys_status', 
+        'status_cwr',
+        'remarks_cwr',
+        'eta',
+        'etd',
+        'payee',
+        'vessel_principal',
+        'voy',
+        'port',
+    )
+    
+    readonly_fields = ('expected_series', 'cwr_processed')  # Show them as read-only
+    search_fields = ('expected_series', 'cwr_processed', 'payee__payee_name', 'vessel_principal__vessel_principal_name')
+    ordering = ('expected_series',)
+    list_filter = ('trampsys_status', 'cwr_usage', 'etd', 'eta')
+    log_model = LogRFPMonitoring
+    log_fk_field = "rfp_monitoring"
+    
     list_display = (
         'expected_series',
         'cwr_processed',
@@ -471,6 +540,61 @@ class RFPMonitoringAdmin(admin.ModelAdmin):
         'eta',
         'payee',
         'vessel_principal',
+        'port',
+        'voy',
     )
-    search_fields = ('expected_series',)
-    ordering = ('-etd',)
+    search_fields = ('expected_series', 'cwr_processed', 'payee__payee_name', 'vessel_principal__vessel_principal_name')
+    ordering = ('expected_series',)
+    list_filter = ('trampsys_status', 'cwr_usage', 'etd', 'eta')
+
+# -------------------------
+# RFP Monitoring Log
+# -------------------------
+@admin.register(LogRFPMonitoring)
+class LogRFPMonitoringAdmin(admin.ModelAdmin):
+    list_display = ('log_id', 'rfp_monitoring', 'action', 'user', 'date_created', 'formatted_changes')
+    list_filter = ('action', 'date_created')
+    search_fields = ('rfp_monitoring__expected_series', 'user__username', 'user__email')
+    ordering = ('-date_created',)
+    readonly_fields = ('log_id', 'rfp_monitoring', 'action', 'user', 'date_created', 'changes', 'formatted_changes')
+
+    # Display formatted JSON changes
+    def formatted_changes(self, obj):
+        if not obj.changes:
+            return "-"
+        try:
+            if isinstance(obj.changes, dict):
+                # Handle new format with dict structure
+                result = []
+                if 'notes' in obj.changes:
+                    result.append(f"Notes: {obj.changes['notes']}")
+                if 'old_values' in obj.changes and 'new_values' in obj.changes:
+                    old_vals = obj.changes['old_values'] 
+                    new_vals = obj.changes['new_values']
+                    if isinstance(old_vals, dict) and isinstance(new_vals, dict):
+                        # Compare fields
+                        for field in new_vals:
+                            if field in old_vals and old_vals[field] != new_vals[field]:
+                                result.append(f"{field}: {old_vals[field]} → {new_vals[field]}")
+                elif 'new_values' in obj.changes:
+                    result.append("New record created")
+                elif 'old_values' in obj.changes:
+                    result.append("Record deleted")
+                return "\\n".join(result)
+            elif isinstance(obj.changes, list):
+                # Handle legacy format with list structure  
+                return "\\n".join(f"{c.get('field','')}: {c.get('old','')} → {c.get('new','')}" for c in obj.changes)
+            else:
+                return str(obj.changes)
+        except Exception as e:
+            return f"Error parsing changes: {str(e)}"
+    formatted_changes.short_description = "Changes"
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser  # Only superusers can delete logs

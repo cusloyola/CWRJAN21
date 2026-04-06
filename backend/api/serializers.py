@@ -10,6 +10,12 @@ from .models import (
     Currency,
     Transaction,
     RFPMonitoring,
+    Payee,
+    VesselPrincipal,
+    Port,
+    MCBranchIssuance,
+    FundingAccount,
+    TransactionBatch,
 )
 
 # ------------------------------------------
@@ -165,23 +171,119 @@ class TransactionSerializer(serializers.ModelSerializer):
         read_only_fields = ['transaction_id', 'date_created']
 
 # -------------------------
+# Payee Serializer
+# -------------------------
+class PayeeSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='company.company_name', read_only=True)
+    
+    class Meta:
+        model = Payee
+        fields = [
+            'payee_id',
+            'company',
+            'company_name',
+            'payee_name',
+            'date_created'
+        ]
+        read_only_fields = ['payee_id', 'date_created']
+
+# -------------------------
+# Vessel/Principal Serializer
+# -------------------------
+class VesselPrincipalSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='company.company_name', read_only=True)
+    
+    class Meta:
+        model = VesselPrincipal
+        fields = [
+            'vessel_principal_id',
+            'company',
+            'company_name',
+            'vessel_principal_name',
+            'date_created'
+        ]
+        read_only_fields = ['vessel_principal_id', 'date_created']
+
+# -------------------------
+# Port Serializer
+# -------------------------
+class PortSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='company.company_name', read_only=True)
+    
+    class Meta:
+        model = Port
+        fields = [
+            'port_id',
+            'company',
+            'company_name',
+            'port_name',
+            'port_code',
+            'date_created'
+        ]
+        read_only_fields = ['port_id', 'date_created']
+
+# -------------------------
+# MC Branch Issuance Serializer
+# -------------------------
+class MCBranchIssuanceSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='company.company_name', read_only=True)
+    
+    class Meta:
+        model = MCBranchIssuance
+        fields = [
+            'branch_id',
+            'company',
+            'company_name',
+            'branch_name',
+            'date_created'
+        ]
+        read_only_fields = ['branch_id', 'date_created']
+
+# -------------------------
+# Funding Account Serializer
+# -------------------------
+class FundingAccountSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='company.company_name', read_only=True)
+    
+    class Meta:
+        model = FundingAccount
+        fields = [
+            'funding_acct_id',
+            'company',
+            'company_name',
+            'funding_acct_name',
+            'date_created'
+        ]
+        read_only_fields = ['funding_acct_id', 'date_created']
+
+# -------------------------
 # RFP Record Serializer
 # -------------------------
 class RFPMonitoringSerializer(serializers.ModelSerializer):
     payee_name = serializers.CharField(source='payee.payee_name', read_only=True)
     vessel_principal_name = serializers.CharField(source='vessel_principal.vessel_principal_name', read_only=True)
+    port_name = serializers.CharField(source='port.port_name', read_only=True)
+    trampsys_status_display = serializers.CharField(source='get_trampsys_status_display', read_only=True)
     
     class Meta:
         model = RFPMonitoring
         fields = [
             'rfp_id',
-            'company',
-            'rfp_ref',
-            'vessel_principal',
-            'payee_name',
-            'vessel_principal_name',
+            'expected_series',
+            'cwr_processed',
+            'cwr_usage',
+            'trampsys_status',
+            'trampsys_status_display',
+            'status_cwr',
+            'remarks_cwr',
             'etd',
-            'rfp_status',
-            'date_created'
+            'eta',
+            'payee',
+            'payee_name',
+            'vessel_principal',
+            'vessel_principal_name',
+            'voy',
+            'port',
+            'port_name'
         ]
-        read_only_fields = ['rfp_id', 'date_created']
+        read_only_fields = ['rfp_id']

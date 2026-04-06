@@ -116,7 +116,24 @@ class VesselPrincipal (models.Model):
     
     def __str__(self):
         return f"{self.vessel_principal_name}"      
+# ------------------------------------------------
+# Port
+# ------------------------------------------------
+class Port (models.Model):
+    port_id = models.UUIDField(primary_key=True,default=uuid.uuid4)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    port_name = models.CharField(max_length=100)
+    port_code = models.CharField(max_length=10, null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = "Port"
+        verbose_name_plural = "Ports"
+        ordering = ['port_name']
+        unique_together = ('company', 'port_name')
+    
+    def __str__(self):
+        return f"{self.port_name}"
 # ------------------------------------
 # Currency
 # ------------------------------------
@@ -410,15 +427,69 @@ class LogMCBranchIssuance(models.Model):
         return f"{self.action} | {self.branch}"
     
 # -------------------------
+# Port Log
+# -------------------------
+class LogPort(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    port = models.ForeignKey("Port", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Port Log"
+        verbose_name_plural = "Logs - Port"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.action} | {self.port}"
+
+# -------------------------
+# RFP Monitoring Log
+# -------------------------
+class LogRFPMonitoring(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    rfp_monitoring = models.ForeignKey("RFPMonitoring", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "RFP Monitoring Log"
+        verbose_name_plural = "Logs - RFP Monitoring"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.action} | RFP {self.rfp_monitoring}"
+    
+# -------------------------
 # RFP Record
 # -------------------------
 class RFPMonitoring(models.Model):
-    expected_series = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # Tentative - Refer to Series Helper
-    cwr_processed = models.UUIDField(default=uuid.uuid4, editable=False)
+    rfp_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    expected_series = models.IntegerField(unique=True, editable=False)
+    cwr_processed = models.IntegerField(unique=True, editable=False)
     cwr_usage = models.PositiveSmallIntegerField(choices=((0, "0"), (1, "1")), default=0)
-    
-    
     trampsys_status = models.CharField(
         max_length=20,
         choices=(
@@ -435,15 +506,27 @@ class RFPMonitoring(models.Model):
     etd = models.DateField()
     eta = models.DateField()
     payee = models.ForeignKey(Payee,on_delete=models.PROTECT)
-    # Ask if vessel to use in RFP Monitoring is same as vessel in Transaction
     vessel_principal = models.ForeignKey(VesselPrincipal,on_delete=models.PROTECT)
     voy = models.CharField(max_length=100, null=True, blank=True)
-    port = models.CharField(max_length=100, null=True, blank=True)
+    port = models.ForeignKey(Port, on_delete=models.PROTECT, null=True, blank=True)
 
     class Meta:
         verbose_name = "RFP Record"
         verbose_name_plural = "RFP Records"
         ordering = ['expected_series']
+    
+    def save(self, *args, **kwargs):
+        if not self.expected_series:
+            last_record = RFPMonitoring.objects.order_by('-expected_series').first()
+            if last_record:
+                self.expected_series = last_record.expected_series + 1
+            else:
+                self.expected_series = 12936
+        
+        if not self.cwr_processed:
+            self.cwr_processed = self.expected_series
+        
+        super().save(*args, **kwargs)
     
     def __str__(self):
         return f"{self.expected_series}"
