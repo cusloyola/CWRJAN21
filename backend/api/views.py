@@ -39,6 +39,7 @@ def build_change_list(old_values, new_values):
     return changes
 from .models import (
     Category,
+    CorpChequeInventory,
     Currency,
     UserCompany,
     Transaction,
@@ -51,6 +52,8 @@ from .models import (
     FundingAccount,
 )
 from .serializers import (
+    CorpChequeInventorySerializer,
+    DailyChequeUsageSerializer,
     EmailTokenSerializer,
     CategorySerializer,
     CurrencySerializer,
@@ -678,3 +681,127 @@ class FundingAccountAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# -------------------------
+# Corp Cheque Inventory API
+# -------------------------
+class CorpChequeInventoryAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = CorpChequeInventory.objects.all().order_by("-start_date", "-id")
+        serializer = CorpChequeInventorySerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class DailyChequeUsageAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, inventory_id):
+        """Return all usage records for an inventory."""
+        try:
+            inventory = CorpChequeInventory.objects.get(pk=inventory_id)
+        except CorpChequeInventory.DoesNotExist:
+            return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = DailyChequeUsageSerializer(inventory.usages.all().order_by("date", "id"), many=True)
+        return Response(serializer.data)
+
+    def post(self, request, inventory_id):
+        """Create or update daily usage by date (weekdays only)."""
+        try:
+            inventory = CorpChequeInventory.objects.get(pk=inventory_id)
+        except CorpChequeInventory.DoesNotExist:
+            return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        data = request.data.copy()
+        data["inventory"] = inventory.id
+        print(
+            f"[CorpChequeUsage] POST inventory_id={inventory_id} raw_data={dict(request.data)} normalized_data={data}",
+            flush=True,
+        )
+        serializer = DailyChequeUsageSerializer(data=data)
+
+        if serializer.is_valid():
+            # Validate weekday
+            date = serializer.validated_data["date"]
+            if date.weekday() >= 5:  # Saturday=5, Sunday=6
+                print(f"[CorpChequeUsage] rejected weekend input inventory_id={inventory_id} date={date}", flush=True)
+                return Response({"error": "Cannot record usage on weekends."}, status=status.HTTP_400_BAD_REQUEST)
+
+            cheques_used = serializer.validated_data["cheques_used"]
+            existing_usage = inventory.usages.filter(date=date).first()
+
+            print(
+                f"[CorpChequeUsage] validated inventory_id={inventory_id} date={date} cheques_used={cheques_used} existing_usage={'yes' if existing_usage else 'no'} current_balance={inventory.current_balance}",
+                flush=True,
+            )
+
+            if existing_usage is not None:
+                delta = cheques_used - existing_usage.cheques_used
+
+                print(f"[CorpChequeUsage] updating existing usage id={existing_usage.id} delta={delta}", flush=True)
+
+                if delta > 0:
+                    try:
+                        inventory.subtract_cheques(delta)
+                    except ValueError as exc:
+                        print(f"[CorpChequeUsage] update failed inventory_id={inventory_id} error={exc}", flush=True)
+                        return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+                elif delta < 0:
+                    inventory.current_balance += abs(delta)
+                    inventory.save(update_fields=["current_balance"])
+
+                existing_usage.cheques_used = cheques_used
+                existing_usage.save(update_fields=["cheques_used"])
+                print(
+                    f"[CorpChequeUsage] updated usage id={existing_usage.id} new_balance={inventory.current_balance} date={date} cheques_used={cheques_used}",
+                    flush=True,
+                )
+                return Response(DailyChequeUsageSerializer(existing_usage).data, status=status.HTTP_200_OK)
+
+            try:
+                created_usage = serializer.save()
+            except ValueError as exc:
+                print(f"[CorpChequeUsage] create failed inventory_id={inventory_id} error={exc}", flush=True)
+                return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+            print(
+                f"[CorpChequeUsage] created usage id={created_usage.id} new_balance={inventory.current_balance} date={date} cheques_used={cheques_used}",
+                flush=True,
+            )
+            return Response(DailyChequeUsageSerializer(created_usage).data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, inventory_id):
+        """Delete usage by date and restore inventory balance."""
+        try:
+            inventory = CorpChequeInventory.objects.get(pk=inventory_id)
+        except CorpChequeInventory.DoesNotExist:
+            return Response({"error": "Inventory not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        date_str = request.query_params.get("date")
+        if not date_str:
+            return Response({"error": "date query parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            usage_date = timezone.datetime.strptime(date_str, "%Y-%m-%d").date()
+        except ValueError:
+            return Response({"error": "Invalid date format. Use YYYY-MM-DD."}, status=status.HTTP_400_BAD_REQUEST)
+
+        usage = inventory.usages.filter(date=usage_date).first()
+        if usage is None:
+            print(f"[CorpChequeUsage] delete skipped inventory_id={inventory_id} date={usage_date} usage_not_found", flush=True)
+            return Response({"error": "Usage not found for date"}, status=status.HTTP_404_NOT_FOUND)
+
+        inventory.current_balance += usage.cheques_used
+        inventory.save(update_fields=["current_balance"])
+        usage.delete()
+
+        print(
+            f"[CorpChequeUsage] deleted usage inventory_id={inventory_id} date={usage_date} restored={usage.cheques_used} new_balance={inventory.current_balance}",
+            flush=True,
+        )
+
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -5,6 +5,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from decimal import Decimal
 from django.db.models import JSONField
+from django.utils import timezone
 
 # -------------------------
 # User Role
@@ -578,3 +579,35 @@ class RFPMonitoring(models.Model):
     
     def __str__(self):
         return f"{self.expected_series}"
+    
+# -------------------------
+# Corp Cheque Inventory
+# -------------------------
+class CorpChequeInventory(models.Model):
+    start_date = models.DateField()
+    beginning_balance = models.PositiveIntegerField()
+    current_balance = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"Inventory starting {self.start_date} - Balance: {self.current_balance}"
+
+    def subtract_cheques(self, count):
+        """Subtract cheques used from balance."""
+        if count > self.current_balance:
+            raise ValueError("Not enough cheques in balance.")
+        self.current_balance -= count
+        self.save()
+
+
+class DailyChequeUsage(models.Model):
+    inventory = models.ForeignKey(CorpChequeInventory, on_delete=models.CASCADE, related_name="usages")
+    date = models.DateField(default=timezone.now)
+    cheques_used = models.PositiveIntegerField()
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            self.inventory.subtract_cheques(self.cheques_used)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.date}: {self.cheques_used} cheques used"   

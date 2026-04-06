@@ -12,6 +12,8 @@ from .views import (
     PortAPIView,
     MCBranchIssuanceAPIView,
     FundingAccountAPIView,
+    CorpChequeInventoryAPIView,
+    DailyChequeUsageAPIView,
 )
 
 
@@ -28,5 +30,7 @@ urlpatterns = [
     path('ports/', PortAPIView.as_view(), name='ports'),
     path('mc-branches/', MCBranchIssuanceAPIView.as_view(), name='mc_branches'),
     path('funding-accounts/', FundingAccountAPIView.as_view(), name='funding_accounts'),
-]
+    path('inventories/', CorpChequeInventoryAPIView.as_view(), name='inventories'),
+    path("inventories/<int:inventory_id>/usages/", DailyChequeUsageAPIView.as_view(), name="daily-usage"),
+    ]
 

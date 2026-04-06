@@ -16,6 +16,8 @@ from .models import (
     MCBranchIssuance,
     FundingAccount,
     TransactionBatch,
+    CorpChequeInventory,
+    DailyChequeUsage,
 )
 
 # ------------------------------------------
@@ -291,3 +293,21 @@ class RFPMonitoringSerializer(serializers.ModelSerializer):
             'port_name'
         ]
         read_only_fields = ['rfp_id']
+        
+# -------------------------
+# Corp Cheque Inventory Serializer
+# -------------------------
+class CorpChequeInventorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CorpChequeInventory
+        fields = ["id", "start_date", "beginning_balance", "current_balance"]
+
+
+class DailyChequeUsageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DailyChequeUsage
+        fields = ["id", "inventory", "date", "cheques_used"]
+
+    def create(self, validated_data):
+        usage = DailyChequeUsage.objects.create(**validated_data)
+        return usage
