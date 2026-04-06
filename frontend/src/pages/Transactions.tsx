@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { API_BASE, getAuthHeader } from '../config/api';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
 import { type Transaction } from '../dummy_data/transactionsData';
@@ -42,8 +43,8 @@ const Transactions: React.FC = () => {
                 setIsLoadingDropdowns(true);  
 
                 const [catRes, curRes] = await Promise.all([
-                    fetch('http://localhost:8000/api/v1/categories/', { headers: getAuthHeader() }),
-                    fetch('http://localhost:8000/api/v1/currencies/', { headers: getAuthHeader() })
+                    fetch(`${API_BASE}/api/v1/categories/`, { headers: getAuthHeader() }),
+                    fetch(`${API_BASE}/api/v1/currencies/`, { headers: getAuthHeader() })
                 ]);
 
                 if (!catRes.ok || !curRes.ok) throw new Error();
@@ -67,7 +68,7 @@ const Transactions: React.FC = () => {
         try {
             setIsLoadingTransactions(true);
 
-            const res = await fetch('http://localhost:8000/api/v1/transactions/', {
+            const res = await fetch(`${API_BASE}/api/v1/transactions/`, {
                 headers: getAuthHeader()
             });
 

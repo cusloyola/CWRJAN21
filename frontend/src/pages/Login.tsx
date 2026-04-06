@@ -1,3 +1,4 @@
+import { API_BASE, getAuthHeader } from '../config/api';
 import { useState, useEffect } from 'react'
 import type { FormEvent, ChangeEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -89,7 +90,7 @@ function Login() {
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:8000/api/v1/user/login/', {
+            const response = await fetch(`${API_BASE}/api/v1/user/login/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
