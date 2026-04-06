@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API_BASE, getAuthHeader } from '../config/api';
+import { API_BASE } from '../config/api';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
 import { type Transaction } from '../dummy_data/transactionsData';
@@ -170,7 +170,7 @@ const Transactions: React.FC = () => {
     const saveEditedTransaction = () => {
         if (!editableTransaction) return;
 
-        setStaticTransactions(prev =>
+        setTransactions(prev =>
             prev.map(t =>
                 t.transactionRef === editableTransaction.transactionRef ? { ...editableTransaction } : t
             )
@@ -274,7 +274,13 @@ const Transactions: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="odd:bg-gray-50 even:bg-white">
-                                    {paginatedTransactions.length === 0 ? (
+                                    {isLoadingTransactions ? (
+                                        <tr>
+                                            <td colSpan={isVerySmall ? 3 : isMobile ? 5 : 6} className="transactions-table-empty">
+                                                <div className="transactions-loading-spinner" />
+                                            </td>
+                                        </tr>
+                                    ) : paginatedTransactions.length === 0 ? (
                                         <tr>
                                             <td colSpan={
                                                 isVerySmall ? 3 : isMobile ? 5 : 6

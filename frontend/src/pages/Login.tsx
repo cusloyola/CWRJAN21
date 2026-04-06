@@ -1,4 +1,4 @@
-import { API_BASE, getAuthHeader } from '../config/api';
+import { API_BASE} from '../config/api';
 import { useState, useEffect } from 'react'
 import type { FormEvent, ChangeEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'

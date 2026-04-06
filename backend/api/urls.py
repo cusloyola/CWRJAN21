@@ -5,6 +5,7 @@ from .views import (
     CategoryAPIView,
     CurrencyAPIView,
     TransactionAPIView,
+    TransactionDetailAPIView
 )
 
 
@@ -14,5 +15,6 @@ urlpatterns = [
     path("categories/", CategoryAPIView.as_view(), name='categories'),
     path("currencies/", CurrencyAPIView.as_view(), name='currencies'),
     path('transactions/', TransactionAPIView.as_view(), name='transactions'),
+    path('transactions/<uuid:pk>/', TransactionDetailAPIView.as_view(), name='transaction-detail'),
 ]
 
