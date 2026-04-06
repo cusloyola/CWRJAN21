@@ -137,6 +137,7 @@ class TransactionSerializer(serializers.ModelSerializer):
     vessel_principal_name = serializers.CharField(source='vessel_principal.vessel_principal_name', read_only=True)
     currency_code = serializers.CharField(source='currency.currency_code', read_only=True)
     batch_name = serializers.CharField(source='batch.batch_name', read_only=True)
+    branch_name = serializers.CharField(source='mc_branch_issuance.branch_name', read_only=True)
 
     class Meta:
         model = Transaction
@@ -157,6 +158,7 @@ class TransactionSerializer(serializers.ModelSerializer):
             'transaction_amount',
             'reference_erfp',
             'mc_branch_issuance',
+            'branch_name',
             'funding_account',
             'funding_acct_name',
             'batch',

@@ -206,7 +206,7 @@ class CompanyCategory(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
     log_model = LogCategory
     log_fk_field = "category"
 
-    list_display = ('company', 'category_type','category_description')
+    list_display = ('category_id','company', 'category_type','category_description')
     search_fields = ('company', 'category_description')
     ordering = ('company', 'category_type',)
 
@@ -216,7 +216,7 @@ class CompanyCategory(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
 # ------------------------------------
 @admin.register(Currency)
 class CurrencyAdmin(CompanyFilterAdminMixin,admin.ModelAdmin):
-    list_display = ('currency_code', 'currency_description')
+    list_display = ('currency_id','currency_code', 'currency_description')
     search_fields = ('currency_code',)
     ordering = ('currency_code',)
 
@@ -230,7 +230,7 @@ class CompanyBranch(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
     log_model = LogMCBranchIssuance
     log_fk_field = "branch"
 
-    list_display = ('branch_name', )
+    list_display = ('branch_id','branch_name', )
     search_fields = ('branch_name',)
     ordering = ('branch_name',)
 
@@ -242,7 +242,7 @@ class CompanyFundingAccount(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdm
     log_model = LogFundingAccount
     log_fk_field = "funding_account"
 
-    list_display = ('funding_acct_name', )
+    list_display = ('funding_acct_id','funding_acct_name', )
     search_fields = ('funding_acct_name',)
     ordering = ('funding_acct_name',)    
 
@@ -263,7 +263,7 @@ class Payee(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
     log_model = LogPayee
     log_fk_field = "payee"    
 
-    list_display = ('payee_name',)
+    list_display = ('payee_id','payee_name')
     search_fields = ('payee_name',)
     ordering = ('payee_name',)
 
@@ -275,7 +275,7 @@ class VesselPrincipal(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
     log_model = LogVesselPrincipal
     log_fk_field = "vessel_principal"
 
-    list_display = ('vessel_principal_name',)
+    list_display = ('vessel_principal_id','vessel_principal_name',)
     search_fields = ('vessel_principal_name',)
     ordering = ('vessel_principal_name',)
 
