@@ -45,7 +45,7 @@
 }
 
 .corp-summary-label {
-    font-size: 0.78rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.07em;
     color: #334155;
@@ -64,6 +64,22 @@
     text-align: right;
 }
 
+.corp-low-balance-warning {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border-radius: 0.9rem;
+    border: 1px solid #f59e0b;
+    background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%);
+    color: #9a3412;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.12);
+}
+
 .checks-printed-col,
 .checks-printed-value {
     text-align: left;
@@ -80,6 +96,64 @@
 .corp-inventory-table td.checks-printed-value {
     vertical-align: middle;
     padding-top: 0.5rem;
+}
+
+.corp-inventory-table .corp-checks-printed-input {
+    width: 100%;
+    max-width: 4rem;
+    border: 1px solid rgba(148, 163, 184, 0.6);
+    border-radius: 0.5rem;
+    background: #ffffff;
+    color: #0f172a;
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    padding: 0.45rem 0.65rem;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.corp-inventory-table .corp-checks-printed-input:focus {
+    outline: none;
+    border-color: var(--accent-clr);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.corp-inventory-table .corp-checks-printed-input::placeholder {
+    color: #94a3b8;
+}
+
+.corp-inventory-table tr.corp-weekend-row {
+    background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.corp-inventory-table tr.corp-weekend-row:hover {
+    background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.corp-inventory-table .corp-weekend-date-cell {
+    color: #64748b;
+}
+
+.corp-inventory-table .corp-weekend-pill {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.5rem;
+    padding: 0.12rem 0.45rem;
+    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    vertical-align: middle;
+}
+
+.corp-inventory-table .corp-checks-printed-input-disabled {
+    background: #f1f5f9;
+    border-style: dashed;
+    color: #94a3b8;
+    cursor: not-allowed;
 }
 
 .corp-inventory-table th:first-child,
