@@ -109,14 +109,15 @@ function Login() {
                 localStorage.setItem('userRoleName', data.user.role.name || '');
                 localStorage.setItem('userName', data.user.full_name || '');
                 localStorage.setItem('companyCode', data.user.companies[0].company_code || '');
-
-                // Handle multi-company
-                if (data.user.companies.length === 1) {
+                console.log('User Companies:', data.user.companies[0].company_code);
+                
+                // Handle multi-company 
+/*                 if (data.user.companies.length === 1) {
                 localStorage.setItem('selectedCompany', JSON.stringify(data.user.companies[0]));
-                // navigate('/dashboard');
+                navigate('/dashboard');
                 } else {
                     navigate('/select-company'); // redirect to a company selection page
-                }
+                } */
 
                 toast.success('Login successful! Redirecting...');
                 setTimeout(() => navigate('/dashboard'), 1000);
