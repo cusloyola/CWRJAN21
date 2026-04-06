@@ -21,6 +21,22 @@ def make_json_serializable(data):
         return data.isoformat()
     else:
         return data
+
+
+def build_change_list(old_values, new_values):
+    changes = []
+
+    if isinstance(old_values, dict) and isinstance(new_values, dict):
+        for field_name, new_value in new_values.items():
+            old_value = old_values.get(field_name)
+            if old_value != new_value:
+                changes.append({
+                    "field": field_name,
+                    "old": make_json_serializable(old_value),
+                    "new": make_json_serializable(new_value),
+                })
+
+    return changes
 from .models import (
     Category,
     Currency,
@@ -230,13 +246,10 @@ class RFPMonitoringAPIView(APIView):
             logger.info(f"Created RFP record: {instance.expected_series}")
             
             # Log the CREATE action
-            log_data = {
-                "action": "CREATE",
-                "new_values": make_json_serializable(serializer.data),
-                "notes": f"RFP record {instance.expected_series} created by {request.user.username}"
-            }
+            log_data = [{"field": "ALL", "old": None, "new": "Created"}]
             LogRFPMonitoring.objects.create(
                 rfp_monitoring=instance,
+                rfp_series=instance.expected_series,
                 action=LogRFPMonitoring.ACTION_CREATE,
                 user=request.user,
                 changes=json.dumps(log_data)
@@ -328,15 +341,13 @@ class RFPMonitoringDetailAPIView(APIView):
             logger.info(f"Updated RFP record {expected_series} successfully")
             logger.info(f"After update - Payee: {updated_obj.payee}, Vessel: {updated_obj.vessel_principal}, Port: {updated_obj.port}")
             
-            # Log the UPDATE action with old and new values
-            log_data = {
-                "action": "UPDATE",
-                "old_values": make_json_serializable(old_values),
-                "new_values": make_json_serializable(serializer.data),
-                "notes": f"RFP record {expected_series} updated by {request.user.username}"
-            }
+            # Log the UPDATE action with field-level diffs
+            log_data = build_change_list(old_values, make_json_serializable(serializer.data))
+            if not log_data:
+                log_data = [{"field": "ALL", "old": None, "new": "Updated"}]
             LogRFPMonitoring.objects.create(
                 rfp_monitoring=updated_obj,
+                rfp_series=updated_obj.expected_series,
                 action=LogRFPMonitoring.ACTION_UPDATE,
                 user=request.user,
                 changes=json.dumps(log_data)
@@ -379,15 +390,13 @@ class RFPMonitoringDetailAPIView(APIView):
             updated_obj = serializer.save()
             logger.info(f"Fully updated RFP record {expected_series} successfully")
             
-            # Log the UPDATE action with old and new values
-            log_data = {
-                "action": "FULL_UPDATE",
-                "old_values": make_json_serializable(old_values),
-                "new_values": make_json_serializable(serializer.data),
-                "notes": f"RFP record {expected_series} fully updated by {request.user.username}"
-            }
+            # Log the UPDATE action with field-level diffs
+            log_data = build_change_list(old_values, make_json_serializable(serializer.data))
+            if not log_data:
+                log_data = [{"field": "ALL", "old": None, "new": "Updated"}]
             LogRFPMonitoring.objects.create(
                 rfp_monitoring=updated_obj,
+                rfp_series=updated_obj.expected_series,
                 action=LogRFPMonitoring.ACTION_UPDATE,
                 user=request.user,
                 changes=json.dumps(log_data)
@@ -416,14 +425,19 @@ class RFPMonitoringDetailAPIView(APIView):
         deleted_serializer = RFPMonitoringSerializer(obj)
         deleted_values = deleted_serializer.data
         
-        # Log the DELETE action before actually deleting
-        log_data = {
-            "action": "DELETE",
-            "old_values": make_json_serializable(deleted_values),
-            "notes": f"RFP record {expected_series} deleted by {request.user.username}"
-        }
+        # Log the DELETE action using field-level diffs
+        log_data = [{
+            "field": "expected_series",
+            "old": obj.expected_series,
+            "new": None,
+        }] + [{
+            "field": field_name,
+            "old": make_json_serializable(field_value),
+            "new": None,
+        } for field_name, field_value in make_json_serializable(deleted_values).items()]
         LogRFPMonitoring.objects.create(
-            rfp_monitoring=None,  # Will be null after deletion
+            rfp_monitoring=obj,
+            rfp_series=obj.expected_series,
             action=LogRFPMonitoring.ACTION_DELETE,
             user=request.user,
             changes=json.dumps(log_data)

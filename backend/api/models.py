@@ -1,5 +1,6 @@
 
 import uuid
+import json
 from django.db import models
 from django.contrib.auth.models import User
 from decimal import Decimal
@@ -468,7 +469,8 @@ class LogRFPMonitoring(models.Model):
     )
 
     log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    rfp_monitoring = models.ForeignKey("RFPMonitoring", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
+    rfp_monitoring = models.ForeignKey("RFPMonitoring", on_delete=models.SET_NULL, related_name="logs", null=True, blank=True)
+    rfp_series = models.IntegerField(null=True, blank=True)
     action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     changes = JSONField(null=True, blank=True)
@@ -480,7 +482,7 @@ class LogRFPMonitoring(models.Model):
         ordering = ["-date_created"]
 
     def __str__(self):
-        return f"{self.action} | RFP {self.rfp_monitoring}"
+        return f"{self.action} | RFP {self.rfp_series or self.rfp_monitoring}"
     
 # -------------------------
 # RFP Record
@@ -514,12 +516,58 @@ class RFPMonitoring(models.Model):
         verbose_name = "RFP Record"
         verbose_name_plural = "RFP Records"
         ordering = ['expected_series']
+
+    @staticmethod
+    def _extract_series_from_log_changes(changes):
+        value = changes
+
+        for _ in range(2):
+            if isinstance(value, str):
+                try:
+                    value = json.loads(value)
+                except Exception:
+                    return None
+
+        if isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict) and item.get('field') == 'expected_series':
+                    series_value = item.get('old') or item.get('new')
+                    try:
+                        return int(series_value)
+                    except (TypeError, ValueError):
+                        return None
+
+        if isinstance(value, dict):
+            for key in ('expected_series', 'old_values', 'new_values'):
+                series_value = value.get(key)
+                if isinstance(series_value, dict):
+                    series_value = series_value.get('expected_series')
+                try:
+                    if series_value is not None:
+                        return int(series_value)
+                except (TypeError, ValueError):
+                    continue
+
+        return None
+
+    @classmethod
+    def _get_last_used_series(cls):
+        latest_record = cls.objects.order_by('-expected_series').values_list('expected_series', flat=True).first()
+        latest_log_series = LogRFPMonitoring.objects.order_by('-rfp_series').values_list('rfp_series', flat=True).first()
+
+        if latest_log_series is None:
+            for log_changes in LogRFPMonitoring.objects.values_list('changes', flat=True):
+                series_value = cls._extract_series_from_log_changes(log_changes)
+                if series_value is not None and (latest_log_series is None or series_value > latest_log_series):
+                    latest_log_series = series_value
+
+        return max(filter(None, [latest_record, latest_log_series]), default=None)
     
     def save(self, *args, **kwargs):
         if not self.expected_series:
-            last_record = RFPMonitoring.objects.order_by('-expected_series').first()
-            if last_record:
-                self.expected_series = last_record.expected_series + 1
+            last_used_series = self._get_last_used_series()
+            if last_used_series:
+                self.expected_series = last_used_series + 1
             else:
                 self.expected_series = 12936
         
