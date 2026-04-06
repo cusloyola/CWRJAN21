@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+/* import { API_BASE, getAuthHeader } from '../config/api';
+ */import { useState, useEffect } from 'react'
 import type { FormEvent, ChangeEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import '../styles/Login.css';
@@ -90,7 +91,11 @@ function Login() {
         try {
             // Use the new RfpApi service for login
             const response = await RfpApi.login(formData.email, formData.password);
-
+/*             const response = await fetch(`${API_BASE}/api/v1/user/login/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            }); */
             if (response.success) {
                 const userData = response.data;
                 

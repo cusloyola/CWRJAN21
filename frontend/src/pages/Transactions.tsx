@@ -1,55 +1,50 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { API_BASE, getAuthHeader } from '../config/api';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
-import { transactionsData, type Transaction } from '../dummy_data/transactionsData';
+import { type Transaction } from '../dummy_data/transactionsData';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Transactions: React.FC = () => {
     const navigate = useNavigate();
+
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [categoryFilter, setCategoryFilter] = useState<string>('All');
     const [currencyFilter, setCurrencyFilter] = useState<string>('All');
     const [dateFilter] = useState<string>('All');
+    
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 6;
-    const TRANSACTIONS_STORAGE_KEY = 'transactionsData';
 
-    // Transactions data
-    const [staticTransactions, setStaticTransactions] = useState<Transaction[]>(() => {
-        const savedTransactions = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
-        if (savedTransactions) {
-            try {
-                return JSON.parse(savedTransactions) as Transaction[];
-            } catch {
-                return [...transactionsData];
-            }
-        }
-        return [...transactionsData];
-    });
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
 
-    // Edit modal states
-    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-    const [editableTransaction, setEditableTransaction] = useState<Transaction | null>(null);
-    const [isClosing, setIsClosing] = useState<boolean>(false);
-    const transactions = staticTransactions;
-    // Dropdown data
+    // Dropdowns
     const [categories, setCategories] = useState<string[]>([]);
     const [currencies, setCurrencies] = useState<string[]>([]);
     const [isLoadingDropdowns, setIsLoadingDropdowns] = useState(true);
+    
+   
+    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+    const [editableTransaction, setEditableTransaction] = useState<Transaction | null>(null);
+    const [isClosing, setIsClosing] = useState<boolean>(false);
 
     const getAuthHeader = () => ({
         Authorization: `Bearer ${localStorage.getItem('authToken')}`
     });
 
-    const fetchCategories = async () => {
+    // =========================
+    // FETCH DROPDOWNS
+    // =========================
+    const fetchDropdowns = async () => {
             try {
                 setIsLoadingDropdowns(true);  
 
                 const [catRes, curRes] = await Promise.all([
-                    fetch('http://localhost:8000/api/v1/categories/', { headers: getAuthHeader() }),
-                    fetch('http://localhost:8000/api/v1/currencies/', { headers: getAuthHeader() })
+                    fetch(`${API_BASE}/api/v1/categories/`, { headers: getAuthHeader() }),
+                    fetch(`${API_BASE}/api/v1/currencies/`, { headers: getAuthHeader() })
                 ]);
 
                 if (!catRes.ok || !curRes.ok) throw new Error();
@@ -66,11 +61,71 @@ const Transactions: React.FC = () => {
         }
     };
 
+    // =========================
+    // FETCH TRANSACTIONS
+    // =========================    
+    const fetchTransactions = async () => {
+        try {
+            setIsLoadingTransactions(true);
+
+            const res = await fetch(`${API_BASE}/api/v1/transactions/`, {
+                headers: getAuthHeader()
+            });
+
+            if (!res.ok) throw new Error();
+
+            const data = await res.json();
+
+            // 🔥 Map backend fields to frontend structure if needed
+            const mapped = data.map((t: any) => ({
+                transactionRef: t.transaction_ref,
+                category: t.category_name,
+                date: t.date_created,
+                payee: t.payee_name,
+                particulars: t.particulars,
+                vesselPrincipal: t.vessel_principal_name,
+                etd: t.etd,
+                currency: t.currency_code,
+                amount: t.transaction_amount,
+                referenceErfp: t.reference_erfp,
+                branchToIssueMc: t.branch_to_issue_mc,
+                fundingAccount: t.funding_acct_name,
+                batch: t.batch_name,
+                supportingDocs: t.supporting_docs,
+            }));
+
+            setTransactions(mapped);
+        } catch (error) {
+            toast.error("Failed to load transactions");
+        } finally {
+            setIsLoadingTransactions(false);
+        }
+    };
+
+    // =========================
+    // LOAD ON MOUNT
+    // =========================
     useEffect(() => {
-        fetchCategories();
+        fetchDropdowns();
+        fetchTransactions();
     }, []);
 
-    // Filtered & paginated transactions
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 640);
+            setIsVerySmall(window.innerWidth <= 390);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchQuery, categoryFilter, currencyFilter, dateFilter]);
+
+    // =========================
+    // FILTERING
+    // =========================
     const filteredTransactions = useMemo(() => {
         return transactions.filter(t => {
             const matchesSearch = searchQuery === '' ||
@@ -92,22 +147,6 @@ const Transactions: React.FC = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
     const [isVerySmall, setIsVerySmall] = useState(window.innerWidth <= 390);
 
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth <= 640);
-            setIsVerySmall(window.innerWidth <= 390);
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    useEffect(() => {
-        localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(staticTransactions));
-    }, [staticTransactions]);
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchQuery, categoryFilter, currencyFilter, dateFilter]);
 
     // Modal Handlers
     const openEditModal = (transaction: Transaction) => {

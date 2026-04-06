@@ -140,8 +140,10 @@ class CurrencySerializer(serializers.ModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.category_description', read_only=True)
     payee_name = serializers.CharField(source='payee.payee_name', read_only=True)
+    funding_acct_name = serializers.CharField(source='funding_account.funding_acct_name', read_only=True)
     vessel_principal_name = serializers.CharField(source='vessel_principal.vessel_principal_name', read_only=True)
     currency_code = serializers.CharField(source='currency.currency_code', read_only=True)
+    batch_name = serializers.CharField(source='batch.batch_name', read_only=True)
 
     class Meta:
         model = Transaction
@@ -163,7 +165,9 @@ class TransactionSerializer(serializers.ModelSerializer):
             'reference_erfp',
             'mc_branch_issuance',
             'funding_account',
+            'funding_acct_name',
             'batch',
+            'batch_name',
             'supporting_docs',
             'endorsement_complete',
             'date_created'
