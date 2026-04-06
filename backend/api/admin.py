@@ -276,7 +276,18 @@ class PayeeAdmin(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
     list_display = ('payee_name', 'company')
     search_fields = ('payee_name',)
     ordering = ('payee_name',)
+    
+# ------------------------------------------------
+# Vessel/Principal
+# ------------------------------------------------
+@admin.register(VesselPrincipal)
+class VesselPrincipal(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
+    log_model = LogVesselPrincipal
+    log_fk_field = "vessel_principal"
 
+    list_display = ('vessel_principal_name',)
+    search_fields = ('vessel_principal_name',)
+    ordering = ('vessel_principal_name',)
 # ------------------------------------------------
 # Port
 # ------------------------------------------------
@@ -312,7 +323,7 @@ class LogPortAdmin(admin.ModelAdmin):
 # ------------------------------------------------
 # CWR Transactions
 # ------------------------------------------------
-# ------------------------------------------------\n# Vessel/Principal\n# ------------------------------------------------\n@admin.register(VesselPrincipal)\nclass VesselPrincipalAdmin(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):\n    log_model = LogVesselPrincipal\n    log_fk_field = \"vessel_principal\"\n\n    list_display = ('vessel_principal_name', 'company')\n    search_fields = ('vessel_principal_name',)\n    ordering = ('vessel_principal_name',)\n\n@admin.register(Transaction)
+@admin.register(Transaction)
 class ChequesTransactions(CompanyFilterAdminMixin,admin.ModelAdmin):
     list_display = ('transaction_ref','category','payee','particulars','vessel_principal','date_created', )
     search_fields = ('transaction_ref',)
