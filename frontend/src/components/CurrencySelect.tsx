@@ -3,14 +3,20 @@ import { useEffect, useState } from 'react';
 import { API_BASE } from '../config/api';
 import { toast } from 'react-toastify';
 
-interface Props {
-  value: string;
-  onChange: (value: string) => void;
-  disabled?: boolean;
+interface Currency {
+  currency_id : string;  
+  currency_code: string;
+  currency_description: string;
+  date_created: string;
 }
 
-const CurrencySelect: React.FC<Props> = ({ value, onChange, disabled }) => {
-  const [currencies, setCurrencies] = useState<string[]>([]);
+interface Props {
+  value: string;
+  onChange: (CurrencyId: string) => void;
+}
+
+const CurrencySelect: React.FC<Props> = ({ onChange }:Props) => {
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const getAuthHeader = () => ({
@@ -28,8 +34,8 @@ const CurrencySelect: React.FC<Props> = ({ value, onChange, disabled }) => {
 
         if (!res.ok) throw new Error();
 
-        const data = await res.json();
-        setCurrencies(data.map((c: any) => c.currency_code));
+        const data: Currency[] = await res.json();
+        setCurrencies(data);
       } catch {
         toast.error('Failed to load currencies');
       } finally {
@@ -43,16 +49,25 @@ const CurrencySelect: React.FC<Props> = ({ value, onChange, disabled }) => {
   return (
     <select
       className="wpsi-dropdown"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      disabled={disabled || isLoading}
+      onChange={(e) => {
+        if (e.target.value === "") {
+            onChange("All"); // return ALL when empty option selected
+            return;
+        }
+        const selectedCur = currencies.find(cur => cur.currency_id === e.target.value);
+        if (selectedCur) {
+          onChange(selectedCur.currency_code); // pass description 
+        }
+
+      }}
+      disabled={isLoading}
     >
       <option value="">
         {isLoading ? 'Loading currencies...' : 'Currencies'}
       </option>
       {currencies.map((cur) => (
-        <option key={cur} value={cur}>
-          {cur}
+        <option key={cur.currency_id} value={cur.currency_id}>
+          {cur.currency_code}
         </option>
       ))}
     </select>
