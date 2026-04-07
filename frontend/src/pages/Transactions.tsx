@@ -1,14 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { API_BASE } from '../config/api';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
 import { type Transaction } from '../dummy_data/transactionsData';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CategorySelect from '../components/CategorySelect';
+import CurrencySelect from '../components/CurrencySelect';
 
 const Transactions: React.FC = () => {
-    const navigate = useNavigate();
 
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [categoryFilter, setCategoryFilter] = useState<string>('All');
@@ -19,13 +20,7 @@ const Transactions: React.FC = () => {
     const itemsPerPage = 6;
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
-
-    // Dropdowns
-    const [categories, setCategories] = useState<string[]>([]);
-    const [currencies, setCurrencies] = useState<string[]>([]);
-    const [isLoadingDropdowns, setIsLoadingDropdowns] = useState(true);
-    
+    const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);  
    
     const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
     const [editableTransaction, setEditableTransaction] = useState<Transaction | null>(null);
@@ -35,32 +30,7 @@ const Transactions: React.FC = () => {
         Authorization: `Bearer ${localStorage.getItem('authToken')}`
     });
 
-    // =========================
-    // FETCH DROPDOWNS
-    // =========================
-    const fetchDropdowns = async () => {
-            try {
-                setIsLoadingDropdowns(true);  
-
-                const [catRes, curRes] = await Promise.all([
-                    fetch(`${API_BASE}/api/v1/categories/`, { headers: getAuthHeader() }),
-                    fetch(`${API_BASE}/api/v1/currencies/`, { headers: getAuthHeader() })
-                ]);
-
-                if (!catRes.ok || !curRes.ok) throw new Error();
-
-                const catData = await catRes.json();
-                const curData = await curRes.json();
-
-                setCategories(catData.map((c: any) => c.category_description));
-                setCurrencies(curData.map((c: any) => c.currency_code))
-        } catch (error) {
-                toast.error("Failed to load categories");
-        } finally {
-            setIsLoadingDropdowns(false);
-        }
-    };
-
+   
     // =========================
     // FETCH TRANSACTIONS
     // =========================    
@@ -78,9 +48,10 @@ const Transactions: React.FC = () => {
 
             // 🔥 Map backend fields to frontend structure if needed
             const mapped = data.map((t: any) => ({
+                transactionId: t.transaction_id,
                 transactionRef: t.transaction_ref,
                 category: t.category_name,
-                date: t.date_created,
+                dateCreated: t.date_created,
                 payee: t.payee_name,
                 particulars: t.particulars,
                 vesselPrincipal: t.vessel_principal_name,
@@ -103,10 +74,9 @@ const Transactions: React.FC = () => {
     };
 
     // =========================
-    // LOAD ON MOUNT
+    // INITIAL LOAD
     // =========================
     useEffect(() => {
-        fetchDropdowns();
         fetchTransactions();
     }, []);
 
@@ -133,7 +103,7 @@ const Transactions: React.FC = () => {
 
             const matchesCategory = categoryFilter === 'All' || t.category === categoryFilter;
             const matchesCurrency = currencyFilter === 'All' || t.currency === currencyFilter;
-            const matchesDate = dateFilter === 'All' || t.date.includes(dateFilter);
+            const matchesDate = dateFilter === 'All' || t.dateCreated.includes(dateFilter);
 
             return matchesSearch && matchesCategory && matchesCurrency && matchesDate;
         });
@@ -147,12 +117,53 @@ const Transactions: React.FC = () => {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
     const [isVerySmall, setIsVerySmall] = useState(window.innerWidth <= 390);
 
+    // =========================
+    // FETCH DETAIL ON CLICK
+    // =========================
+    const openEditModal = async (transaction: Transaction) => {
+        try {
+            const res = await fetch(
+                `${API_BASE}/api/v1/transactions/${transaction.transactionId}/`,
+                {
+                    headers: getAuthHeader()
+                }
+            );
 
-    // Modal Handlers
-    const openEditModal = (transaction: Transaction) => {
-        navigate(`/edit-transaction/${transaction.transactionRef}`);
+            if (!res.ok) throw new Error();
+
+            const t = await res.json();
+
+            const mapped: Transaction = {
+                transactionId: t.transaction_id,
+                transactionRef: t.transaction_ref,
+                category: t.category_name,
+                dateCreated: t.date_created,
+                payee: t.payee_name,
+                particulars: t.particulars,
+                vesselPrincipal: t.vessel_principal_name,
+                etd: t.etd,
+                currency: t.currency_code,
+                amount: t.transaction_amount,
+                referenceErfp: t.reference_erfp,
+                branchToIssueMc: t.branch_to_issue_mc,
+                fundingAccount: t.funding_acct_name,
+                batch: t.batch_name,
+                supportingDocs: t.supporting_docs,
+                driveFileLink: t.drive_file_link,
+                status: t.status,
+            };
+
+            setEditableTransaction(mapped);
+            setIsEditModalOpen(true);
+
+        } catch (error) {
+            toast.error("Failed to load transaction details");
+        } 
     };
 
+    // =========================
+    // MODAL HANDLERS
+    // =========================
     const closeEditModal = () => {
         setIsClosing(true);
         setTimeout(() => {
@@ -187,6 +198,25 @@ const Transactions: React.FC = () => {
         if (container) container.scrollTop = 0;
     };
 
+     // =========================
+    // TABLE CLICK (UNCHANGED BUT NOW CALLS API)
+    // =========================
+    /*
+    <tr
+        key={transaction.transactionRef}
+        onClick={() => openEditModal(transaction)}
+    >
+    */
+
+    // =========================
+    // OPTIONAL: LOADING MODAL STATE
+    // =========================
+    /*
+    {isLoadingDetail && (
+        <div className="transactions-loading-spinner" />
+    )}
+    */
+
     return (
         <>
             <Sidebar />
@@ -198,7 +228,6 @@ const Transactions: React.FC = () => {
                 <main style={{ width: '100%', overflowX: 'hidden' }}>
 
                     <div className="transactions-page-wrapper">
-
 
                         {/* Controls */}
                         <div className="wpsi-controls">
@@ -228,27 +257,19 @@ const Transactions: React.FC = () => {
                             <Link to="/add-transaction" className="wpsi-add-button" style={{ textDecoration: 'none' }}>
                                 + Add
                             </Link>
-
+                            {/* CATEGORY */}
                             <div className="wpsi-dropdown-container">
-                                <select value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)} className="wpsi-dropdown" disabled={isLoadingDropdowns}>
-                                    <option value="All">
-                                        {isLoadingDropdowns ? "Loading..." : "Categories"}
-                                    </option>
-                                    {categories.map(cat => (
-                                        <option key={cat} value={cat}>{cat}</option>
-                                    ))}
-                                </select>
+                                <CategorySelect
+                                    value={categoryFilter}
+                                    onChange={setCategoryFilter}
+                                />
                             </div>
 
                             <div className="wpsi-dropdown-container">
-                                <select value={currencyFilter} onChange={e => setCurrencyFilter(e.target.value)} className="wpsi-dropdown" disabled={isLoadingDropdowns} >
-                                    <option value="All">
-                                        {isLoadingDropdowns ? "Loading..." : "Currencies"}
-                                    </option>
-                                    {currencies.map(cur => (
-                                        <option key={cur} value={cur}>{cur}</option>
-                                    ))}
-                                </select>
+                                <CurrencySelect
+                                    value={currencyFilter}
+                                    onChange={setCurrencyFilter}
+                                />
                             </div>
                         </div>
 
@@ -304,7 +325,7 @@ const Transactions: React.FC = () => {
                                                 </td>
                                                 <td>{transaction.batch}</td>
                                                 {!isMobile && <td>{transaction.vesselPrincipal}</td>}
-                                                {!isVerySmall && <td>{transaction.date}</td>}
+                                                {!isVerySmall && <td>{transaction.dateCreated}</td>}
                                                 <td>
                                                     {new Intl.NumberFormat('en-US', { style: 'currency', currency: transaction.currency || 'USD' })
                                                         .format(transaction.amount || 0)}
@@ -411,8 +432,8 @@ const Transactions: React.FC = () => {
                                             <input
                                                 type="date"
                                                 className="transaction-modal-detail-value"
-                                                value={editableTransaction.date}
-                                                onChange={e => handleEditChange('date', e.target.value)}
+                                                value={editableTransaction.dateCreated}
+                                                onChange={e => handleEditChange('dateCreated', e.target.value)}
                                             />
                                         </div>
 
@@ -538,16 +559,6 @@ const Transactions: React.FC = () => {
                                                 className="transaction-modal-detail-value"
                                                 value={editableTransaction.batch}
                                                 onChange={e => handleEditChange('batch', e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Drive File Link</span>
-                                            <input
-                                                type="text"
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.driveFileLink}
-                                                onChange={e => handleEditChange('driveFileLink', e.target.value)}
                                             />
                                         </div>
 

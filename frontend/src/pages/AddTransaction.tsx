@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from './Sidebar';
 import AddTransactionForm from '../components/AddTransactionForm';
 import ConfirmationModal from '../components/ConfirmationModal';
-import { type Transaction, transactionsData } from '../dummy_data/transactionsData';
+import { type Transaction,transactionsData} from '../dummy_data/transactionsData';
 import {
   type CompanyCode,
   transactionCategories,
@@ -130,7 +130,7 @@ const AddTransaction = () => {
 
   const toComparableTransaction = (value: Partial<Transaction>) => ({
     category: value.category || '',
-    date: value.date || '',
+    date: value.dateCreated || '',
     payee: value.payee || '',
     particulars: value.particulars || '',
     vesselPrincipal: value.vesselPrincipal || '',
@@ -194,7 +194,7 @@ const AddTransaction = () => {
       errors.push('Category is required');
     }
 
-    if (!newTransaction.date) {
+    if (!newTransaction.dateCreated) {
       errors.push('Date is required');
     }
 
@@ -251,9 +251,10 @@ const AddTransaction = () => {
         const paddedNumber = String(nextTrxNumber).padStart(3, '0');
         const newRef = `TRX${paddedNumber}`;
         const transactionToAdd: Transaction = {
+          transactionId: `TXN${paddedNumber}`,
           transactionRef: newRef,
           category: String(newTransaction.category || ''),
-          date: String(newTransaction.date || ''),
+          dateCreated: String(newTransaction.dateCreated || ''),
           payee: String(newTransaction.payee || ''),
           particulars: String(newTransaction.particulars || ''),
           vesselPrincipal: String(newTransaction.vesselPrincipal || ''),
