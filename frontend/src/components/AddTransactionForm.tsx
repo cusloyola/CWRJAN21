@@ -1,6 +1,8 @@
 import React from 'react';
 import { type Transaction } from '../dummy_data/transactionsData';
 import '../styles/AddTransactionForm.css';
+import CategorySelect from './CategorySelect';
+import CurrencySelect from './CurrencySelect';
 
 interface AddTransactionFormProps {
     nextTrxNumber: number;
@@ -18,20 +20,20 @@ interface AddTransactionFormProps {
 }
 
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
-    nextTrxNumber,
+    // nextTrxNumber,
     newTransaction,
     categories,
     currencies,
     mode = 'add',
     formTitle,
     submitLabel,
-    displayRef,
+    // displayRef,
     isSubmitting = false,
     onChange,
     onSave,
     onCancel
 }) => {
-    const referenceDisplay = displayRef || `TRX${String(nextTrxNumber).padStart(3, '0')}`;
+    // const referenceDisplay = displayRef || `TRX${String(nextTrxNumber).padStart(3, '0')}`;
     const heading = formTitle || (mode === 'edit' ? 'Edit Transaction' : 'Add New Transaction');
     const primaryButtonLabel = submitLabel || (mode === 'edit' ? 'Save Changes' : 'Add Transaction');
 
@@ -43,42 +45,31 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
 
             <form className="transaction-form dashboard-wrapper" onSubmit={(e) => { e.preventDefault(); onSave(); }}>
                 <div className="transaction-form-content">
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1rem' }}>
-                        <span className="transaction-form-detail-label" style={{ textAlign: 'center' }}>
-                            Transaction Ref
-                        </span>
-                        <h3 className="transaction-form-ref-title" style={{ textAlign: 'center', margin: 0 }}>
-                            {referenceDisplay}
-                        </h3>
-                    </div>
+                    
 
                     <div className="transaction-form-details">
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Category</label>
-                            <select
-                                className="transaction-form-detail-value transaction-form-select"
-                                value={newTransaction.category || ''}
-                                onChange={e => onChange('category', e.target.value)}
-                                required
-                            >
-                                <option value="">Select Category</option>
-                                {categories.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="transaction-form-detail-row">
-                            <label className="transaction-form-detail-label">Date</label>
-                            <input
-                                type="date"
-                                className="transaction-form-detail-value"
-                                value={newTransaction.dateCreated || ''}
-                                onChange={e => onChange('dateCreated', e.target.value)}
-                                required
+                             <CategorySelect
+                                value={newTransaction.category}
+                                onChange={(value) => {
+                                    console.log('Selected Category ID:', value);
+                                    onChange('category', value)
+                                }}
                             />
                         </div>
 
+                        <div className="transaction-form-detail-row">
+                            <label className="transaction-form-detail-label">Transaction Ref</label>
+                            <input
+                                type="text"
+                                className="transaction-form-detail-value"
+                                value={newTransaction.payee || ''}
+                                onChange={e => onChange('payee', e.target.value)}
+                                placeholder="Enter Transaction Ref"
+                                required
+                            />
+                        </div>
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Payee</label>
                             <input
@@ -125,7 +116,14 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
 
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Currency</label>
-                            <select
+                            <CurrencySelect
+                                value={newTransaction.currency}
+                                onChange={(value) => {
+                                    console.log('Selected Currency ID:', value);
+                                    onChange('currency', value)
+                                }}
+                            />
+                            {/* <select
                                 className="transaction-form-detail-value transaction-form-select"
                                 value={newTransaction.currency || ''}
                                 onChange={e => onChange('currency', e.target.value)}
@@ -135,7 +133,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                                 {currencies.map(cur => (
                                     <option key={cur} value={cur}>{cur}</option>
                                 ))}
-                            </select>
+                            </select> */}
                         </div>
 
                         <div className="transaction-form-detail-row">
