@@ -15,7 +15,7 @@ interface Props {
   onChange: (categoryId: string) => void;
 }
 
-const CategorySelect: React.FC<Props> = ({value, onChange }:Props) => {
+const CategorySelect: React.FC<Props> = ({ onChange }:Props) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -47,11 +47,18 @@ const CategorySelect: React.FC<Props> = ({value, onChange }:Props) => {
 
   return (
     <select
-      className="transaction-form-detail-value transaction-form-select"
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
+      className="wpsi-dropdown"
+      onChange={(e) => {
+        if (e.target.value === "") {
+            onChange("All"); // return ALL when empty option selected
+            return;
+        }        
+        const selectedCat = categories.find(cat => cat.category_id === e.target.value);
+        if (selectedCat) {
+        onChange(selectedCat.category_description); // pass description
+        }
+      }}
       disabled={isLoading}
-      required
     >
       <option value="">
         {isLoading ? 'Loading categories...' : 'Categories'}

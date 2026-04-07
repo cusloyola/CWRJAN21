@@ -11,11 +11,11 @@ interface Currency {
 }
 
 interface Props {
-  value?: string;
+  value: string;
   onChange: (CurrencyId: string) => void;
 }
 
-const CurrencySelect: React.FC<Props> = ({ value,onChange }:Props) => {
+const CurrencySelect: React.FC<Props> = ({ onChange }:Props) => {
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -27,6 +27,7 @@ const CurrencySelect: React.FC<Props> = ({ value,onChange }:Props) => {
     const fetchCurrencies = async () => {
       try {
         setIsLoading(true);
+
         const res = await fetch(`${API_BASE}/api/v1/currencies/`, {
           headers: getAuthHeader(),
         });
@@ -47,22 +48,19 @@ const CurrencySelect: React.FC<Props> = ({ value,onChange }:Props) => {
 
   return (
     <select
-      className="transaction-form-detail-value transaction-form-select"
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-      // onChange={(e) => {
-      //   if (e.target.value === "") {
-      //       onChange("All"); // return ALL when empty option selected
-      //       return;
-      //   }
-      //   const selectedCur = currencies.find(cur => cur.currency_id === e.target.value);
-      //   if (selectedCur) {
-      //     onChange(selectedCur.currency_code); // pass description 
-      //   }
+      className="wpsi-dropdown"
+      onChange={(e) => {
+        if (e.target.value === "") {
+            onChange("All"); // return ALL when empty option selected
+            return;
+        }
+        const selectedCur = currencies.find(cur => cur.currency_id === e.target.value);
+        if (selectedCur) {
+          onChange(selectedCur.currency_code); // pass description 
+        }
 
-      // }}
+      }}
       disabled={isLoading}
-      required
     >
       <option value="">
         {isLoading ? 'Loading currencies...' : 'Currencies'}

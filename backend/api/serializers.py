@@ -9,6 +9,11 @@ from .models import (
     Category,
     Currency,
     Transaction,
+    Payee,
+    VesselPrincipal,
+    MCBranchIssuance,
+    FundingAccount,
+
 )
 
 # ------------------------------------------
@@ -168,3 +173,39 @@ class TransactionSerializer(serializers.ModelSerializer):
             'date_created'
         ]
         read_only_fields = ['transaction_id', 'date_created']
+
+# -------------------------
+# Payee Serializer
+# -------------------------
+class PayeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payee
+        fields = ['payee_id', 'company', 'payee_name', 'date_created']
+        read_only_fields = ['payee_id', 'date_created']
+
+# -------------------------
+# Vessel Principal Serializer
+# -------------------------
+class VesselPrincipalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VesselPrincipal
+        fields = ['vessel_principal_id', 'company', 'vessel_principal_name', 'date_created']
+        read_only_fields = ['vessel_principal_id', 'date_created']
+
+# -------------------------
+# MC Branch Issuance Serializer
+# -------------------------
+class MCBranchIssuanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MCBranchIssuance
+        fields = ['branch_id', 'company', 'branch_name', 'date_created']
+        read_only_fields = ['branch_id', 'date_created']
+
+# -------------------------
+# Funding Account Serializer
+# -------------------------
+class FundingAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FundingAccount
+        fields = ['funding_acct_id', 'company', 'funding_acct_name', 'date_created']
+        read_only_fields = ['funding_acct_id', 'date_created']
