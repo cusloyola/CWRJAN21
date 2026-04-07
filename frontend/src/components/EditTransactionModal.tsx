@@ -72,8 +72,8 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                             <input
                                 type="date"
                                 className="transaction-modal-detail-value"
-                                value={transaction.date}
-                                onChange={e => onChange('date', e.target.value)}
+                                value={transaction.dateCreated}
+                                onChange={e => onChange('dateCreated', e.target.value)}
                             />
                         </div>
 
@@ -201,17 +201,7 @@ const EditTransactionModal: React.FC<EditTransactionModalProps> = ({
                                 onChange={e => onChange('batch', e.target.value)}
                             />
                         </div>
-
-                        <div className="transaction-modal-detail-row">
-                            <span className="transaction-modal-detail-label">Drive File Link</span>
-                            <input
-                                type="text"
-                                className="transaction-modal-detail-value"
-                                value={transaction.driveFileLink}
-                                onChange={e => onChange('driveFileLink', e.target.value)}
-                            />
-                        </div>
-
+                        
                         <div className="transaction-modal-detail-row">
                             <span className="transaction-modal-detail-label">Supporting Docs</span>
                             <input

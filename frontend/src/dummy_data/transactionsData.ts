@@ -4,9 +4,10 @@
  */
 
 export interface Transaction {
+  transactionId: string;
   category: string;
   transactionRef: string;
-  date: string;
+  dateCreated: string;
   payee: string;
   particulars: string;
   vesselPrincipal: string;
@@ -27,9 +28,10 @@ export interface Transaction {
 
 export const transactionsData: Transaction[] = [
   {
+    transactionId: 'TXN001',
     category: 'CFII-ACA',
     transactionRef: 'TRX001',
-    date: '2026-01-20',
+    dateCreated: '2026-01-20',
     payee: 'John Doe',
     particulars: 'Purchase of goods',
     vesselPrincipal: 'Vessel A',
@@ -46,9 +48,10 @@ export const transactionsData: Transaction[] = [
     pendingApprovalFrom: 'DAM',
   },
   {
+    transactionId: 'TXN002',
     category: 'WLPI-BPI BIZLINK (PHP)',
     transactionRef: 'TRX002',
-    date: '2026-01-21',
+    dateCreated: '2026-01-21',
     payee: 'Jane Smith',
     particulars: 'Service payment',
     vesselPrincipal: 'Vessel B',
@@ -65,9 +68,10 @@ export const transactionsData: Transaction[] = [
     pendingApprovalFrom: 'Deputy',
   },
   {
+    transactionId: 'TXN003',
     category: 'WMSI-ACA',
     transactionRef: 'TRX003',
-    date: '2026-01-22',
+    dateCreated: '2026-01-22',
     payee: 'Bob Johnson',
     particulars: 'Equipment purchase',
     vesselPrincipal: 'Vessel C',
@@ -84,9 +88,10 @@ export const transactionsData: Transaction[] = [
     approvedBy: 'Final Approver',
   },
   {
+    transactionId: 'TXN004',
     category: 'WPSI-ACA',
     transactionRef: 'TRX004',
-    date: '2026-01-23',
+    dateCreated: '2026-01-23',
     payee: 'Marine Supplies Co',
     particulars: 'Bunkering and provisions',
     vesselPrincipal: 'Vessel D',
@@ -103,9 +108,10 @@ export const transactionsData: Transaction[] = [
     pendingApprovalFrom: 'Approver',
   },
   {
+    transactionId: 'TXN005',
     category: 'CFII-OUTWARD PAYMENT (PHP)',
     transactionRef: 'TRX005',
-    date: '2026-01-24',
+    dateCreated: '2026-01-24',
     payee: 'Port Authority Ltd',
     particulars: 'Port dues and fees',
     vesselPrincipal: 'Vessel A',
@@ -122,9 +128,10 @@ export const transactionsData: Transaction[] = [
     rejectedBy: 'DAM',
   },
   {
+    transactionId: 'TXN006',
     category: 'WLPI-WIRE TRANSFER (USD)',
     transactionRef: 'TRX006',
-    date: '2026-01-25',
+    dateCreated: '2026-01-25',
     payee: 'Global Freight Inc',
     particulars: 'Cargo handling charges',
     vesselPrincipal: 'Vessel E',
@@ -141,9 +148,10 @@ export const transactionsData: Transaction[] = [
     pendingApprovalFrom: 'Deputy',
   },
   {
+    transactionId: 'TXN007',
     category: 'WMSI-PAYROLL BPI (PHP)',
     transactionRef: 'TRX007',
-    date: '2026-01-26',
+    dateCreated: '2026-01-26',
     payee: 'Philippine Shipyard',
     particulars: 'Dry dock repairs',
     vesselPrincipal: 'Vessel B',
@@ -160,9 +168,10 @@ export const transactionsData: Transaction[] = [
     approvedBy: 'Final Approver',
   },
   {
+    transactionId: 'TXN008',
     category: 'WPSI-FUND TRANSFER OTHER PARTY',
     transactionRef: 'TRX008',
-    date: '2026-01-27',
+    dateCreated: '2026-01-27',
     payee: 'Crew Management Ltd',
     particulars: 'Crew wages and allotments',
     vesselPrincipal: 'Vessel C',
@@ -179,9 +188,10 @@ export const transactionsData: Transaction[] = [
     pendingApprovalFrom: 'Approver',
   },
   {
+    transactionId: 'TXN009',  
     category: 'CFII-WIRE TRANSFER (USD)',
     transactionRef: 'TRX009',
-    date: '2026-01-28',
+    dateCreated: '2026-01-28',
     payee: 'Insurance Partners',
     particulars: 'Marine insurance premium',
     vesselPrincipal: 'Vessel D',
@@ -198,9 +208,10 @@ export const transactionsData: Transaction[] = [
     rejectedBy: 'Deputy',
   },
   {
+    transactionId: 'TXN010',
     category: 'WLPI-SHIPPING LINE REG ACCT (PHP)',
     transactionRef: 'TRX010',
-    date: '2026-01-29',
+    dateCreated: '2026-01-29',
     payee: 'Tech Marine Solutions',
     particulars: 'Navigation equipment upgrade',
     vesselPrincipal: 'Vessel E',
