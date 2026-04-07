@@ -93,6 +93,7 @@ const Transactions: React.FC = () => {
         setCurrentPage(1);
     }, [searchQuery, categoryFilter, currencyFilter, dateFilter]);
 
+
     // =========================
     // FILTERING
     // =========================
@@ -197,25 +198,6 @@ const Transactions: React.FC = () => {
         const container = document.querySelector('.transactions-table-container');
         if (container) container.scrollTop = 0;
     };
-
-     // =========================
-    // TABLE CLICK (UNCHANGED BUT NOW CALLS API)
-    // =========================
-    /*
-    <tr
-        key={transaction.transactionRef}
-        onClick={() => openEditModal(transaction)}
-    >
-    */
-
-    // =========================
-    // OPTIONAL: LOADING MODAL STATE
-    // =========================
-    /*
-    {isLoadingDetail && (
-        <div className="transactions-loading-spinner" />
-    )}
-    */
 
     return (
         <>
@@ -416,7 +398,8 @@ const Transactions: React.FC = () => {
                                     <div className="transaction-modal-details">
                                         <div className="transaction-modal-detail-row">
                                             <span className="transaction-modal-detail-label">Category</span>
-                                            <select
+
+                                            {/* <select
                                                 className="transaction-modal-detail-value"
                                                 value={editableTransaction.category}
                                                 onChange={e => handleEditChange('category', e.target.value)}
@@ -424,7 +407,7 @@ const Transactions: React.FC = () => {
                                                 {categories.map(cat => (
                                                     <option key={cat} value={cat}>{cat}</option>
                                                 ))}
-                                            </select>
+                                            </select> */}
                                         </div>
 
                                         <div className="transaction-modal-detail-row">
@@ -478,7 +461,7 @@ const Transactions: React.FC = () => {
 
                                         <div className="transaction-modal-detail-row">
                                             <span className="transaction-modal-detail-label">Currency</span>
-                                            <select
+                                            {/* <select
                                                 className="transaction-modal-detail-value"
                                                 value={editableTransaction.currency}
                                                 onChange={e => handleEditChange('currency', e.target.value)}
@@ -486,7 +469,7 @@ const Transactions: React.FC = () => {
                                                 {currencies.map(cur => (
                                                     <option key={cur} value={cur}>{cur}</option>
                                                 ))}
-                                            </select>
+                                            </select> */}
                                         </div>
 
                                         <div className="transaction-modal-detail-row">

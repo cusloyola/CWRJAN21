@@ -73,8 +73,8 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             <input
                                 type="date"
                                 className="transaction-form-detail-value"
-                                value={newTransaction.date || ''}
-                                onChange={e => onChange('date', e.target.value)}
+                                value={newTransaction.dateCreated || ''}
+                                onChange={e => onChange('dateCreated', e.target.value)}
                                 required
                             />
                         </div>
