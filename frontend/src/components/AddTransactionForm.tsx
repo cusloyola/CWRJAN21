@@ -22,8 +22,8 @@ interface AddTransactionFormProps {
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
     // nextTrxNumber,
     newTransaction,
-    categories,
-    currencies,
+    // categories,
+    // currencies,
     mode = 'add',
     formTitle,
     submitLabel,
