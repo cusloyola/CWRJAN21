@@ -584,12 +584,31 @@ class RFPMonitoring(models.Model):
 # Corp Cheque Inventory
 # -------------------------
 class CorpChequeInventory(models.Model):
-    start_date = models.DateField()
+    start_date = models.DateField(auto_now_add=True)
     beginning_balance = models.PositiveIntegerField()
+    restock_amount = models.PositiveIntegerField(default=0)
     current_balance = models.PositiveIntegerField()
 
+    class Meta:
+        verbose_name = "Corp Cheque Inventory"
+        verbose_name_plural = "Corp Cheque Inventory"
+        ordering = ['-start_date']
+        
     def __str__(self):
         return f"Inventory starting {self.start_date} - Balance: {self.current_balance}"
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            if not self.beginning_balance:
+                previous_inventory = CorpChequeInventory.objects.order_by("-start_date", "-id").first()
+                self.beginning_balance = previous_inventory.current_balance if previous_inventory else 0
+
+            if self.restock_amount <= 0:
+                raise ValueError("Restock amount must be greater than zero.")
+
+            self.current_balance = self.beginning_balance + self.restock_amount
+
+        super().save(*args, **kwargs)
 
     def subtract_cheques(self, count):
         """Subtract cheques used from balance."""
@@ -611,3 +630,62 @@ class DailyChequeUsage(models.Model):
 
     def __str__(self):
         return f"{self.date}: {self.cheques_used} cheques used"   
+
+# -------------------------
+# Corp Cheque Inventory Log
+# -------------------------
+class LogCorpChequeInventory(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    inventory = models.ForeignKey("CorpChequeInventory", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Corp Cheque Inventory Log"
+        verbose_name_plural = "Logs - Corp Cheque Inventory"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.action} | Inventory starting {self.inventory.start_date}"
+
+
+# -------------------------
+# Daily Cheque Usage Log
+# -------------------------
+class LogDailyChequeUsage(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    usage = models.ForeignKey("DailyChequeUsage", on_delete=models.SET_NULL, related_name="logs", null=True, blank=True)
+    inventory = models.ForeignKey("CorpChequeInventory", on_delete=models.CASCADE, related_name="daily_usage_logs", null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Daily Cheque Usage Log"
+        verbose_name_plural = "Logs - Daily Cheque Usage"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        usage_label = self.usage.date if self.usage else "deleted usage"
+        return f"{self.action} | Usage {usage_label}"

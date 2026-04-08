@@ -44,6 +44,7 @@ from .models import (
     CorpChequeInventory,
     Currency,
     LogTransaction,
+    LogDailyChequeUsage,
     UserCompany,
     Transaction,
     RFPMonitoring,
@@ -724,6 +725,23 @@ class CorpChequeInventoryAPIView(APIView):
 class DailyChequeUsageAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
+    def _serialize_usage(self, usage):
+        return {
+            "id": usage.id,
+            "inventory": usage.inventory_id,
+            "date": usage.date,
+            "cheques_used": usage.cheques_used,
+        }
+
+    def _create_log(self, *, usage, inventory, action, user, changes):
+        LogDailyChequeUsage.objects.create(
+            usage=usage,
+            inventory=inventory,
+            action=action,
+            user=user,
+            changes=changes,
+        )
+
     def get(self, request, inventory_id):
         """Return all usage records for an inventory."""
         try:
@@ -765,6 +783,7 @@ class DailyChequeUsageAPIView(APIView):
             )
 
             if existing_usage is not None:
+                old_values = self._serialize_usage(existing_usage)
                 delta = cheques_used - existing_usage.cheques_used
 
                 print(f"[CorpChequeUsage] updating existing usage id={existing_usage.id} delta={delta}", flush=True)
@@ -781,6 +800,14 @@ class DailyChequeUsageAPIView(APIView):
 
                 existing_usage.cheques_used = cheques_used
                 existing_usage.save(update_fields=["cheques_used"])
+                updated_values = self._serialize_usage(existing_usage)
+                self._create_log(
+                    usage=existing_usage,
+                    inventory=inventory,
+                    action=LogDailyChequeUsage.ACTION_UPDATE,
+                    user=request.user,
+                    changes=build_change_list(old_values, updated_values),
+                )
                 print(
                     f"[CorpChequeUsage] updated usage id={existing_usage.id} new_balance={inventory.current_balance} date={date} cheques_used={cheques_used}",
                     flush=True,
@@ -792,6 +819,18 @@ class DailyChequeUsageAPIView(APIView):
             except ValueError as exc:
                 print(f"[CorpChequeUsage] create failed inventory_id={inventory_id} error={exc}", flush=True)
                 return Response({"error": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+
+            self._create_log(
+                usage=created_usage,
+                inventory=inventory,
+                action=LogDailyChequeUsage.ACTION_CREATE,
+                user=request.user,
+                changes=[
+                    {"field": "date", "old": None, "new": make_json_serializable(created_usage.date)},
+                    {"field": "cheques_used", "old": None, "new": created_usage.cheques_used},
+                    {"field": "inventory", "old": None, "new": created_usage.inventory_id},
+                ],
+            )
 
             print(
                 f"[CorpChequeUsage] created usage id={created_usage.id} new_balance={inventory.current_balance} date={date} cheques_used={cheques_used}",
@@ -822,8 +861,19 @@ class DailyChequeUsageAPIView(APIView):
             print(f"[CorpChequeUsage] delete skipped inventory_id={inventory_id} date={usage_date} usage_not_found", flush=True)
             return Response({"error": "Usage not found for date"}, status=status.HTTP_404_NOT_FOUND)
 
+        deleted_values = self._serialize_usage(usage)
         inventory.current_balance += usage.cheques_used
         inventory.save(update_fields=["current_balance"])
+        self._create_log(
+            usage=usage,
+            inventory=inventory,
+            action=LogDailyChequeUsage.ACTION_DELETE,
+            user=request.user,
+            changes=[
+                {"field": key, "old": make_json_serializable(value), "new": None}
+                for key, value in deleted_values.items()
+            ],
+        )
         usage.delete()
 
         print(

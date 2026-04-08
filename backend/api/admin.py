@@ -26,6 +26,9 @@ from .models import (
     LogMCBranchIssuance,
     LogPort,
     LogRFPMonitoring,
+    CorpChequeInventory,
+    LogCorpChequeInventory,
+    LogDailyChequeUsage,
 )
 
 # ---------------------------------
@@ -699,3 +702,88 @@ class LogRFPMonitoringAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser  # Only superusers can delete logs
+
+
+# ------------------------------------------------
+# Corp Cheque Inventory
+# ------------------------------------------------
+@admin.register(CorpChequeInventory)
+class CorpChequeInventoryAdmin(admin.ModelAdmin):
+    list_display = ('start_date', 'beginning_balance', 'restock_amount', 'current_balance')
+    search_fields = ('start_date',)
+    ordering = ('-start_date',)
+
+    def get_fields(self, request, obj=None):
+        if obj is None:
+            return ('restock_amount',)
+        return ('start_date', 'beginning_balance', 'restock_amount', 'current_balance')
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj is None:
+            return ('start_date', 'beginning_balance', 'current_balance')
+        return ('start_date', 'beginning_balance', 'restock_amount', 'current_balance')
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
+# -------------------------
+# Corp Cheque Inventory Log
+# -------------------------
+@admin.register(LogCorpChequeInventory)
+class LogCorpChequeInventoryAdmin(admin.ModelAdmin):
+    list_display = ('action', 'user', 'date_created')
+    search_fields = ('user__username', 'action')
+    ordering = ('-date_created',)
+    readonly_fields = ('log_id', 'inventory', 'action', 'user', 'date_created', 'formatted_changes')
+
+    def formatted_changes(self, obj):
+        try:
+            if isinstance(obj.changes, str):
+                changes = json.loads(obj.changes)
+            else:
+                changes = obj.changes
+            return json.dumps(changes, indent=2)
+        except Exception as e:
+            return f"Error parsing changes: {str(e)}"
+    formatted_changes.short_description = "Changes"
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
+# -------------------------
+# Daily Cheque Usage Log
+# -------------------------
+@admin.register(LogDailyChequeUsage)
+class LogDailyChequeUsageAdmin(admin.ModelAdmin):
+    list_display = ('action', 'user', 'date_created', 'formatted_changes')
+    search_fields = ('user__username', 'action')
+    ordering = ('-date_created',)
+    readonly_fields = ('log_id', 'usage', 'inventory', 'action', 'user', 'date_created', 'formatted_changes')
+
+    def formatted_changes(self, obj):
+        try:
+            if isinstance(obj.changes, str):
+                changes = json.loads(obj.changes)
+            else:
+                changes = obj.changes
+            return json.dumps(changes, indent=2)
+        except Exception as e:
+            return f"Error parsing changes: {str(e)}"
+    formatted_changes.short_description = "Changes"
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
