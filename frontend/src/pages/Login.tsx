@@ -104,6 +104,7 @@ function Login() {
                 localStorage.setItem('userRole', userData.user.role.code);
                 localStorage.setItem('userRoleName', userData.user.role.name || '');
                 localStorage.setItem('userName', userData.user.full_name || '');
+                localStorage.setItem('company_id', String(userData.user.companies[0]?.id || ''));
                 localStorage.setItem('companyCode', userData.user.companies[0]?.company_code || '');
 
                 // Handle multi-company scenario

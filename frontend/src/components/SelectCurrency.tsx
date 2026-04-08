@@ -1,6 +1,6 @@
 // src/components/CurrencySelect.tsx
 import { useEffect, useState } from 'react';
-import { API_BASE } from '../config/api';
+import { API_BASE, getAuthHeader } from '../config/api';
 import { toast } from 'react-toastify';
 
 interface Currency {
@@ -15,13 +15,9 @@ interface Props {
   onChange: (CurrencyId: string) => void;
 }
 
-const CurrencySelect: React.FC<Props> = ({ value,onChange }:Props) => {
+const SelectCurrency: React.FC<Props> = ({ value,onChange }:Props) => {
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const getAuthHeader = () => ({
-    Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-  });
 
   useEffect(() => {
     const fetchCurrencies = async () => {
@@ -50,17 +46,6 @@ const CurrencySelect: React.FC<Props> = ({ value,onChange }:Props) => {
       className="transaction-form-detail-value transaction-form-select"
       value={value || ''}
       onChange={(e) => onChange(e.target.value)}
-      // onChange={(e) => {
-      //   if (e.target.value === "") {
-      //       onChange("All"); // return ALL when empty option selected
-      //       return;
-      //   }
-      //   const selectedCur = currencies.find(cur => cur.currency_id === e.target.value);
-      //   if (selectedCur) {
-      //     onChange(selectedCur.currency_code); // pass description 
-      //   }
-
-      // }}
       disabled={isLoading}
       required
     >
@@ -76,4 +61,4 @@ const CurrencySelect: React.FC<Props> = ({ value,onChange }:Props) => {
   );
 };
 
-export default CurrencySelect;
+export default SelectCurrency;

@@ -6,8 +6,8 @@ import '../styles/TransactionTable.css';
 import { type Transaction } from '../dummy_data/transactionsData';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import CategorySelect from '../components/CategoryFilterSelect';
-import CurrencySelect from '../components/CurrencyFilterSelect';
+import CategorySelect from '../components/SelectCategoryFilter';
+import CurrencySelect from '../components/SelectCurrencyFilter';
 
 const Transactions: React.FC = () => {
 
