@@ -1277,3 +1277,4 @@ class TransactionBatchDetailAPIView(APIView):
 
         return Response(serializer.data)
 
+

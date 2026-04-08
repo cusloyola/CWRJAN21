@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { API_BASE } from '../config/api';
+import { API_BASE, getAuthHeader } from '../config/api';
 import { toast } from 'react-toastify';
 
 interface Category {
@@ -18,10 +18,6 @@ interface Props {
 const CategorySelect: React.FC<Props> = ({ onChange }:Props) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const getAuthHeader = () => ({
-    Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-  });
 
   useEffect(() => {
     const fetchCategories = async () => {

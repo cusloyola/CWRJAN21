@@ -1,6 +1,6 @@
 // src/components/CurrencySelect.tsx
 import { useEffect, useState } from 'react';
-import { API_BASE } from '../config/api';
+import { API_BASE, getAuthHeader } from '../config/api';
 import { toast } from 'react-toastify';
 
 interface Currency {
@@ -18,10 +18,6 @@ interface Props {
 const CurrencySelect: React.FC<Props> = ({ value,onChange }:Props) => {
   const [currencies, setCurrencies] = useState<Currency[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const getAuthHeader = () => ({
-    Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-  });
 
   useEffect(() => {
     const fetchCurrencies = async () => {

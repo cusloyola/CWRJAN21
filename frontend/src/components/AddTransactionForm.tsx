@@ -1,59 +1,94 @@
-import React from 'react';
-import { type Transaction } from '../dummy_data/transactionsData';
+import React,{useState} from 'react';
+// import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import '../styles/AddTransactionForm.css';
 import CurrencySelect from './SelectCurrency';
 import SelectPayee from './SelectPayee';
 import SelectCategory from './SelectCategory';
 import SelectVesselPrincipal from './SelectVesselPrincipal';    
+import SelectTransactionBatch from './SelectTransactionBatch';
+import SelectMCBranchIssuance from './SelectMCBranchIssuance';
+import SelectFundingAccount from './SelectFundingAccount';
+// import { API_BASE, getAuthHeader } from '../config/api';
 
 
-interface AddTransactionFormProps {
-    nextTrxNumber: number;
-    newTransaction: Partial<Transaction>;
-    categories: string[];
-    currencies: string[];
-    mode?: 'add' | 'edit';
-    formTitle?: string;
-    submitLabel?: string;
-    displayRef?: string;
-    isSubmitting?: boolean;
-    onChange: (field: keyof Partial<Transaction>, value: any) => void;
-    onSave: () => void;
-    onCancel: () => void;
-}
+const AddTransactionForm: React.FC = () => {
+    const [formData, setFormData] = useState({
+            categoryId: '',
+            transactionRef: '',
+            payeeId: '',
+            particulars: '',
+            vesselPrincipalId: '',
+            etd: '',
+            currencyId: '',
+            amount: 0,
+            referenceErfp: '',
+            batchId: '',
+            branchToIssueMcId: '',
+            fundingAccountId: '',
+        });
 
-const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
-    newTransaction,
-    mode = 'add',
-    formTitle,
-    submitLabel,
-    isSubmitting = false,
-    onChange,
-    onSave,
-    onCancel
-}) => {
-    const heading = formTitle || (mode === 'edit' ? 'Edit Transaction' : 'Add New Transaction');
-    const primaryButtonLabel = submitLabel || (mode === 'edit' ? 'Save Changes' : 'Add Transaction');
+    const [isSubmitting, setIsSubmitting] = useState(false); 
+
+    const handleChange = (field: string, value: any) => {
+            setFormData(prev => ({ ...prev, [field]: value }));
+        };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        // 🔍 LOG ONLY (NO POST)
+        console.log('=== DEBUG: Transaction Payload ===');
+        console.log(JSON.stringify(formData, null, 2));
+        console.table(formData);
+
+        // try {
+        // const res = await fetch(`${API_BASE}/api/v1/transactions/`, {
+        //     method: 'POST',
+        //     headers: getAuthHeader(),
+        //     body: JSON.stringify(formData),
+        // });
+
+        // if (!res.ok) throw new Error('Failed to save transaction');
+
+        // toast.success('Transaction saved successfully!');
+        // setFormData({
+        //     categoryId: '',
+        //     transactionRef: '',
+        //     payeeId: '',
+        //     particulars: '',
+        //     vesselPrincipalId: '',
+        //     etd: '',
+        //     currencyId: '',
+        //     amount: 0,
+        //     referenceErfp: '',
+        //     batchId: '',
+        //     branchToIssueMcId: '',
+        //     fundingAccountId: '',
+        // });
+        // } catch (err: any) {
+        // toast.error(err.message || 'Error saving transaction');
+        // } finally {
+        // setIsSubmitting(false);
+        // }
+        return;
+    }; 
 
     return (
         <div className="transaction-form-container">
             <div className="transaction-form-header">
-                <h2 className="transaction-form-title">{heading}</h2>
+                <h2 className="transaction-form-title">Add New Transaction</h2>
             </div>
 
-            <form className="transaction-form dashboard-wrapper" onSubmit={(e) => { e.preventDefault(); onSave(); }}>
+            <form className="transaction-form dashboard-wrapper" onSubmit={handleSubmit}>
                 <div className="transaction-form-content">
-                    
-
+            
                     <div className="transaction-form-details">
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Category</label>
                              <SelectCategory
-                                value={newTransaction.category}
-                                onChange={(value) => {
-                                    console.log('Selected Category ID:', value);
-                                    onChange('category', value)
-                                }}
+                                value={formData.categoryId}
+                                onChange={(value) => handleChange('categoryId', value)}
                             />
                         </div>
 
@@ -62,8 +97,8 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             <input
                                 type="text"
                                 className="transaction-form-detail-value"
-                                value={newTransaction.transactionRef || ''}
-                                onChange={e => onChange('transactionRef', e.target.value)}
+                                value={formData.transactionRef}
+                                onChange={e => handleChange('transactionRef', e.target.value)}
                                 placeholder="Enter Transaction Ref"
                                 required
                             />
@@ -71,11 +106,8 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Payee</label>
                             <SelectPayee
-                                value={newTransaction.payee}
-                                onChange={(value) => {
-                                    console.log('Selected Payee ID:', value);
-                                    onChange('payee', value);
-                                }}
+                                value={formData.payeeId}
+                                onChange={(value) => handleChange('payeeId', value)}
                             />
                         </div>
 
@@ -83,8 +115,8 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             <label className="transaction-form-detail-label">Particulars</label>
                             <textarea
                                 className="transaction-form-detail-value"
-                                value={newTransaction.particulars || ''}
-                                onChange={e => onChange('particulars', e.target.value)}
+                                value={formData.particulars}
+                                onChange={e => handleChange('particulars', e.target.value)}
                                 placeholder="Enter transaction details..."
                                 rows={3}
                             />
@@ -93,11 +125,8 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Vessel / Principal</label>
                             <SelectVesselPrincipal
-                                value={newTransaction.vesselPrincipal}
-                                onChange={(value) => {
-                                    console.log('Selected Vessel/Principal ID:', value);
-                                    onChange('vesselPrincipal', value)
-                                }}
+                                value={formData.vesselPrincipalId}
+                                onChange={(value) => handleChange('vesselPrincipalId', value)}
                             />
                         </div>
 
@@ -106,19 +135,16 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             <input
                                 type="date"
                                 className="transaction-form-detail-value"
-                                value={newTransaction.etd || ''}
-                                onChange={e => onChange('etd', e.target.value)}
+                                value={formData.etd}
+                                onChange={e => handleChange('etd', e.target.value)}
                             />
                         </div>
 
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Currency</label>
                             <CurrencySelect
-                                value={newTransaction.currency}
-                                onChange={(value) => {
-                                    console.log('Selected Currency ID:', value);
-                                    onChange('currency', value)
-                                }}
+                                value={formData.currencyId}
+                                onChange={(value) => handleChange('currencyId', value)}
                             />
                         </div>
 
@@ -128,8 +154,8 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                                 type="number"
                                 step="1"
                                 className="transaction-form-detail-value"
-                                value={newTransaction.amount ?? ''}
-                                onChange={e => onChange('amount', e.target.value ? Number(e.target.value) : null)}
+                                value={formData.amount}
+                                onChange={e => handleChange('amount', e.target.value)}
                                 placeholder="0.00"
                                 required
                             />
@@ -140,63 +166,44 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             <input
                                 type="text"
                                 className="transaction-form-detail-value"
-                                value={newTransaction.referenceErfp || ''}
-                                onChange={e => onChange('referenceErfp', e.target.value)}
+                                value={formData.referenceErfp}
+                                onChange={e => handleChange('referenceErfp', e.target.value)}
                                 placeholder="Enter reference or eRFP"
                             />
                         </div>
 
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Batch</label>
-                            <input
-                                type="text"
-                                className="transaction-form-detail-value"
-                                value={newTransaction.batch || ''}
-                                onChange={e => onChange('batch', e.target.value)}
-                                placeholder="Enter batch number"
+                            <SelectTransactionBatch
+                                value={formData.batchId}
+                                onChange={(value) => handleChange('batchId', value)}
                             />
                         </div>
 
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Branch to Issue MC</label>
-                            <input
-                                type="text"
-                                className="transaction-form-detail-value"
-                                value={newTransaction.branchToIssueMc || ''}
-                                onChange={e => onChange('branchToIssueMc', e.target.value)}
-                                placeholder="Enter branch"
+                            <SelectMCBranchIssuance
+                                value={formData.branchToIssueMcId}
+                                onChange={(value) => handleChange('branchToIssueMcId', value)}
                             />
                         </div>
 
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Funding Account</label>
-                            <input
-                                type="text"
-                                className="transaction-form-detail-value"
-                                value={newTransaction.fundingAccount || ''}
-                                onChange={e => onChange('fundingAccount', e.target.value)}
-                                placeholder="Enter funding account"
+                            <SelectFundingAccount
+                                value={formData.fundingAccountId}
+                                onChange={(value) => handleChange('fundingAccountId', value)}
                             />
                         </div>
-
-                        
                     </div>
 
                     <div className="transaction-form-actions">
-                        <button 
-                            type="button" 
-                            onClick={onCancel} 
-                            className="transaction-form-cancel-button"
-                            disabled={isSubmitting}
-                        >
-                            Cancel
-                        </button>
                         <button 
                             type="submit" 
                             className="transaction-form-save-button"
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? 'Saving...' : primaryButtonLabel}
+                           Add Transaction
                         </button>
                     </div>
                 </div>

@@ -2,18 +2,18 @@ import { useEffect, useState } from 'react';
 import { API_BASE, getAuthHeader } from '../config/api';
 import { toast } from 'react-toastify';
 
-interface VesselPrincipal {
-  vessel_principal_id: string;
-  vessel_principal_name: string;
+interface FundingAccount {
+  funding_acct_id: string;
+  funding_acct_name: string;
 }
 
 interface Props {
   value?: string;
-  onChange: (vesselPrincipalId: string) => void;
+  onChange: (fundingAccountId: string) => void;
 }
 
-const SelectVesselPrincipal: React.FC<Props> = ({ value, onChange }) => {
-  const [items, setItems] = useState<VesselPrincipal[]>([]);
+const SelectFundingAccount: React.FC<Props> = ({ value, onChange }) => {
+  const [items, setItems] = useState<FundingAccount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -21,16 +21,16 @@ const SelectVesselPrincipal: React.FC<Props> = ({ value, onChange }) => {
       try {
         setIsLoading(true);
 
-        const res = await fetch(`${API_BASE}/api/v1/vessel-principals/`, {
+        const res = await fetch(`${API_BASE}/api/v1/funding-accounts/`, {
           headers: getAuthHeader(),
         });
 
         if (!res.ok) throw new Error();
 
-        const data: VesselPrincipal[] = await res.json();
+        const data: FundingAccount[] = await res.json();
         setItems(data);
       } catch {
-        toast.error('Failed to load vessel/principal');
+        toast.error('Failed to load funding accounts');
       } finally {
         setIsLoading(false);
       }
@@ -47,16 +47,16 @@ const SelectVesselPrincipal: React.FC<Props> = ({ value, onChange }) => {
       disabled={isLoading}
     >
       <option value="">
-        {isLoading ? 'Loading vessel/principal...' : 'Select Vessel / Principal'}
+        {isLoading ? 'Loading accounts...' : 'Select Funding Account'}
       </option>
 
       {items.map((item) => (
-        <option key={item.vessel_principal_id} value={item.vessel_principal_id}>
-          {item.vessel_principal_name}
+        <option key={item.funding_acct_id} value={item.funding_acct_id}>
+          {item.funding_acct_name}
         </option>
       ))}
     </select>
   );
 };
 
-export default SelectVesselPrincipal;
+export default SelectFundingAccount;
