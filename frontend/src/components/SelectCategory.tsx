@@ -15,7 +15,7 @@ interface Props {
   onChange: (categoryId: string) => void;
 }
 
-const CategorySelect: React.FC<Props> = ({value, onChange }:Props) => {
+const SelectCategory: React.FC<Props> = ({value, onChange }:Props) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -65,4 +65,4 @@ const CategorySelect: React.FC<Props> = ({value, onChange }:Props) => {
   );
 };
 
-export default CategorySelect;
+export default SelectCategory;

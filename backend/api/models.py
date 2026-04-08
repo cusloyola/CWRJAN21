@@ -203,6 +203,28 @@ class TransactionBatch (models.Model):
     
     def __str__(self):
         return f"{self.batch_name}"
+    
+# ------------------------------------------------
+# Log Transactions Batch
+# ------------------------------------------------
+class LogTransactionBatch(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+
+    batch = models.ForeignKey(TransactionBatch, on_delete=models.CASCADE, related_name="logs")
+    action = models.CharField(max_length=10)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Transaction Batch Log"
+        verbose_name_plural = "Logs - Transactions"
+        ordering = ['date_created']
+    
+    def __str__(self):
+        return f"{self.action}"
 
 # ------------------------------------------------
 # CWR Transactions

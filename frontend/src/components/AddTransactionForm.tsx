@@ -1,8 +1,11 @@
 import React from 'react';
 import { type Transaction } from '../dummy_data/transactionsData';
 import '../styles/AddTransactionForm.css';
-import CategorySelect from './CategorySelect';
-import CurrencySelect from './CurrencySelect';
+import CurrencySelect from './SelectCurrency';
+import SelectPayee from './SelectPayee';
+import SelectCategory from './SelectCategory';
+import SelectVesselPrincipal from './SelectVesselPrincipal';    
+
 
 interface AddTransactionFormProps {
     nextTrxNumber: number;
@@ -20,20 +23,15 @@ interface AddTransactionFormProps {
 }
 
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
-    // nextTrxNumber,
     newTransaction,
-    // categories,
-    // currencies,
     mode = 'add',
     formTitle,
     submitLabel,
-    // displayRef,
     isSubmitting = false,
     onChange,
     onSave,
     onCancel
 }) => {
-    // const referenceDisplay = displayRef || `TRX${String(nextTrxNumber).padStart(3, '0')}`;
     const heading = formTitle || (mode === 'edit' ? 'Edit Transaction' : 'Add New Transaction');
     const primaryButtonLabel = submitLabel || (mode === 'edit' ? 'Save Changes' : 'Add Transaction');
 
@@ -50,7 +48,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                     <div className="transaction-form-details">
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Category</label>
-                             <CategorySelect
+                             <SelectCategory
                                 value={newTransaction.category}
                                 onChange={(value) => {
                                     console.log('Selected Category ID:', value);
@@ -64,21 +62,20 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             <input
                                 type="text"
                                 className="transaction-form-detail-value"
-                                value={newTransaction.payee || ''}
-                                onChange={e => onChange('payee', e.target.value)}
+                                value={newTransaction.transactionRef || ''}
+                                onChange={e => onChange('transactionRef', e.target.value)}
                                 placeholder="Enter Transaction Ref"
                                 required
                             />
                         </div>
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Payee</label>
-                            <input
-                                type="text"
-                                className="transaction-form-detail-value"
-                                value={newTransaction.payee || ''}
-                                onChange={e => onChange('payee', e.target.value)}
-                                placeholder="Enter payee name"
-                                required
+                            <SelectPayee
+                                value={newTransaction.payee}
+                                onChange={(value) => {
+                                    console.log('Selected Payee ID:', value);
+                                    onChange('payee', value);
+                                }}
                             />
                         </div>
 
@@ -95,12 +92,12 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
 
                         <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Vessel / Principal</label>
-                            <input
-                                type="text"
-                                className="transaction-form-detail-value"
-                                value={newTransaction.vesselPrincipal || ''}
-                                onChange={e => onChange('vesselPrincipal', e.target.value)}
-                                placeholder="Enter vessel or principal"
+                            <SelectVesselPrincipal
+                                value={newTransaction.vesselPrincipal}
+                                onChange={(value) => {
+                                    console.log('Selected Vessel/Principal ID:', value);
+                                    onChange('vesselPrincipal', value)
+                                }}
                             />
                         </div>
 
@@ -123,17 +120,6 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                                     onChange('currency', value)
                                 }}
                             />
-                            {/* <select
-                                className="transaction-form-detail-value transaction-form-select"
-                                value={newTransaction.currency || ''}
-                                onChange={e => onChange('currency', e.target.value)}
-                                required
-                            >
-                                <option value="">Select Currency</option>
-                                {currencies.map(cur => (
-                                    <option key={cur} value={cur}>{cur}</option>
-                                ))}
-                            </select> */}
                         </div>
 
                         <div className="transaction-form-detail-row">
@@ -161,6 +147,17 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                         </div>
 
                         <div className="transaction-form-detail-row">
+                            <label className="transaction-form-detail-label">Batch</label>
+                            <input
+                                type="text"
+                                className="transaction-form-detail-value"
+                                value={newTransaction.batch || ''}
+                                onChange={e => onChange('batch', e.target.value)}
+                                placeholder="Enter batch number"
+                            />
+                        </div>
+
+                        <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Branch to Issue MC</label>
                             <input
                                 type="text"
@@ -182,38 +179,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({
                             />
                         </div>
 
-                        <div className="transaction-form-detail-row">
-                            <label className="transaction-form-detail-label">Batch</label>
-                            <input
-                                type="text"
-                                className="transaction-form-detail-value"
-                                value={newTransaction.batch || ''}
-                                onChange={e => onChange('batch', e.target.value)}
-                                placeholder="Enter batch number"
-                            />
-                        </div>
-
-{/*                         <div className="transaction-form-detail-row">
-                            <label className="transaction-form-detail-label">Drive File Link</label>
-                            <input
-                                type="url"
-                                className="transaction-form-detail-value"
-                                value={newTransaction.driveFileLink || ''}
-                                onChange={e => onChange('driveFileLink', e.target.value)}
-                                placeholder="https://drive.google.com/..."
-                            />
-                        </div> */}
-
-                        <div className="transaction-form-detail-row">
-                            <label className="transaction-form-detail-label">Supporting Docs</label>
-                            <input
-                                type="url"
-                                className="transaction-form-detail-value"
-                                value={newTransaction.supportingDocs || ''}
-                                onChange={e => onChange('supportingDocs', e.target.value)}
-                                placeholder="https://drive.google.com/..."
-                            />
-                        </div>
+                        
                     </div>
 
                     <div className="transaction-form-actions">
