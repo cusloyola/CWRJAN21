@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { API_BASE } from '../config/api';
+import { API_BASE, getAuthHeader } from '../config/api';
 import { toast } from 'react-toastify';
 
 interface Batch {
@@ -15,10 +15,6 @@ interface Props {
 const SelectTransactionBatch: React.FC<Props> = ({ value, onChange }) => {
   const [items, setItems] = useState<Batch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const getAuthHeader = () => ({
-    Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-  });
 
   useEffect(() => {
     const fetchBatches = async () => {

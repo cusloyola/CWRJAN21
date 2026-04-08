@@ -250,7 +250,7 @@ class Transaction (models.Model):
     mc_branch_issuance = models.ForeignKey(MCBranchIssuance,on_delete=models.PROTECT)
     funding_account = models.ForeignKey(FundingAccount,on_delete=models.PROTECT)
     batch = models.ForeignKey(TransactionBatch,on_delete=models.PROTECT,default=get_default_batch)
-    supporting_docs = models.CharField(max_length=100,unique=True)
+    supporting_docs = models.CharField(max_length=100,blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     endorsement_complete = models.BooleanField(default=False)
 
