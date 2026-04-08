@@ -5,6 +5,7 @@ from .views import (
     CategoryAPIView,
     CurrencyAPIView,
     TransactionAPIView,
+    TransactionBatchDetailAPIView,
     TransactionDetailAPIView,
     PayeeAPIView,
     PayeeDetailAPIView,
@@ -23,6 +24,7 @@ from .views import (
     FundingAccountAPIView,
     CorpChequeInventoryAPIView,
     DailyChequeUsageAPIView,
+    TransactionBatchAPIView,
 )
 
 
@@ -80,16 +82,17 @@ urlpatterns = [
     # -------------------------
     path('ports/', PortAPIView.as_view(), name='ports'),
 
-    # -------------------------
+    # ------------------------------------
     # Corp Cheque Inventory & Daily Usage
-    # -------------------------
+    # -------------------------------------
     path('inventories/', CorpChequeInventoryAPIView.as_view(), name='inventories'),
     path("inventories/<int:inventory_id>/usages/", DailyChequeUsageAPIView.as_view(), name="daily-usage"),
-    
-    # path('payees/', PayeeAPIView.as_view(), name='payees'),
-    # path('vessel-principals/', VesselPrincipalAPIView.as_view(), name='vessel_principals'),
-    # path('mc-branches/', MCBranchIssuanceAPIView.as_view(), name='mc_branches'),
-    # path('funding-accounts/', FundingAccountAPIView.as_view(), name='funding_accounts'),
+
+    # ------------------------------------
+    # Transaction Batch 
+    # -------------------------------------
+    path('transaction-batches/', TransactionBatchAPIView.as_view(), name='batch-list'),
+    path('transaction-batches/<int:pk>/', TransactionBatchDetailAPIView.as_view(), name='batch-detail'),
 
     ]
 
