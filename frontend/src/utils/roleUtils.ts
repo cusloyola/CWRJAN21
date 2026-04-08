@@ -1,9 +1,9 @@
 export const ROLES = {
-    DAM_WPSI: 'DAM',
+    DAM_WPSI: 'DAM WPSI',
     DAM_WMSI: 'DAM WMSI',
     DAM_WLPI: 'DAM WLPI',
     DAM_CFII: 'DAM CFII',
-    APPROVER: 'Approver',
+    APPROVER: 'APR',
     DEPUTY: 'DEP',
     MAKER: 'MKR'
 } as const;

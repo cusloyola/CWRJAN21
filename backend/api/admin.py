@@ -1,4 +1,5 @@
 import json
+from datetime import date, datetime
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -11,9 +12,11 @@ from .models import (
     MCBranchIssuance,
     FundingAccount,
     Transaction,
+    RFPMonitoring,
     TransactionBatch,
     Payee,
     VesselPrincipal,
+    Port,
     LogTransaction,
     LogUserLogin,
     LogPayee,
@@ -21,6 +24,8 @@ from .models import (
     LogCategory,
     LogFundingAccount,
     LogMCBranchIssuance,
+    LogPort,
+    LogRFPMonitoring,
 )
 
 # ---------------------------------
@@ -100,6 +105,12 @@ class CompanyFilterAdminMixin:
             if db_field.name == "funding_account":  # FundingAccount field
                 kwargs["queryset"] = FundingAccount.objects.filter(company_id__in=company_ids)
             
+            if db_field.name == "vessel_principal":
+                kwargs["queryset"] = VesselPrincipal.objects.filter(company_id__in=company_ids)
+            
+            if db_field.name == "port":
+                kwargs["queryset"] = Port.objects.filter(company_id__in=company_ids)
+            
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def save_model(self, request, obj, form, change):
@@ -115,6 +126,16 @@ class CompanyFilterAdminMixin:
                     obj.company = user_companies.first().company
 
         super().save_model(request, obj, form, change)
+
+
+def make_json_safe(value):
+    if isinstance(value, dict):
+        return {key: make_json_safe(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [make_json_safe(item) for item in value]
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    return value
 
 
 # ---------------------------------
@@ -259,25 +280,55 @@ class Batch(admin.ModelAdmin):
 # Payee
 # ------------------------------------------------
 @admin.register(Payee)
-class Payee(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
+class PayeeAdmin(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
     log_model = LogPayee
     log_fk_field = "payee"    
 
     list_display = ('payee_id','payee_name')
     search_fields = ('payee_name',)
     ordering = ('payee_name',)
-
+    
 # ------------------------------------------------
 # Vessel/Principal
 # ------------------------------------------------
 @admin.register(VesselPrincipal)
-class VesselPrincipal(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
+class VesselPrincipalAdmin(AdminLogMixin,CompanyFilterAdminMixin,admin.ModelAdmin):
     log_model = LogVesselPrincipal
     log_fk_field = "vessel_principal"
 
     list_display = ('vessel_principal_id','vessel_principal_name',)
     search_fields = ('vessel_principal_name',)
     ordering = ('vessel_principal_name',)
+# ------------------------------------------------
+# Port
+# ------------------------------------------------
+@admin.register(Port)
+class PortAdmin(AdminLogMixin, CompanyFilterAdminMixin, admin.ModelAdmin):
+    log_model = LogPort
+    log_fk_field = "port"
+
+    list_display = ('port_name', 'port_code', 'company')
+    search_fields = ('port_name', 'port_code')
+    ordering = ('port_name',)
+
+# -------------------------
+# Port Log
+# -------------------------
+@admin.register(LogPort)
+class LogPortAdmin(admin.ModelAdmin):
+    list_display = ('port', 'action', 'user', 'date_created')
+    search_fields = ('port__port_name', 'user__username')
+    ordering = ('-date_created',)
+    readonly_fields = ('port', 'action', 'user', 'date_created', 'changes')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 # ------------------------------------------------
@@ -455,3 +506,196 @@ class UserLoginLogAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
     
+# ------------------------------------------------
+# RFP Monitoring
+# ------------------------------------------------
+@admin.register(RFPMonitoring)
+class RFPMonitoringAdmin(AdminLogMixin, admin.ModelAdmin):
+    log_model = LogRFPMonitoring
+    log_fk_field = "rfp_monitoring"
+    
+    list_display = (
+        'expected_series',
+        'cwr_processed', 
+        'cwr_usage',
+        'trampsys_status',
+        'status_cwr',
+        'eta',
+        'etd',
+        'payee',
+        'vessel_principal',
+        'port',
+        'voy',
+    )
+    
+    # Exclude auto-generated fields from the form
+    exclude = ('expected_series', 'cwr_processed')
+    
+    # Or alternatively, specify only the fields you want to show
+    fields = (
+        'cwr_usage',
+        'trampsys_status', 
+        'status_cwr',
+        'remarks_cwr',
+        'eta',
+        'etd',
+        'payee',
+        'vessel_principal',
+        'voy',
+        'port',
+    )
+    
+    readonly_fields = ('expected_series', 'cwr_processed')  # Show them as read-only
+    search_fields = ('expected_series', 'cwr_processed', 'payee__payee_name', 'vessel_principal__vessel_principal_name')
+    ordering = ('expected_series',)
+    list_filter = ('trampsys_status', 'cwr_usage', 'etd', 'eta')
+    log_model = LogRFPMonitoring
+    log_fk_field = "rfp_monitoring"
+
+    def delete_model(self, request, obj):
+        deleted_values = make_json_safe({
+            "expected_series": obj.expected_series,
+            "cwr_processed": obj.cwr_processed,
+            "cwr_usage": obj.cwr_usage,
+            "trampsys_status": obj.trampsys_status,
+            "status_cwr": obj.status_cwr,
+            "remarks_cwr": obj.remarks_cwr,
+            "eta": obj.eta,
+            "etd": obj.etd,
+            "payee": str(obj.payee),
+            "vessel_principal": str(obj.vessel_principal),
+            "voy": obj.voy,
+            "port": str(obj.port) if obj.port else None,
+        })
+
+        LogRFPMonitoring.objects.create(
+            rfp_monitoring=obj,
+            rfp_series=obj.expected_series,
+            action=LogRFPMonitoring.ACTION_DELETE,
+            user=request.user,
+            changes=json.dumps([
+                {"field": field_name, "old": value, "new": None}
+                for field_name, value in deleted_values.items()
+            ]),
+        )
+
+        super().delete_model(request, obj)
+
+    def delete_queryset(self, request, queryset):
+        for obj in queryset:
+            self.delete_model(request, obj)
+    
+    list_display = (
+        'expected_series',
+        'cwr_processed',
+        'cwr_usage',
+        'trampsys_status',
+        'status_cwr',
+        'etd',
+        'eta',
+        'payee',
+        'vessel_principal',
+        'port',
+        'voy',
+    )
+    search_fields = ('expected_series', 'cwr_processed', 'payee__payee_name', 'vessel_principal__vessel_principal_name')
+    ordering = ('expected_series',)
+    list_filter = ('trampsys_status', 'cwr_usage', 'etd', 'eta')
+
+# -------------------------
+# RFP Monitoring Log
+# -------------------------
+@admin.register(LogRFPMonitoring)
+class LogRFPMonitoringAdmin(admin.ModelAdmin):
+    list_display = ('rfp_reference', 'action', 'user', 'date_created', 'formatted_changes')
+    list_filter = ('action', 'date_created')
+    search_fields = ('rfp_series', 'rfp_monitoring__expected_series', 'user__username', 'user__email')
+    ordering = ('-date_created',)
+    readonly_fields = ('rfp_reference', 'action', 'user', 'date_created', 'changes', 'formatted_changes')
+
+    def _normalize_changes(self, changes):
+        value = changes
+
+        for _ in range(2):
+            if not isinstance(value, str):
+                break
+            stripped = value.strip()
+            if not stripped or stripped[0] not in '{[':
+                break
+            try:
+                value = json.loads(value)
+            except Exception:
+                break
+
+        return value
+
+    def rfp_reference(self, obj):
+        if obj.rfp_series:
+            return obj.rfp_series
+
+        if obj.rfp_monitoring:
+            return obj.rfp_monitoring
+
+        changes = self._normalize_changes(obj.changes)
+
+        if isinstance(changes, list):
+            for change in changes:
+                if isinstance(change, dict) and change.get('field') == 'expected_series':
+                    return change.get('old') or change.get('new') or '-'
+
+        return '-'
+
+    rfp_reference.short_description = 'RFP Monitoring'
+
+    # Display formatted JSON changes
+    def formatted_changes(self, obj):
+        if not obj.changes:
+            return "-"
+        try:
+            changes = self._normalize_changes(obj.changes)
+
+            if isinstance(changes, list):
+                formatted = []
+                for change in changes:
+                    if isinstance(change, dict):
+                        formatted.append(
+                            f"{change.get('field', '')}: {change.get('old', '')} → {change.get('new', '')}"
+                        )
+                    elif isinstance(change, str):
+                        formatted.append(change)
+                return "\n".join(formatted) if formatted else "-"
+
+            if isinstance(changes, dict):
+                if 'field' in changes:
+                    return f"{changes.get('field', '')}: {changes.get('old', '')} → {changes.get('new', '')}"
+
+                old_values = changes.get('old_values')
+                new_values = changes.get('new_values')
+
+                if isinstance(old_values, dict) and isinstance(new_values, dict):
+                    diffs = []
+                    for field_name, new_value in new_values.items():
+                        old_value = old_values.get(field_name)
+                        if old_value != new_value:
+                            diffs.append(f"{field_name}: {old_value} → {new_value}")
+                    if diffs:
+                        return "\n".join(diffs)
+
+                if 'notes' in changes:
+                    return str(changes['notes'])
+
+                return str(changes)
+
+            return str(changes)
+        except Exception as e:
+            return f"Error parsing changes: {str(e)}"
+    formatted_changes.short_description = "Changes"
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser  # Only superusers can delete logs

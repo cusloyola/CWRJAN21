@@ -14,6 +14,15 @@ from .views import (
     MCBranchIssuanceDetailAPIView,
     FundingAccountAPIView,
     FundingAccountDetailAPIView,
+    RFPMonitoringAPIView,
+    RFPMonitoringDetailAPIView,
+    PayeeAPIView,
+    VesselPrincipalAPIView,
+    PortAPIView,
+    MCBranchIssuanceAPIView,
+    FundingAccountAPIView,
+    CorpChequeInventoryAPIView,
+    DailyChequeUsageAPIView,
 )
 
 
@@ -59,5 +68,14 @@ urlpatterns = [
     # -------------------------
     path('funding-accounts/', FundingAccountAPIView.as_view(), name='fundingaccount-list'),
     path('funding-accounts/<int:pk>/', FundingAccountDetailAPIView.as_view(), name='fundingaccount-detail'),
-]
+    path('rfp-monitoring/', RFPMonitoringAPIView.as_view(), name='rfp_monitoring'),
+    path('rfp-monitoring/<str:expected_series>/', RFPMonitoringDetailAPIView.as_view(), name='rfp_monitoring_detail'),
+    path('payees/', PayeeAPIView.as_view(), name='payees'),
+    path('vessel-principals/', VesselPrincipalAPIView.as_view(), name='vessel_principals'),
+    path('ports/', PortAPIView.as_view(), name='ports'),
+    path('mc-branches/', MCBranchIssuanceAPIView.as_view(), name='mc_branches'),
+    path('funding-accounts/', FundingAccountAPIView.as_view(), name='funding_accounts'),
+    path('inventories/', CorpChequeInventoryAPIView.as_view(), name='inventories'),
+    path("inventories/<int:inventory_id>/usages/", DailyChequeUsageAPIView.as_view(), name="daily-usage"),
+    ]
 

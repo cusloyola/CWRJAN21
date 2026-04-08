@@ -9,6 +9,17 @@ const Dashboard = () => {
   const canViewAllCompanies = isApproverOrDeputy(userRoles);
   const assignedDamTabs = getDamTabsForRoles(userRoles);
   const isWorker = userRoles.includes(ROLES.MAKER);
+  const companyCode = (localStorage.getItem('companyCode') || '').trim();
+  const userRoleName = localStorage.getItem('userRoleName') || '';
+  const normalizedRoleName = userRoleName.trim().toUpperCase();
+  const shouldHideCompanyCode =
+    !companyCode ||
+    companyCode.toUpperCase() === 'ALL' ||
+    normalizedRoleName === 'FINAL APPROVER' ||
+    normalizedRoleName === 'DEPUTY VERIFIER';
+  const profileRoleText = shouldHideCompanyCode
+    ? userRoleName
+    : `${companyCode} - ${userRoleName}`;
 
   const companyStats = [
     { path: '/wpsi', label: 'WPSI', value: '22' },
@@ -90,7 +101,7 @@ const Dashboard = () => {
               {/* User Info */}
               <div>
                 <h2 className="profile-name">{localStorage.getItem('userName')}</h2>
-                <p className="profile-role">{localStorage.getItem('companyCode')} - {localStorage.getItem('userRoleName')}</p>
+                <p className="profile-role">{profileRoleText}</p>
               </div>
             </div>
           </div>
