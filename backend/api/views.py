@@ -73,6 +73,7 @@ from .serializers import (
     MCBranchIssuanceSerializer,
     FundingAccountSerializer,
 )
+from .tasks import sync_transaction_supporting_docs
 
 # Get logger for this module
 logger = logging.getLogger('api.views')
@@ -217,6 +218,15 @@ class TransactionAPIView(APIView):
                 user=user,
                 changes=json.loads(json.dumps(serializer.data, default=str))
             )
+
+            try:
+                sync_transaction_supporting_docs.delay(str(transaction.transaction_id))
+            except Exception:
+                logger.exception(
+                    "Failed to enqueue supporting docs sync for transaction %s",
+                    transaction.transaction_id,
+                )
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

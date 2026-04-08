@@ -216,6 +216,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
+        'api.tasks': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
 
@@ -224,3 +229,13 @@ CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
+
+GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE", "")
+GOOGLE_DRIVE_PARENT_FOLDER_ID = os.getenv("GOOGLE_DRIVE_PARENT_FOLDER_ID", "")
+GOOGLE_DRIVE_SUPPORTS_ALL_DRIVES = os.getenv("GOOGLE_DRIVE_SUPPORTS_ALL_DRIVES", "True")
+GOOGLE_DRIVE_INCLUDE_ITEMS_FROM_ALL_DRIVES = os.getenv(
+    "GOOGLE_DRIVE_INCLUDE_ITEMS_FROM_ALL_DRIVES",
+    "True",
+)
+GOOGLE_DRIVE_LOOKUP_RETRY_SECONDS = int(os.getenv("GOOGLE_DRIVE_LOOKUP_RETRY_SECONDS", "300"))
+GOOGLE_DRIVE_LOOKUP_MAX_RETRIES = int(os.getenv("GOOGLE_DRIVE_LOOKUP_MAX_RETRIES", "288"))
