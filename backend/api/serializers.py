@@ -18,6 +18,11 @@ from .models import (
     TransactionBatch,
     CorpChequeInventory,
     DailyChequeUsage,
+    Payee,
+    VesselPrincipal,
+    MCBranchIssuance,
+    FundingAccount,
+
 )
 
 # ------------------------------------------
@@ -146,6 +151,7 @@ class TransactionSerializer(serializers.ModelSerializer):
     vessel_principal_name = serializers.CharField(source='vessel_principal.vessel_principal_name', read_only=True)
     currency_code = serializers.CharField(source='currency.currency_code', read_only=True)
     batch_name = serializers.CharField(source='batch.batch_name', read_only=True)
+    branch_name = serializers.CharField(source='mc_branch_issuance.branch_name', read_only=True)
 
     class Meta:
         model = Transaction
@@ -166,6 +172,7 @@ class TransactionSerializer(serializers.ModelSerializer):
             'transaction_amount',
             'reference_erfp',
             'mc_branch_issuance',
+            'branch_name',
             'funding_account',
             'funding_acct_name',
             'batch',
@@ -311,3 +318,38 @@ class DailyChequeUsageSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         usage = DailyChequeUsage.objects.create(**validated_data)
         return usage
+# -------------------------
+# Payee Serializer
+# -------------------------
+class PayeeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Payee
+        fields = ['payee_id', 'company', 'payee_name', 'date_created']
+        read_only_fields = ['payee_id', 'date_created']
+
+# -------------------------
+# Vessel Principal Serializer
+# -------------------------
+class VesselPrincipalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VesselPrincipal
+        fields = ['vessel_principal_id', 'company', 'vessel_principal_name', 'date_created']
+        read_only_fields = ['vessel_principal_id', 'date_created']
+
+# -------------------------
+# MC Branch Issuance Serializer
+# -------------------------
+class MCBranchIssuanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MCBranchIssuance
+        fields = ['branch_id', 'company', 'branch_name', 'date_created']
+        read_only_fields = ['branch_id', 'date_created']
+
+# -------------------------
+# Funding Account Serializer
+# -------------------------
+class FundingAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FundingAccount
+        fields = ['funding_acct_id', 'company', 'funding_acct_name', 'date_created']
+        read_only_fields = ['funding_acct_id', 'date_created']

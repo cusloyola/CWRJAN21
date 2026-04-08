@@ -28,7 +28,7 @@ const Archives: React.FC = () => {
 
     const [newTransaction, setNewTransaction] = useState<Partial<Transaction>>({
         category: '',
-        date: '',
+        dateCreated: '',
         payee: '',
         particulars: '',
         vesselPrincipal: '',
@@ -91,7 +91,7 @@ const Archives: React.FC = () => {
 
             const matchesCategory = categoryFilter === 'All' || t.category === categoryFilter;
             const matchesCurrency = currencyFilter === 'All' || t.currency === currencyFilter;
-            const matchesDate = dateFilter === 'All' || t.date.includes(dateFilter);
+            const matchesDate = dateFilter === 'All' || t.dateCreated.includes(dateFilter);
 
             return matchesSearch && matchesCategory && matchesCurrency && matchesDate;
         });
@@ -188,7 +188,7 @@ const Archives: React.FC = () => {
     };
 
     const handleSaveNewTransaction = () => {
-        if (!newTransaction.payee || !newTransaction.date || newTransaction.amount == null || !newTransaction.currency) {
+        if (!newTransaction.payee || !newTransaction.dateCreated || newTransaction.amount == null || !newTransaction.currency) {
             toast.error("Please fill required fields: Payee, Date, Amount, Currency");
             return;
         }
@@ -317,7 +317,7 @@ const Archives: React.FC = () => {
                                                     </div>
                                                 </td>
                                                 {!isMobile && <td>{transaction.vesselPrincipal}</td>}
-                                                {!isVerySmall && <td>{transaction.date}</td>}
+                                                {!isVerySmall && <td>{transaction.dateCreated}</td>}
                                                 <td>
                                                     {new Intl.NumberFormat('en-US', { style: 'currency', currency: transaction.currency || 'USD' })
                                                         .format(transaction.amount || 0)}
@@ -424,8 +424,8 @@ const Archives: React.FC = () => {
                                             <input
                                                 type="date"
                                                 className="transaction-modal-detail-value"
-                                                value={editableTransaction.date}
-                                                onChange={e => handleEditChange('date', e.target.value)}
+                                                value={editableTransaction.dateCreated}
+                                                onChange={e => handleEditChange('dateCreated', e.target.value)}
                                             />
                                         </div>
 
@@ -638,8 +638,8 @@ const Archives: React.FC = () => {
                                             <input
                                                 type="date"
                                                 className="transaction-modal-detail-value"
-                                                value={newTransaction.date || ''}
-                                                onChange={e => handleAddChange('date', e.target.value)}
+                                                value={newTransaction.dateCreated || ''}
+                                                onChange={e => handleAddChange('dateCreated', e.target.value)}
                                             />
                                         </div>
 

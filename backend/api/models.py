@@ -235,7 +235,7 @@ class Transaction (models.Model):
     class Meta:
         verbose_name = "Transaction"
         verbose_name_plural = "Transactions"
-        ordering = ['date_created']
+        ordering = ['-date_created']
     
     def __str__(self):
         return f"{self.transaction_ref}"
