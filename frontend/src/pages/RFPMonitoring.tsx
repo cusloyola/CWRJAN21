@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
+import { OrbitProgress } from 'react-loading-indicators';
 import {
     type RfpMonitoringRecord,
     type RfpStatus,
@@ -167,8 +168,18 @@ const RFPMonitoring: React.FC = () => {
                 <main style={{ padding: 'min(30px, 7%)', width: '100%', overflowX: 'hidden' }}>
                     <div className="transactions-page-wrapper">
                         {loading && (
-                            <div className="flex justify-center items-center p-8">
-                                <div className="text-lg">Loading RFP records...</div>
+                            <div
+                                role="status"
+                                aria-live="polite"
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    padding: '1.5rem 0',
+                                }}
+                            >
+                                <OrbitProgress variant="disc" dense color="#32cd32" size="small" text="" textColor="" />
                             </div>
                         )}
 
