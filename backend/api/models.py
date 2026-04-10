@@ -750,8 +750,6 @@ class DailyChequeUsage(models.Model):
     def __str__(self):
         return f"{self.date}: {self.cheques_used} cheques used"   
 
-<<<<<<< HEAD
-=======
 # -------------------------
 # Corp Cheque Inventory Log
 # -------------------------
@@ -810,4 +808,3 @@ class LogDailyChequeUsage(models.Model):
     def __str__(self):
         usage_label = self.usage.date if self.usage else "deleted usage"
         return f"{self.action} | Usage {usage_label}"
->>>>>>> 16243e39e5ec6a3b66054eecdb1a9a6fc3fb1d51
