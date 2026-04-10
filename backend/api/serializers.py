@@ -307,7 +307,7 @@ class RFPMonitoringSerializer(serializers.ModelSerializer):
 class CorpChequeInventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = CorpChequeInventory
-        fields = ["id", "start_date", "beginning_balance", "current_balance"]
+        fields = ["id", "start_date", "beginning_balance", "restock_amount", "current_balance"]
 
 
 class DailyChequeUsageSerializer(serializers.ModelSerializer):

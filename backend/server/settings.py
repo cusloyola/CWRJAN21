@@ -216,6 +216,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': False,
         },
+        'api.tasks': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
 
@@ -224,3 +229,23 @@ CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
+
+GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE = os.getenv("GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE", "")
+GOOGLE_DRIVE_PARENT_FOLDER_ID = os.getenv("GOOGLE_DRIVE_PARENT_FOLDER_ID", "")
+GOOGLE_DRIVE_SUPPORTS_ALL_DRIVES = os.getenv("GOOGLE_DRIVE_SUPPORTS_ALL_DRIVES", "True")
+GOOGLE_DRIVE_INCLUDE_ITEMS_FROM_ALL_DRIVES = os.getenv(
+    "GOOGLE_DRIVE_INCLUDE_ITEMS_FROM_ALL_DRIVES",
+    "True",
+)
+GOOGLE_DRIVE_UPLOAD_POLL_SECONDS = int(os.getenv("GOOGLE_DRIVE_UPLOAD_POLL_SECONDS", "60"))
+GOOGLE_DRIVE_UPLOAD_LOOKBACK_MINUTES = int(
+    os.getenv("GOOGLE_DRIVE_UPLOAD_LOOKBACK_MINUTES", "15")
+)
+GOOGLE_DRIVE_UPLOAD_PAGE_SIZE = int(os.getenv("GOOGLE_DRIVE_UPLOAD_PAGE_SIZE", "100"))
+
+CELERY_BEAT_SCHEDULE = {
+    "sync-supporting-docs-from-drive-uploads": {
+        "task": "api.sync_supporting_docs_from_drive_uploads",
+        "schedule": timedelta(seconds=GOOGLE_DRIVE_UPLOAD_POLL_SECONDS),
+    }
+}
