@@ -66,6 +66,24 @@ class UserCompany(models.Model):
     class Meta:
         unique_together = ('user','company')
 
+# ------------------------------------------------
+# View Logs: User Login
+# ------------------------------------------------
+class LogUserLogin(models.Model):
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=300, null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Log User Login"
+        verbose_name_plural = "Logs - User Login"
+        ordering = ['-date_created']
+
+    def __str__(self):
+        return f"{self.user.username} logged in at {self.date_created}"
+    
 # ------------------------------------
 # Category
 # ------------------------------------
@@ -83,6 +101,63 @@ class Category (models.Model):
     
     def __str__(self):
         return f"{self.category_description}"
+
+# -------------------------
+# MC Branch Issuance Log
+# -------------------------
+class LogMCBranchIssuance(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    branch = models.ForeignKey("MCBranchIssuance", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "MC Branch Log"
+        verbose_name_plural = "MC Branch Logs"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.action} | {self.branch}"
+    
+
+# -------------------------
+# Category Log
+# -------------------------
+class LogCategory(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    category = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Category Log"
+        verbose_name_plural = "Category Logs"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.action} | {self.category}"
 
 # ------------------------------------------------
 # Payee
@@ -102,6 +177,35 @@ class Payee (models.Model):
     def __str__(self):
         return f"{self.payee_name}"    
 
+# -------------------------
+# Payee Log
+# -------------------------
+class LogPayee(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    payee = models.ForeignKey("Payee", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Payee Log"
+        verbose_name_plural = "Payee Logs"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.action} | {self.payee}"
+
+
 # ------------------------------------------------
 # Vessel/Principal
 # ------------------------------------------------
@@ -118,6 +222,35 @@ class VesselPrincipal (models.Model):
     
     def __str__(self):
         return f"{self.vessel_principal_name}"      
+    
+# -------------------------
+# Vessel / Principal Log
+# -------------------------
+class LogVesselPrincipal(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    vessel_principal = models.ForeignKey("VesselPrincipal", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Vessel/Principal Log"
+        verbose_name_plural = "Vessel/Principal Logs"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.action} | {self.vessel_principal}"
+
 # ------------------------------------------------
 # Port
 # ------------------------------------------------
@@ -136,6 +269,36 @@ class Port (models.Model):
     
     def __str__(self):
         return f"{self.port_name}"
+
+# -------------------------
+# Port Log
+# -------------------------
+class LogPort(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    port = models.ForeignKey("Port", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Port Log"
+        verbose_name_plural = "Logs - Port"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.action} | {self.port}"
+
+
 # ------------------------------------
 # Currency
 # ------------------------------------
@@ -188,6 +351,34 @@ class FundingAccount (models.Model):
     def __str__(self):
         return f"{self.funding_acct_name}"
 
+# -------------------------
+# Funding Account Log
+# -------------------------
+class LogFundingAccount(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    funding_account = models.ForeignKey("FundingAccount", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Funding Account Log"
+        verbose_name_plural = "Log - Funding Account"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.action} | {self.funding_account}"
+
 # ------------------------------------------------
 # Transactions Batch
 # ------------------------------------------------
@@ -227,7 +418,7 @@ class LogTransactionBatch(models.Model):
         return f"{self.action}"
 
 # ------------------------------------------------
-# CWR Transactions
+# Transactions
 # ------------------------------------------------
 class Transaction (models.Model):
     def get_default_currency():
@@ -291,192 +482,98 @@ class LogTransaction(models.Model):
     def __str__(self):
         return f"{self.action}"
 
+# ------------------------------------------------
+# Approval Step Definition (CONFIGURABLE FLOW)
+# ------------------------------------------------
+class ApprovalStep(models.Model):
+    step_order = models.IntegerField()
+    role = models.CharField(max_length=10)
+
+    class Meta:
+        ordering = ["step_order"]
+
+    def __str__(self):
+        return f"Step {self.step_order} - {self.role}"
 
 # ------------------------------------------------
-# View Logs: User Login
+# Transaction Approval (CURRENT STATE)
 # ------------------------------------------------
-class LogUserLogin(models.Model):
-    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    user_agent = models.CharField(max_length=300, null=True, blank=True)
-    date_created = models.DateTimeField(auto_now_add=True)
+class TransactionApproval(models.Model):
 
-    class Meta:
-        verbose_name = "Log User Login"
-        verbose_name_plural = "Logs - User Login"
-        ordering = ['-date_created']
+    STATUS_PENDING = "PENDING"
+    STATUS_APPROVED = "APPROVED"
+    STATUS_REJECTED = "REJECTED"
 
-    def __str__(self):
-        return f"{self.user.username} logged in at {self.date_created}"
-    
-# -------------------------
-# Payee Log
-# -------------------------
-class LogPayee(models.Model):
-    ACTION_CREATE = "CREATE"
-    ACTION_UPDATE = "UPDATE"
-    ACTION_DELETE = "DELETE"
-    ACTION_CHOICES = (
-        (ACTION_CREATE, "Create"),
-        (ACTION_UPDATE, "Update"),
-        (ACTION_DELETE, "Delete"),
+    STATUS_CHOICES = (
+        (STATUS_PENDING, "Pending"),
+        (STATUS_APPROVED, "Approved"),
+        (STATUS_REJECTED, "Rejected"),
     )
 
-    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    payee = models.ForeignKey("Payee", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
-    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    changes = JSONField(null=True, blank=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Payee Log"
-        verbose_name_plural = "Payee Logs"
-        ordering = ["-date_created"]
-
-    def __str__(self):
-        return f"{self.action} | {self.payee}"
-
-# -------------------------
-# Vessel / Principal Log
-# -------------------------
-class LogVesselPrincipal(models.Model):
-    ACTION_CREATE = "CREATE"
-    ACTION_UPDATE = "UPDATE"
-    ACTION_DELETE = "DELETE"
-    ACTION_CHOICES = (
-        (ACTION_CREATE, "Create"),
-        (ACTION_UPDATE, "Update"),
-        (ACTION_DELETE, "Delete"),
+    transaction = models.OneToOneField(
+        "Transaction",
+        on_delete=models.CASCADE,
+        related_name="approval"
     )
 
-    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    vessel_principal = models.ForeignKey("VesselPrincipal", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
-    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    changes = JSONField(null=True, blank=True)
-    date_created = models.DateTimeField(auto_now_add=True)
+    current_step = models.IntegerField(default=1)
+    current_role = models.CharField(max_length=10)
 
-    class Meta:
-        verbose_name = "Vessel/Principal Log"
-        verbose_name_plural = "Vessel/Principal Logs"
-        ordering = ["-date_created"]
-
-    def __str__(self):
-        return f"{self.action} | {self.vessel_principal}"
-
-# -------------------------
-# Funding Account Log
-# -------------------------
-class LogFundingAccount(models.Model):
-    ACTION_CREATE = "CREATE"
-    ACTION_UPDATE = "UPDATE"
-    ACTION_DELETE = "DELETE"
-    ACTION_CHOICES = (
-        (ACTION_CREATE, "Create"),
-        (ACTION_UPDATE, "Update"),
-        (ACTION_DELETE, "Delete"),
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING
     )
 
-    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    funding_account = models.ForeignKey("FundingAccount", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
-    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    changes = JSONField(null=True, blank=True)
-    date_created = models.DateTimeField(auto_now_add=True)
+    is_completed = models.BooleanField(default=False)
 
-    class Meta:
-        verbose_name = "Funding Account Log"
-        verbose_name_plural = "Log - Funding Account"
-        ordering = ["-date_created"]
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.action} | {self.funding_account}"
+        return f"{self.transaction} - {self.status}"
 
-# -------------------------
-# Category Log
-# -------------------------
-class LogCategory(models.Model):
-    ACTION_CREATE = "CREATE"
-    ACTION_UPDATE = "UPDATE"
-    ACTION_DELETE = "DELETE"
+# ------------------------------------------------
+# Transaction Approval History (FULL AUDIT TRAIL)
+# ------------------------------------------------
+class TransactionApprovalHistory(models.Model):
+
+    ACTION_SUBMIT = "SUBMIT"
+    ACTION_APPROVE = "APPROVE"
+    ACTION_REJECT = "REJECT"
+
     ACTION_CHOICES = (
-        (ACTION_CREATE, "Create"),
-        (ACTION_UPDATE, "Update"),
-        (ACTION_DELETE, "Delete"),
+        (ACTION_SUBMIT, "Submit"),
+        (ACTION_APPROVE, "Approve"),
+        (ACTION_REJECT, "Reject"),
     )
 
-    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    category = models.ForeignKey("Category", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
-    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    changes = JSONField(null=True, blank=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Category Log"
-        verbose_name_plural = "Category Logs"
-        ordering = ["-date_created"]
-
-    def __str__(self):
-        return f"{self.action} | {self.category}"
-
-# -------------------------
-# MC Branch Issuance Log
-# -------------------------
-class LogMCBranchIssuance(models.Model):
-    ACTION_CREATE = "CREATE"
-    ACTION_UPDATE = "UPDATE"
-    ACTION_DELETE = "DELETE"
-    ACTION_CHOICES = (
-        (ACTION_CREATE, "Create"),
-        (ACTION_UPDATE, "Update"),
-        (ACTION_DELETE, "Delete"),
+    transaction = models.ForeignKey(
+        "Transaction",
+        on_delete=models.CASCADE,
+        related_name="approval_history"
     )
 
-    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    branch = models.ForeignKey("MCBranchIssuance", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
-    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    changes = JSONField(null=True, blank=True)
+    step_order = models.IntegerField()
+    role = models.CharField(max_length=10)
+
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    remarks = models.TextField(null=True, blank=True)
+
+    from_status = models.CharField(max_length=20, null=True)
+    to_status = models.CharField(max_length=20, null=True)
+
     date_created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "MC Branch Log"
-        verbose_name_plural = "MC Branch Logs"
-        ordering = ["-date_created"]
+        ordering = ["date_created"]
 
     def __str__(self):
-        return f"{self.action} | {self.branch}"
-    
-# -------------------------
-# Port Log
-# -------------------------
-class LogPort(models.Model):
-    ACTION_CREATE = "CREATE"
-    ACTION_UPDATE = "UPDATE"
-    ACTION_DELETE = "DELETE"
-    ACTION_CHOICES = (
-        (ACTION_CREATE, "Create"),
-        (ACTION_UPDATE, "Update"),
-        (ACTION_DELETE, "Delete"),
-    )
+        return f"{self.transaction} | {self.action} | Step {self.step_order}"
 
-    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    port = models.ForeignKey("Port", on_delete=models.CASCADE, related_name="logs", null=True, blank=True)
-    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    changes = JSONField(null=True, blank=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "Port Log"
-        verbose_name_plural = "Logs - Port"
-        ordering = ["-date_created"]
-
-    def __str__(self):
-        return f"{self.action} | {self.port}"
 
 # -------------------------
 # RFP Monitoring Log
