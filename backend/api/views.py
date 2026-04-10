@@ -58,6 +58,8 @@ from .models import (
     VesselPrincipal,
     MCBranchIssuance,
     FundingAccount,
+    TransactionBatch,
+    LogTransactionBatch
 )
 from .serializers import (
     CorpChequeInventorySerializer,
@@ -72,8 +74,8 @@ from .serializers import (
     PortSerializer,
     MCBranchIssuanceSerializer,
     FundingAccountSerializer,
+    TransactionBatchSerializer,
 )
-from .tasks import sync_transaction_supporting_docs
 
 # Get logger for this module
 logger = logging.getLogger('api.views')
@@ -218,14 +220,6 @@ class TransactionAPIView(APIView):
                 user=user,
                 changes=json.loads(json.dumps(serializer.data, default=str))
             )
-
-            try:
-                sync_transaction_supporting_docs.delay(str(transaction.transaction_id))
-            except Exception:
-                logger.exception(
-                    "Failed to enqueue supporting docs sync for transaction %s",
-                    transaction.transaction_id,
-                )
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -1237,3 +1231,101 @@ class FundingAccountDetailAPIView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+    
+# -------------------------
+# TRANSACTION BATCH API
+# -------------------------
+class TransactionBatchAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, request):
+        user = request.user
+        role_code = getattr(getattr(user, "userrole", None), "role", None)
+
+        if role_code in ["APR", "DEP"]:
+            return TransactionBatch.objects.all()
+
+        # Batch is not tied to company → allow all for non-APR/DEP as well
+        return TransactionBatch.objects.all()
+
+    def get(self, request):
+        queryset = self.get_queryset(request)
+        serializer = TransactionBatchSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = TransactionBatchSerializer(data=request.data)
+
+        if serializer.is_valid():
+            batch = serializer.save()
+
+            # LOG CREATE
+            LogTransactionBatch.objects.create(
+                batch=batch,
+                action="CREATE",
+                user=request.user,
+                changes=json.loads(json.dumps(serializer.data, default=str))
+            )
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ------------------------------
+# TRANSACTION BATCH DETAIL API
+# ------------------------------
+class TransactionBatchDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk):
+        return get_object_or_404(TransactionBatch, pk=pk)
+
+    def get(self, request, pk):
+        batch = self.get_object(pk)
+        serializer = TransactionBatchSerializer(batch)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        batch = self.get_object(pk)
+        old_data = TransactionBatchSerializer(batch).data
+
+        serializer = TransactionBatchSerializer(batch, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        updated = serializer.save()
+
+        # LOG UPDATE
+        LogTransactionBatch.objects.create(
+            batch=updated,
+            action="UPDATE",
+            user=request.user,
+            changes=json.loads(json.dumps({
+                "before": old_data,
+                "after": serializer.data
+            }, default=str))
+        )
+
+        return Response(serializer.data)
+
+    def patch(self, request, pk):
+        batch = self.get_object(pk)
+        old_data = TransactionBatchSerializer(batch).data
+
+        serializer = TransactionBatchSerializer(batch, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        updated = serializer.save()
+
+        # LOG UPDATE
+        LogTransactionBatch.objects.create(
+            batch=updated,
+            action="UPDATE",
+            user=request.user,
+            changes=json.loads(json.dumps({
+                "before": old_data,
+                "after": serializer.data
+            }, default=str))
+        )
+
+        return Response(serializer.data)
+
+

@@ -353,3 +353,12 @@ class FundingAccountSerializer(serializers.ModelSerializer):
         model = FundingAccount
         fields = ['funding_acct_id', 'company', 'funding_acct_name', 'date_created']
         read_only_fields = ['funding_acct_id', 'date_created']
+
+# ---------------------------------
+# Transaction Batch Serializer
+# ---------------------------------
+class TransactionBatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransactionBatch
+        fields = ['batch_id', 'batch_name', 'date_created']
+        read_only_fields = ['batch_id', 'date_created']
