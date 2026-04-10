@@ -1,5 +1,5 @@
-/* import { API_BASE} from '../config/api';
- */import { useState, useEffect } from 'react'
+import { API_BASE, getAuthHeader} from '../config/api';
+import { useState, useEffect } from 'react'
 import type { FormEvent, ChangeEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import '../styles/Login.css';
@@ -7,7 +7,7 @@ import logo from '../assets/wallemrectangle.png';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Footer } from '../components/Footer';
-import { RfpApi } from '../services/rfpApi';
+// import { RfpApi } from '../services/rfpApi';
 
 interface LoginFormData {
     email: string
@@ -90,26 +90,35 @@ function Login() {
 
         try {
             // Use the new RfpApi service for login
-            const response = await RfpApi.login(formData.email, formData.password);
-/*             const response = await fetch(`${API_BASE}/api/v1/user/login/`, {
+            // const response = await RfpApi.login(formData.email, formData.password);
+            const response = await fetch(`${API_BASE}/api/v1/user/login/`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: getAuthHeader(),
                 body: JSON.stringify(formData),
-            }); */
-            if (response.success) {
-                const userData = response.data;
-                
-                // Store additional user info (tokens are handled by RfpApi)
-                localStorage.setItem('user', JSON.stringify(userData.user));
-                localStorage.setItem('userRole', userData.user.role.code);
-                localStorage.setItem('userRoleName', userData.user.role.name || '');
-                localStorage.setItem('userName', userData.user.full_name || '');
-                localStorage.setItem('company_id', String(userData.user.companies[0]?.id || ''));
-                localStorage.setItem('companyCode', userData.user.companies[0]?.company_code || '');
+            });
+            const data = await response.json();
+            if (response.ok) {
+                // Save JWT tokens
+                localStorage.setItem('authToken', data.access);
+                localStorage.setItem('refreshToken', data.refresh);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                const role =
+                data.user?.role?.code !== 'DAM'
+                    ? data.user?.role?.code ?? ''
+                    :`${data.user?.role?.code ?? ''} ${data.user?.companies[0]?.company_code ?? ''}`.trim() ;
+
+                console.log('Determined role:', role);  
+
+                localStorage.setItem('userRole', role );
+                localStorage.setItem('userRoleName', data.user.role.name || '');
+                localStorage.setItem('userName', data.user.full_name || '');
+                localStorage.setItem('company_id', String(data.user.companies[0]?.id || ''));
+                localStorage.setItem('companyCode', data.user.companies[0]?.company_code || '');
 
                 // Handle multi-company scenario
-                if (userData.user.companies.length === 1) {
-                    localStorage.setItem('selectedCompany', JSON.stringify(userData.user.companies[0]));
+                if (data.user.companies.length === 1) {
+                    localStorage.setItem('selectedCompany', JSON.stringify(data.user.companies[0]));
                 } else {
                     navigate('/select-company'); // redirect to a company selection page
                     return;
@@ -118,7 +127,10 @@ function Login() {
                 toast.success('Login successful! Redirecting...');
                 setTimeout(() => navigate('/dashboard'), 1000);
             } else {
-                const errorMsg = response.error || 'Login failed. Check credentials.';
+                const errorMsg = 
+                    data?.non_field_errors?.[0] ||
+                    data?.detail ||
+                    'Login failed. Check credentials.';
                 toast.error(errorMsg);
             }
         } catch (err) {
