@@ -22,6 +22,7 @@ services:
     build:
       context: ..
       dockerfile: docker_dev/dev.backend.Dockerfile
+      target: backend
     container_name: cwr_celery_worker_dev
     working_dir: /app
     command: python3 -m celery -A server.celery:app worker --loglevel=info 
@@ -47,6 +48,7 @@ services:
     build:
       context: ..
       dockerfile: docker_dev/dev.backend.Dockerfile
+      target: backend
     container_name: cwr_celery_beat_dev
     working_dir: /app
     command: python3 -m celery -A server.celery:app beat --loglevel=info --schedule /tmp/celerybeat-schedule
@@ -124,6 +126,7 @@ services:
     build:
       context: ..
       dockerfile: docker_dev/dev.backend.Dockerfile
+      target: backend
     env_file:
       - ../backend/.env.dev
     container_name: cwr_backend_dev
@@ -142,6 +145,34 @@ services:
     networks:
       - app_network
     restart: always
+
+  # --------------------------
+  # Report Service - ReportLab
+  # --------------------------
+  report_service:
+    build:
+      context: ..
+      dockerfile: docker_dev/dev.backend.Dockerfile
+      target: report
+    container_name: dev_cwr_report_service
+    working_dir: /app
+    command: python3 manage.py runserver 0.0.0.0:8001
+    env_file:
+      - ../backend/.env.dev
+    environment:
+      DB_HOST: db
+      ENVIRONMENT: dev
+    volumes:
+      - ../backend:/app
+      - ../media_data:/app/media
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+    networks:
+      - app_network
+    restart: always    
 
   # --------------------------
   # Proxy Server - Nginx
