@@ -249,3 +249,20 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": timedelta(seconds=GOOGLE_DRIVE_UPLOAD_POLL_SECONDS),
     }
 }
+
+# AWS S3 Configuration for LocalStack
+
+AWS_ACCESS_KEY_ID = "test"
+AWS_SECRET_ACCESS_KEY = "test"
+AWS_STORAGE_BUCKET_NAME = "cwr-bucket"
+AWS_S3_REGION_NAME = "ap-southeast-1"
+
+# LocalStack endpoint
+AWS_S3_ENDPOINT_URL = "http://localstack:4566"
+
+AWS_S3_ADDRESSING_STYLE = "path"
+
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = False
+
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"

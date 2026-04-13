@@ -94,6 +94,28 @@ services:
       retries: 20
     networks:
       - app_network
+  
+  # --------------------------
+  # LocalStack (S3)
+  # --------------------------
+  localstack:
+    build:
+      context: ..
+      dockerfile: docker_dev/dev.localstack.Dockerfile
+    container_name: cwr_localstack_dev
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: s3
+      DEBUG: 1
+      AWS_DEFAULT_REGION: ap-southeast-1
+      PERSISTENCE: 1
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app_network
+  
 
   # --------------------------
   # Frontend - React
@@ -109,8 +131,6 @@ services:
       - node_modules_cache:/app/node_modules
     ports:
       - "3000:3000"
-    depends_on:
-      - backend
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
@@ -133,6 +153,10 @@ services:
     environment:
       DB_HOST: db   # override host for Docker
       ENVIRONMENT: dev
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_STORAGE_BUCKET_NAME: cwr-bucket
+      AWS_S3_ENDPOINT_URL: http://localstack:4566      
     command: sh -c "python3 manage.py migrate --noinput; python3 manage.py runserver 0.0.0.0:8000"
     depends_on:
       db:
@@ -162,6 +186,10 @@ services:
     environment:
       DB_HOST: db
       ENVIRONMENT: dev
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_STORAGE_BUCKET_NAME: cwr-bucket
+      AWS_S3_ENDPOINT_URL: http://localstack:4566
     volumes:
       - ../backend:/app
       - ../media_data:/app/media
@@ -198,3 +226,4 @@ volumes:
   node_modules_cache:
   db_data_dev:
   redis_data_dev:
+  localstack_data:
