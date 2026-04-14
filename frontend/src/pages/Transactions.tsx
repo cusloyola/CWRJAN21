@@ -1,15 +1,17 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { API_BASE } from '../config/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { API_BASE,getAuthHeader } from '../config/api';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
-import { type Transaction } from '../dummy_data/transactionsData';
+import { type Transaction } from '../types/Transaction';
+import { mapTransactionFromAPI } from '../utils/transactionMapper';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CategorySelect from '../components/SelectCategoryFilter';
 import CurrencySelect from '../components/SelectCurrencyFilter';
 
 const Transactions: React.FC = () => {
+    const navigate = useNavigate();
 
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [categoryFilter, setCategoryFilter] = useState<string>('All');
@@ -21,15 +23,9 @@ const Transactions: React.FC = () => {
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);  
-   
-    const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
-    const [editableTransaction, setEditableTransaction] = useState<Transaction | null>(null);
-    const [isClosing, setIsClosing] = useState<boolean>(false);
 
-    const getAuthHeader = () => ({
-        Authorization: `Bearer ${localStorage.getItem('authToken')}`
-    });
-
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
+    const [isVerySmall, setIsVerySmall] = useState(window.innerWidth <= 390);
    
     // =========================
     // FETCH TRANSACTIONS
@@ -46,26 +42,11 @@ const Transactions: React.FC = () => {
 
             const data = await res.json();
 
-            // 🔥 Map backend fields to frontend structure if needed
-            const mapped = data.map((t: any) => ({
-                transactionId: t.transaction_id,
-                transactionRef: t.transaction_ref,
-                category: t.category_name,
-                dateCreated: t.date_created,
-                payee: t.payee_name,
-                particulars: t.particulars,
-                vesselPrincipal: t.vessel_principal_name,
-                etd: t.etd,
-                currency: t.currency_code,
-                amount: t.transaction_amount,
-                referenceErfp: t.reference_erfp,
-                branchToIssueMc: t.branch_to_issue_mc,
-                fundingAccount: t.funding_acct_name,
-                batch: t.batch_name,
-                supportingDocs: t.supporting_docs,
-            }));
+            // 🔥 Map backend fields to frontend structure
+            const mapped = data.map(mapTransactionFromAPI);
 
             setTransactions(mapped);
+
         } catch (error) {
             toast.error("Failed to load transactions");
         } finally {
@@ -80,6 +61,9 @@ const Transactions: React.FC = () => {
         fetchTransactions();
     }, []);
 
+    // =========================
+    // RESPONSIVE HANDLING
+    // =========================
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 640);
@@ -89,10 +73,12 @@ const Transactions: React.FC = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // =========================
+    // RESET PAGE ON FILTER
+    // =========================
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, categoryFilter, currencyFilter, dateFilter]);
-
 
     // =========================
     // FILTERING
@@ -110,88 +96,14 @@ const Transactions: React.FC = () => {
         });
     }, [transactions, searchQuery, categoryFilter, currencyFilter, dateFilter]);
 
+    // =========================
+    // PAGINATION
+    // =========================
     const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = Math.min(startIndex + itemsPerPage, filteredTransactions.length);
     const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
-
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
-    const [isVerySmall, setIsVerySmall] = useState(window.innerWidth <= 390);
-
-    // =========================
-    // FETCH DETAIL ON CLICK
-    // =========================
-    const openEditModal = async (transaction: Transaction) => {
-        try {
-            const res = await fetch(
-                `${API_BASE}/api/v1/transactions/${transaction.transactionId}/`,
-                {
-                    headers: getAuthHeader()
-                }
-            );
-
-            if (!res.ok) throw new Error();
-
-            const t = await res.json();
-
-            const mapped: Transaction = {
-                transactionId: t.transaction_id,
-                transactionRef: t.transaction_ref,
-                category: t.category_name,
-                dateCreated: t.date_created,
-                payee: t.payee_name,
-                particulars: t.particulars,
-                vesselPrincipal: t.vessel_principal_name,
-                etd: t.etd,
-                currency: t.currency_code,
-                amount: t.transaction_amount,
-                referenceErfp: t.reference_erfp,
-                branchToIssueMc: t.branch_to_issue_mc,
-                fundingAccount: t.funding_acct_name,
-                batch: t.batch_name,
-                supportingDocs: t.supporting_docs,
-                driveFileLink: t.drive_file_link,
-                status: t.status,
-            };
-
-            setEditableTransaction(mapped);
-            setIsEditModalOpen(true);
-
-        } catch (error) {
-            toast.error("Failed to load transaction details");
-        } 
-    };
-
-    // =========================
-    // MODAL HANDLERS
-    // =========================
-    const closeEditModal = () => {
-        setIsClosing(true);
-        setTimeout(() => {
-            setIsEditModalOpen(false);
-            setEditableTransaction(null);
-            setIsClosing(false);
-        }, 300);
-    };
-
-    const handleEditChange = (field: keyof Transaction, value: any) => {
-        if (!editableTransaction) return;
-        setEditableTransaction(prev => ({ ...prev!, [field]: value }));
-    };
-
-    const saveEditedTransaction = () => {
-        if (!editableTransaction) return;
-
-        setTransactions(prev =>
-            prev.map(t =>
-                t.transactionRef === editableTransaction.transactionRef ? { ...editableTransaction } : t
-            )
-        );
-
-        toast.success("Changes saved successfully!");
-        closeEditModal();
-    };
-
+ 
     const handlePageChange = (page: number) => {
         if (page < 1 || page > totalPages) return;
         setCurrentPage(page);
@@ -236,7 +148,11 @@ const Transactions: React.FC = () => {
                                 </svg>
                             </div>
 
-                            <Link to="/add-transaction" className="wpsi-add-button" style={{ textDecoration: 'none' }}>
+                            <Link 
+                                    to="/add-transaction" 
+                                    className="wpsi-add-button" 
+                                    style={{ textDecoration: 'none' }}
+                            >
                                 + Add
                             </Link>
                             {/* CATEGORY */}
@@ -370,205 +286,6 @@ const Transactions: React.FC = () => {
                             </div>
                         )}
                     </div>
-
-                    {/* Edit Modal */}
-                    {isEditModalOpen && editableTransaction && (
-                        <>
-                            <div className={`transaction-modal-backdrop ${isClosing ? 'closing' : ''}`} onClick={closeEditModal} />
-                            <div className={`transaction-detail-modal ${isClosing ? 'closing' : ''}`} onClick={e => e.stopPropagation()}>
-                                <div className="transaction-modal-header">
-                                    <span className="transaction-modal-title">Edit Transaction</span>
-                                    <button className="transaction-modal-close" onClick={closeEditModal}>
-                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-
-                                <div className="transaction-modal-content">
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1rem' }}>
-                                        <span className="transaction-modal-detail-label" style={{ textAlign: 'center' }}>
-                                            Transaction Ref
-                                        </span>
-                                        <h2 className="transaction-modal-ref-title" style={{ textAlign: 'center', margin: 0 }}>
-                                            {editableTransaction.transactionRef}
-                                        </h2>
-                                    </div>
-
-                                    <div className="transaction-modal-details">
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Category</span>
-
-                                            {/* <select
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.category}
-                                                onChange={e => handleEditChange('category', e.target.value)}
-                                            >
-                                                {categories.map(cat => (
-                                                    <option key={cat} value={cat}>{cat}</option>
-                                                ))}
-                                            </select> */}
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Date</span>
-                                            <input
-                                                type="date"
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.dateCreated}
-                                                onChange={e => handleEditChange('dateCreated', e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Payee</span>
-                                            <input
-                                                type="text"
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.payee}
-                                                onChange={e => handleEditChange('payee', e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Particulars</span>
-                                            <textarea
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.particulars}
-                                                onChange={e => handleEditChange('particulars', e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Vessel / Principal</span>
-                                            <input
-                                                type="text"
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.vesselPrincipal}
-                                                onChange={e => handleEditChange('vesselPrincipal', e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">ETD</span>
-                                            <input
-                                                type="date"
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.etd}
-                                                onChange={e => handleEditChange('etd', e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Currency</span>
-                                            {/* <select
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.currency}
-                                                onChange={e => handleEditChange('currency', e.target.value)}
-                                            >
-                                                {currencies.map(cur => (
-                                                    <option key={cur} value={cur}>{cur}</option>
-                                                ))}
-                                            </select> */}
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Amount</span>
-                                            <input
-                                                type="text"
-                                                inputMode="decimal"
-                                                pattern="^\\d*(\\.\\d{0,2})?$"
-                                                className="transaction-modal-detail-value"
-                                                value={
-                                                    editableTransaction.amount === null || editableTransaction.amount === undefined
-                                                        ? ''
-                                                        : (typeof editableTransaction.amount === 'string'
-                                                            ? editableTransaction.amount
-                                                            : Number(editableTransaction.amount).toFixed(2))
-                                                }
-                                                onChange={e => {
-                                                    // Allow only digits and dot, and allow empty string for backspace
-                                                    let val = e.target.value.replace(/[^\d.]/g, '');
-                                                    val = val.replace(/(\..*)\./g, '$1');
-                                                    handleEditChange('amount', val);
-                                                }}
-                                                onBlur={e => {
-                                                    let val = e.target.value;
-                                                    if (val !== '' && !isNaN(Number(val))) {
-                                                        handleEditChange('amount', Number(val).toFixed(2));
-                                                    } else if (val === '') {
-                                                        handleEditChange('amount', '');
-                                                    }
-                                                }}
-                                                style={{ MozAppearance: 'textfield' }}
-                                                onWheel={e => e.currentTarget.blur()}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Reference / eRFP</span>
-                                            <input
-                                                type="text"
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.referenceErfp}
-                                                onChange={e => handleEditChange('referenceErfp', e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Branch to Issue MC</span>
-                                            <input
-                                                type="text"
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.branchToIssueMc}
-                                                onChange={e => handleEditChange('branchToIssueMc', e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Funding Account</span>
-                                            <input
-                                                type="text"
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.fundingAccount}
-                                                onChange={e => handleEditChange('fundingAccount', e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Batch</span>
-                                            <input
-                                                type="text"
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.batch}
-                                                onChange={e => handleEditChange('batch', e.target.value)}
-                                            />
-                                        </div>
-
-                                        <div className="transaction-modal-detail-row">
-                                            <span className="transaction-modal-detail-label">Supporting Docs</span>
-                                            <input
-                                                type="text"
-                                                className="transaction-modal-detail-value"
-                                                value={editableTransaction.supportingDocs}
-                                                onChange={e => handleEditChange('supportingDocs', e.target.value)}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                                        <button onClick={closeEditModal} className="transaction-edit-cancel-button">
-                                            Cancel
-                                        </button>
-                                        <button onClick={saveEditedTransaction} className="transaction-edit-save-button">
-                                            Save Changes
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </>
-                    )}
-
                 </main>
             </div>
 
