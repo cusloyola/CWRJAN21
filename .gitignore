@@ -1,2 +1,7 @@
 env/
 .env.staging
+media_data/
+node_modules_cache/
+report_service/
+static_data/
+localstat_data/
