@@ -2,7 +2,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Profile from './pages/Profile'
-import AddTransaction from './pages/AddTransaction'
+
 import WPSI from './pages/WPSI'
 import WMSI from './pages/WMSI'
 import WLPI from './pages/WLPI'
@@ -13,7 +13,11 @@ import WPSICWR from './pages/WPSI-CWR'
 import WMSICWR from './pages/WMSI-CWR'
 import WLPICWR from './pages/WLPI-CWR'
 import CFIICWR from './pages/CFII-CWR'
-import TransactionTable from './pages/Transactions'
+
+import Transactions from './pages/Transactions'
+import AddTransaction from './pages/AddTransaction'
+import EditTransaction from './pages/EditTransaction';
+
 import ArchivesTable from './pages/Archives'
 import CorpInventory from './pages/CorpInventory'
 import RFPMonitoring from './pages/RFPMonitoring'
@@ -45,10 +49,13 @@ function App() {
         <Route path="/activity-log/wmsi-cwr" element={<ProtectedRoute><WMSICWR /></ProtectedRoute>} />
         <Route path="/activity-log/wlpi-cwr" element={<ProtectedRoute><WLPICWR /></ProtectedRoute>} />
         <Route path="/activity-log/cfii-cwr" element={<ProtectedRoute><CFIICWR /></ProtectedRoute>} />
-        <Route path="/transactions" element={<ProtectedRoute><TransactionTable /></ProtectedRoute>} />
+
+         {/* TRANSACTIONS */}
+        <Route path="/transactions" element={<ProtectedRoute><Transactions /></ProtectedRoute>} />
+        <Route path="/transactions/new" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
+        <Route path="/transactions/:id/edit" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />  
+
         <Route path="/archives" element={<ProtectedRoute><ArchivesTable /></ProtectedRoute>} />
-        <Route path="/add-transaction" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
-        <Route path="/edit-transaction/:transactionRef" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
         <Route path="/corp-inventory" element={<ProtectedRoute><CorpInventory /></ProtectedRoute>} />
         <Route path="/rfp-monitoring" element={<ProtectedRoute><RFPMonitoring /></ProtectedRoute>} />
         <Route path="/add-rfp" element={<ProtectedRoute><AddRfpMonitoring /></ProtectedRoute>} />
