@@ -6,7 +6,7 @@ FROM localstack/localstack:latest
 # --------------------------
 USER root
 
-RUN apk add --no-cache bash curl jq
+# RUN apk add --no-cache bash curl jq
 
 # --------------------------
 # Init scripts directory
