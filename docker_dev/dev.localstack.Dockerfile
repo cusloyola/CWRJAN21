@@ -1,24 +1,25 @@
 
-FROM localstack/localstack:latest
+FROM localstack/localstack:3.0
 
 # --------------------------
 # Optional: Install extra tools (AWS CLI v2 already included in most images)
 # --------------------------
 USER root
 
-# RUN apk add --no-cache bash curl jq
+RUN rm -rf /tmp/localstack || true
+RUN mkdir -p /tmp/localstack
+RUN chown -R localstack:localstack /tmp/localstack
+
+# Fix data volume permissions
+RUN mkdir -p /var/lib/localstack
+RUN chown -R localstack:localstack /var/lib/localstack
+
 
 # --------------------------
 # Init scripts directory
-# (LocalStack auto-runs scripts placed here)
 # --------------------------
 RUN mkdir -p /etc/localstack/init/ready.d
-
-# --------------------------
-# Optional bootstrap script for S3 bucket creation
-# --------------------------
-COPY ./docker_dev/localstack/init-s3.sh /etc/localstack/init/ready.d/init-s3.sh
-
+COPY docker_dev/localstack/init-s3.sh /etc/localstack/init/ready.d/init-s3.sh
 RUN chmod +x /etc/localstack/init/ready.d/init-s3.sh
 
 # --------------------------
