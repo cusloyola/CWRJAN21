@@ -34,7 +34,7 @@ You don’t develop wearing a tuxedo.
 ```
 doc_route/
 ├─ frontend/        # React + Vite + TypeScript + SWC PIN UI
-├─ backend/         # Django + DRF + JWT PIN API
+├─ backend/         # Django + DRF + JWT
 ├─ docker_dev/      # Docker dev configuration
 |  └─ nginx         # Default Nginx config for dev
 ├─ docker_staging/  # Docker staging configuration
