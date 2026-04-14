@@ -111,6 +111,13 @@ const Transactions: React.FC = () => {
         if (container) container.scrollTop = 0;
     };
 
+    // =========================
+    // NAVIGATION (NO MODAL)
+    // =========================
+    const handleRowClick = (transaction: Transaction) => {
+        navigate(`/transactions/${transaction.transactionId}/edit`);
+    };
+    
     return (
         <>
             <Sidebar />
@@ -155,14 +162,14 @@ const Transactions: React.FC = () => {
                             >
                                 + Add
                             </Link>
-                            {/* CATEGORY */}
+                            {/* CATEGORY Filter*/}
                             <div className="wpsi-dropdown-container">
                                 <CategorySelect
                                     value={categoryFilter}
                                     onChange={setCategoryFilter}
                                 />
                             </div>
-
+                            {/* CURRENCY Filter*/}
                             <div className="wpsi-dropdown-container">
                                 <CurrencySelect
                                     value={currencyFilter}
@@ -210,8 +217,8 @@ const Transactions: React.FC = () => {
                                     ) : (
                                         paginatedTransactions.map(transaction => (
                                             <tr
-                                                key={transaction.transactionRef}
-                                                onClick={() => openEditModal(transaction)}
+                                                key={transaction.transactionId}
+                                                onClick={() => handleRowClick(transaction)}
                                                 className="cursor-pointer hover:bg-gray-50 transition-colors"
                                             >
                                                 <td>{transaction.transactionRef}</td>
