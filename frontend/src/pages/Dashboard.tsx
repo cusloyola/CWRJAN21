@@ -9,17 +9,7 @@ const Dashboard = () => {
   const canViewAllCompanies = isApproverOrDeputy(userRoles);
   const assignedDamTabs = getDamTabsForRoles(userRoles);
   const isWorker = userRoles.includes(ROLES.MAKER);
-  const companyCode = (localStorage.getItem('companyCode') || '').trim();
   const userRoleName = localStorage.getItem('userRoleName') || '';
-  const normalizedRoleName = userRoleName.trim().toUpperCase();
-  const shouldHideCompanyCode =
-    !companyCode ||
-    companyCode.toUpperCase() === 'ALL' ||
-    normalizedRoleName === 'FINAL APPROVER' ||
-    normalizedRoleName === 'DEPUTY VERIFIER';
-  const profileRoleText = shouldHideCompanyCode
-    ? userRoleName
-    : `${companyCode} - ${userRoleName}`;
 
   const companyStats = [
     { path: '/wpsi', label: 'WPSI', value: '22' },
@@ -27,6 +17,22 @@ const Dashboard = () => {
     { path: '/wlpi', label: 'WLPI', value: '19' },
     { path: '/cfii', label: 'CFII', value: '9' }
   ];
+
+  const userRaw = localStorage.getItem('user');
+  const parsedUser = userRaw ? JSON.parse(userRaw) : null;
+
+  const userName = localStorage.getItem('userName') || parsedUser?.full_name || '';
+  const companiesCode = (
+    localStorage.getItem('companiesCode') ||
+    (parsedUser?.companies || [])
+      .map((c: any) => c.company_code)
+      .filter(Boolean)
+      .join(' | ')
+  ).trim();
+
+  const profileRoleText = companiesCode
+    ? `${companiesCode} - ${userRoleName}`
+    : userRoleName;
 
   const visibleCompanyStats = canViewAllCompanies
     ? companyStats
@@ -49,7 +55,7 @@ const Dashboard = () => {
   } else if (isWorker) {
     statsContent = (
       <>
-{/*         <div className="dashboard-wrapper px-4 sm:px-6" style={{ marginBottom: '1rem', marginTop: '1rem'  }}>
+        {/*         <div className="dashboard-wrapper px-4 sm:px-6" style={{ marginBottom: '1rem', marginTop: '1rem'  }}>
           <div className="wpsi-add-button-container" style={{ justifyContent: 'flex-end', textAlign: 'right', fontSize: '1.125rem' }}>
             <Link to="/add-transaction" className="wpsi-add-button" style={{ textDecoration: 'none' }}>
               + Add
@@ -100,7 +106,7 @@ const Dashboard = () => {
 
               {/* User Info */}
               <div>
-                <h2 className="profile-name">{localStorage.getItem('userName')}</h2>
+                <h2 className="profile-name">{userName}</h2>
                 <p className="profile-role">{profileRoleText}</p>
               </div>
             </div>

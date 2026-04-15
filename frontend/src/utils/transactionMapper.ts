@@ -1,4 +1,4 @@
-import { type Transaction } from '../types/Transaction';
+import { type Transaction } from '../types/transaction';
 
 export const mapTransactionFromAPI = (t: any): Transaction => ({
   transactionId: t.transaction_id,
