@@ -2,6 +2,7 @@ import json
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework import status
 from django.utils import timezone
 import logging
@@ -76,6 +77,7 @@ from .serializers import (
     FundingAccountSerializer,
     TransactionBatchSerializer,
 )
+from .tasks import upload_transaction_supporting_doc
 
 # Get logger for this module
 logger = logging.getLogger('api.views')
@@ -162,6 +164,7 @@ class CurrencyAPIView(APIView):
 # -------------------------
 class TransactionAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
 
     def get_user_companies(self, request):
         return UserCompany.objects.filter(
@@ -200,6 +203,10 @@ class TransactionAPIView(APIView):
 
         data = request.data.copy()
 
+        if request.FILES.get('supporting_doc_file'):
+            data['supporting_doc_status'] = 'QUEUED'
+            data['supporting_doc_error'] = ''
+
         # Auto assign company if needed
         if role_code not in ['APR', 'DEP']:
             user_companies = UserCompany.objects.filter(user=user)
@@ -212,6 +219,20 @@ class TransactionAPIView(APIView):
         if serializer.is_valid():
             
             transaction = serializer.save()
+
+            if transaction.supporting_doc_file:
+                localstack_link = ''
+                try:
+                    localstack_link = transaction.supporting_doc_file.url
+                except Exception:
+                    localstack_link = ''
+
+                transaction.supporting_doc_status = 'QUEUED'
+                transaction.supporting_doc_error = ''
+                transaction.supporting_docs = localstack_link
+                transaction.google_drive_link = ''
+                transaction.save(update_fields=['supporting_doc_status', 'supporting_doc_error', 'supporting_docs', 'google_drive_link'])
+                upload_transaction_supporting_doc.delay(str(transaction.transaction_id))
 
             # CREATE LOG
             LogTransaction.objects.create(
@@ -890,6 +911,7 @@ class DailyChequeUsageAPIView(APIView):
 # -------------------------
 class TransactionDetailAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
 
     def get_user_companies(self, request):
         return UserCompany.objects.filter(
@@ -928,9 +950,28 @@ class TransactionDetailAPIView(APIView):
 
         old_data = TransactionSerializer(transaction).data
 
-        serializer = TransactionSerializer(transaction, data=request.data)
+        data = request.data.copy()
+        if request.FILES.get('supporting_doc_file'):
+            data['supporting_doc_status'] = 'QUEUED'
+            data['supporting_doc_error'] = ''
+
+        serializer = TransactionSerializer(transaction, data=data)
         serializer.is_valid(raise_exception=True)
         updated_transaction = serializer.save()
+
+        if updated_transaction.supporting_doc_file and request.FILES.get('supporting_doc_file'):
+            localstack_link = ''
+            try:
+                localstack_link = updated_transaction.supporting_doc_file.url
+            except Exception:
+                localstack_link = ''
+
+            updated_transaction.supporting_doc_status = 'QUEUED'
+            updated_transaction.supporting_doc_error = ''
+            updated_transaction.supporting_docs = localstack_link
+            updated_transaction.google_drive_link = ''
+            updated_transaction.save(update_fields=['supporting_doc_status', 'supporting_doc_error', 'supporting_docs', 'google_drive_link'])
+            upload_transaction_supporting_doc.delay(str(updated_transaction.transaction_id))
 
         # UPDATE LOG
         LogTransaction.objects.create(
@@ -953,9 +994,28 @@ class TransactionDetailAPIView(APIView):
 
         old_data = TransactionSerializer(transaction).data
 
-        serializer = TransactionSerializer(transaction, data=request.data, partial=True)
+        data = request.data.copy()
+        if request.FILES.get('supporting_doc_file'):
+            data['supporting_doc_status'] = 'QUEUED'
+            data['supporting_doc_error'] = ''
+
+        serializer = TransactionSerializer(transaction, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         updated_transaction = serializer.save()
+
+        if updated_transaction.supporting_doc_file and request.FILES.get('supporting_doc_file'):
+            localstack_link = ''
+            try:
+                localstack_link = updated_transaction.supporting_doc_file.url
+            except Exception:
+                localstack_link = ''
+
+            updated_transaction.supporting_doc_status = 'QUEUED'
+            updated_transaction.supporting_doc_error = ''
+            updated_transaction.supporting_docs = localstack_link
+            updated_transaction.google_drive_link = ''
+            updated_transaction.save(update_fields=['supporting_doc_status', 'supporting_doc_error', 'supporting_docs', 'google_drive_link'])
+            upload_transaction_supporting_doc.delay(str(updated_transaction.transaction_id))
 
         # UPDATE LOG
         LogTransaction.objects.create(

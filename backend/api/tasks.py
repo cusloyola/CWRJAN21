@@ -1,22 +1,19 @@
 import logging
+import mimetypes
 from pathlib import Path
 
 from celery import shared_task
 from django.conf import settings
-from django.db import IntegrityError
 from google.oauth2 import service_account
-from googleapiclient.errors import HttpError
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaIoBaseUpload
 
 from .models import Transaction
 
 logger = logging.getLogger("api.tasks")
 
-DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive.readonly"]
-
-
-def _truthy(value):
-    return str(value).lower() in {"1", "true", "yes", "on"}
+DRIVE_SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 
 def _build_drive_client():
@@ -35,229 +32,141 @@ def _build_drive_client():
     return build("drive", "v3", credentials=credentials, cache_discovery=False)
 
 
-def _build_drive_folder_query():
-    # Search the configured folder and ignore trashed items.
-    query = ["trashed = false"]
-
+def _build_drive_file_metadata(transaction, source_file_name):
     parent_folder_id = getattr(settings, "GOOGLE_DRIVE_PARENT_FOLDER_ID", "")
+    drive_file_name = f"{transaction.transaction_ref}_{Path(source_file_name).name}"
+
+    metadata = {"name": drive_file_name}
     if parent_folder_id:
-        query.append(f"'{parent_folder_id}' in parents")
+        metadata["parents"] = [parent_folder_id]
 
-    return " and ".join(query)
+    return metadata
 
 
-@shared_task(name="api.sync_supporting_docs_from_drive_uploads")
-def sync_supporting_docs_from_drive_uploads():
-    page_size = int(getattr(settings, "GOOGLE_DRIVE_UPLOAD_PAGE_SIZE", 100))
-    include_items_from_all_drives = _truthy(
-        getattr(settings, "GOOGLE_DRIVE_INCLUDE_ITEMS_FROM_ALL_DRIVES", True)
-    )
-    supports_all_drives = _truthy(getattr(settings, "GOOGLE_DRIVE_SUPPORTS_ALL_DRIVES", True))
+def _set_transaction_upload_state(transaction, status, error_message="", supporting_docs=None, google_drive_link=None):
+    transaction.supporting_doc_status = status
+    transaction.supporting_doc_error = error_message or ""
+    update_fields = ["supporting_doc_status", "supporting_doc_error"]
 
-    query = _build_drive_folder_query()
+    if supporting_docs is not None:
+        transaction.supporting_docs = supporting_docs
+        update_fields.append("supporting_docs")
 
-    logger.info(
-        "Drive sync start: page_size=%s parent_folder_id=%s query=%s",
-        page_size,
-        bool(getattr(settings, "GOOGLE_DRIVE_PARENT_FOLDER_ID", "")),
-        query,
-    )
+    if google_drive_link is not None:
+        transaction.google_drive_link = google_drive_link
+        update_fields.append("google_drive_link")
+
+    transaction.save(update_fields=update_fields)
+
+
+@shared_task(name="api.upload_transaction_supporting_doc")
+def upload_transaction_supporting_doc(transaction_id):
+    try:
+        transaction = Transaction.objects.get(transaction_id=transaction_id)
+    except Transaction.DoesNotExist:
+        logger.error("Transaction not found for supporting doc upload: transaction_id=%s", transaction_id)
+        return {"status": "missing_transaction"}
+
+    if not transaction.supporting_doc_file:
+        logger.warning(
+            "Transaction has no supporting_doc_file to upload: transaction_id=%s transaction_ref=%s",
+            transaction.transaction_id,
+            transaction.transaction_ref,
+        )
+        _set_transaction_upload_state(
+            transaction,
+            status="FAILED",
+            error_message="No supporting document file was attached.",
+        )
+        return {"status": "missing_file"}
+
+    if transaction.supporting_docs and transaction.supporting_doc_status == "UPLOADED":
+        logger.info(
+            "Transaction already uploaded to Google Drive: transaction_id=%s transaction_ref=%s",
+            transaction.transaction_id,
+            transaction.transaction_ref,
+        )
+        return {"status": "already_uploaded", "drive_link": transaction.google_drive_link or transaction.supporting_docs}
 
     try:
-        service = _build_drive_client()
-        files = []
-        page_token = None
-        page_count = 0
+        _set_transaction_upload_state(transaction, status="UPLOADING")
 
-        while True:
-            response = (
-                service.files()
-                .list(
-                    q=query,
-                    fields="nextPageToken,files(id,name,createdTime,modifiedTime,webViewLink)",
-                    orderBy="modifiedTime desc",
-                    pageSize=page_size,
-                    pageToken=page_token,
-                    includeItemsFromAllDrives=include_items_from_all_drives,
-                    supportsAllDrives=supports_all_drives,
+        drive_service = _build_drive_client()
+        source_file_name = transaction.supporting_doc_file.name
+        content_type = mimetypes.guess_type(source_file_name)[0] or "application/octet-stream"
+
+        transaction.supporting_doc_file.open("rb")
+        try:
+            media = MediaIoBaseUpload(transaction.supporting_doc_file, mimetype=content_type, resumable=False)
+            created_file = (
+                drive_service.files()
+                .create(
+                    body=_build_drive_file_metadata(transaction, source_file_name),
+                    media_body=media,
+                    fields="id, webViewLink, name",
+                    supportsAllDrives=True,
                 )
                 .execute()
             )
-            batch = response.get("files", [])
-            files.extend(batch)
-            page_count += 1
-            page_token = response.get("nextPageToken")
-            if not page_token:
-                break
+        finally:
+            transaction.supporting_doc_file.close()
 
-        logger.info("Drive API fetch complete: pages=%s fetched_files=%s", page_count, len(files))
+        drive_link = created_file.get("webViewLink", "")
+        if not drive_link:
+            raise ValueError("Google Drive did not return a webViewLink")
+
+        _set_transaction_upload_state(
+            transaction,
+            status="UPLOADED",
+            supporting_docs=drive_link,
+            google_drive_link=drive_link,
+        )
+
+        logger.info(
+            "Supporting document uploaded to Google Drive: transaction_id=%s transaction_ref=%s drive_file_id=%s",
+            transaction.transaction_id,
+            transaction.transaction_ref,
+            created_file.get("id"),
+        )
+        return {"status": "uploaded", "drive_link": drive_link}
     except (FileNotFoundError, ValueError) as exc:
         logger.error(
-            "Drive sync configuration error: %s. Set GOOGLE_DRIVE_SERVICE_ACCOUNT_FILE to a valid in-container path.",
+            "Google Drive upload configuration error for transaction_id=%s transaction_ref=%s: %s",
+            transaction.transaction_id,
+            transaction.transaction_ref,
             exc,
         )
-        return {"processed_files": 0, "matched": 0, "updated": 0, "unmatched": 0}
+        _set_transaction_upload_state(transaction, status="FAILED", error_message=str(exc))
+        return {"status": "failed", "error": str(exc)}
     except HttpError as exc:
+        error_message = f"Google Drive upload failed with status {getattr(exc.resp, 'status', 'unknown')}"
+        exc_text = str(exc)
+        if "storageQuotaExceeded" in exc_text:
+            error_message = (
+                "Google Drive upload failed: service account has no personal storage quota. "
+                "Upload to a Shared Drive folder and grant the service account Content manager access."
+            )
+        elif "insufficientParentPermissions" in exc_text:
+            error_message = (
+                "Google Drive upload failed: insufficient permissions for the configured parent folder. "
+                "Share the folder with the service account and grant edit/content manager rights."
+            )
+        elif getattr(exc.resp, 'status', None) == 403:
+            error_message = "Google Drive upload failed: permission denied for the target folder."
         logger.error(
-            "Drive API request failed: status=%s details=%s",
-            getattr(exc.resp, "status", "unknown"),
+            "%s transaction_id=%s transaction_ref=%s details=%s",
+            error_message,
+            transaction.transaction_id,
+            transaction.transaction_ref,
             exc,
         )
-        return {"processed_files": 0, "matched": 0, "updated": 0, "unmatched": 0}
-    except Exception:
-        logger.exception("Drive API lookup failed for recent uploads sync")
+        _set_transaction_upload_state(transaction, status="FAILED", error_message=error_message)
+        return {"status": "failed", "error": error_message}
+    except Exception as exc:
+        logger.exception(
+            "Unexpected error while uploading supporting document for transaction_id=%s transaction_ref=%s",
+            transaction.transaction_id,
+            transaction.transaction_ref,
+        )
+        _set_transaction_upload_state(transaction, status="FAILED", error_message=str(exc))
         raise
-
-    if not files:
-        logger.info("No Drive files found in the configured folder")
-        return {"processed_files": 0, "matched": 0, "updated": 0, "unmatched": 0}
-
-    # Map each file to possible refs: exact name and stem (name without extension).
-    file_candidates = {}
-    lookup_keys = set()
-    for drive_file in files:
-        raw_name = (drive_file.get("name") or "").strip()
-        if not raw_name:
-            logger.info("Skipping Drive file with empty name: file_id=%s", drive_file.get("id"))
-            continue
-
-        stem_name = Path(raw_name).stem.strip()
-        candidates = [raw_name]
-        if stem_name and stem_name != raw_name:
-            candidates.append(stem_name)
-
-        file_candidates[raw_name] = {"file": drive_file, "candidates": candidates}
-        lookup_keys.update(candidates)
-        logger.info(
-            "Drive file detected: name=%s stem=%s file_id=%s modifiedTime=%s webViewLink_present=%s candidates=%s",
-            raw_name,
-            stem_name,
-            drive_file.get("id"),
-            drive_file.get("modifiedTime"),
-            bool(drive_file.get("webViewLink")),
-            candidates,
-        )
-
-    if not file_candidates:
-        logger.info("No eligible Drive uploads with filenames to compare")
-        return {"processed_files": len(files), "matched": 0, "updated": 0, "unmatched": 0}
-
-    logger.info(
-        "Drive lookup keys prepared: unique_keys=%s sample_keys=%s",
-        len(lookup_keys),
-        sorted(list(lookup_keys))[:20],
-    )
-
-    transactions = {
-        tx.transaction_ref: tx
-        for tx in Transaction.objects.filter(transaction_ref__in=lookup_keys)
-    }
-
-    logger.info(
-        "Matching against transactions: candidate_refs=%s matched_transactions_in_db=%s",
-        len(lookup_keys),
-        len(transactions),
-    )
-
-    matched_count = 0
-    updated_count = 0
-    unmatched_count = 0
-
-    for original_name, item in file_candidates.items():
-        drive_file = item["file"]
-        candidates = item["candidates"]
-
-        logger.info(
-            "Evaluating Drive file against transaction refs: file_name=%s candidates=%s",
-            original_name,
-            candidates,
-        )
-
-        transaction = None
-        matched_ref = None
-        for candidate in candidates:
-            logger.info(
-                "Trying candidate ref=%s for file_name=%s",
-                candidate,
-                original_name,
-            )
-            tx = transactions.get(candidate)
-            if tx:
-                transaction = tx
-                matched_ref = candidate
-                logger.info(
-                    "Candidate matched transaction: candidate_ref=%s transaction_id=%s",
-                    candidate,
-                    tx.transaction_id,
-                )
-                break
-
-        if not transaction:
-            unmatched_count += 1
-            logger.info(
-                "No transaction match for Drive file name=%s candidates=%s",
-                original_name,
-                candidates,
-            )
-            continue
-
-        matched_count += 1
-        file_id = drive_file.get("id")
-        web_view_link = drive_file.get("webViewLink")
-
-        if not file_id or not web_view_link:
-            logger.warning(
-                "Skipping matched file due to missing id/link: file_name=%s matched_ref=%s file_id=%s has_link=%s",
-                original_name,
-                matched_ref,
-                file_id,
-                bool(web_view_link),
-            )
-            continue
-
-        if transaction.supporting_docs == web_view_link:
-            logger.info(
-                "Already up-to-date: transaction_ref=%s transaction_id=%s file_name=%s",
-                transaction.transaction_ref,
-                transaction.transaction_id,
-                original_name,
-            )
-            continue
-
-        try:
-            logger.info(
-                "Updating supporting_docs: transaction_ref=%s transaction_id=%s new_link=%s",
-                transaction.transaction_ref,
-                transaction.transaction_id,
-                web_view_link,
-            )
-            transaction.supporting_docs = web_view_link
-            transaction.save(update_fields=["supporting_docs"])
-            updated_count += 1
-            logger.info(
-                "Updated supporting_docs: transaction_ref=%s transaction_id=%s file_name=%s file_id=%s",
-                transaction.transaction_ref,
-                transaction.transaction_id,
-                original_name,
-                file_id,
-            )
-        except IntegrityError:
-            logger.exception(
-                "Failed to save supporting_docs for transaction %s (ref=%s)",
-                transaction.transaction_id,
-                transaction.transaction_ref,
-            )
-
-    logger.info(
-        "Drive sync complete: fetched=%s matched=%s updated=%s unmatched=%s",
-        len(files),
-        matched_count,
-        updated_count,
-        unmatched_count,
-    )
-    return {
-        "processed_files": len(files),
-        "matched": matched_count,
-        "updated": updated_count,
-        "unmatched": unmatched_count,
-    }
