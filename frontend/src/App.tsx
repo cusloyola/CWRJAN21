@@ -30,7 +30,7 @@ function App() {
   const location = useLocation()
   const dashboardRoutes = ['/dashboard', '/profile', '/wpsi', '/wmsi', '/wlpi',
     '/cfii', '/bank-workload', '/activity-log/wpsi-cwr', '/activity-log/wmsi-cwr', '/activity-log/wlpi-cwr',
-    '/activity-log/cfii-cwr', '/transactions', '/archives', '/add-transaction', '/edit-transaction', '/corp-inventory', '/rfp-monitoring', '/add-rfp', '/edit-rfp']
+    '/activity-log/cfii-cwr', '/transactions', '/archives', '/transactions/new', '/edit-transaction', '/corp-inventory', '/rfp-monitoring', '/add-rfp', '/edit-rfp']
   const isDashboardLayout = dashboardRoutes.some(route => location.pathname.startsWith(route))
 
   return (

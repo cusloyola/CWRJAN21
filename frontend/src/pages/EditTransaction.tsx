@@ -41,10 +41,11 @@ const EditTransaction: React.FC = () => {
                     batch: t.batch,
                     mc_branch_issuance: t.mc_branch_issuance,
                     funding_account: t.funding_account,
-                    supporting_docs: t.supporting_docs,
+                    supporting_docs: t.supporting_docs || '',
+                    google_drive_link: t.google_drive_link || '',
                     endorsement_complete: t.endorsement_complete,
                     status: t.status,
-                    drive_file_link: t.drive_file_link
+                    drive_file_link: t.drive_file_link || ''
                 });
 
             } catch {

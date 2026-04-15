@@ -18,7 +18,12 @@ export interface Transaction {
   fundingAccount: string;
   batch: string;
   driveFileLink: string;
+  googleDriveLink?: string;
   supportingDocs: string;
+  supportingDocStatus?: string;
+  supportingDocError?: string;
+  supportingDocFileUrl?: string;
+  supportingDocFileName?: string;
 
   // workflow fields
   status: 'pending' | 'rejected' | 'approved';

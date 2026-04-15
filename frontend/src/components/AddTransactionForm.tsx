@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React, { useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/AddTransactionForm.css';
@@ -35,12 +35,67 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
             supporting_docs: '',       // default empty string
             endorsement_complete: false // default false
         });
+    const [supportingDocFile, setSupportingDocFile] = useState<File | null>(null);
+    const [isDragOver, setIsDragOver] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const [isSubmitting, setIsSubmitting] = useState(false); 
+
+    const getErrorMessageFromResponse = async (res: Response) => {
+        try {
+            const errorData = await res.json();
+
+            if (typeof errorData?.detail === 'string') {
+                return errorData.detail;
+            }
+
+            if (Array.isArray(errorData?.non_field_errors) && errorData.non_field_errors.length > 0) {
+                return errorData.non_field_errors[0];
+            }
+
+            if (errorData && typeof errorData === 'object') {
+                const firstFieldError = Object.values(errorData).find((value) => (
+                    Array.isArray(value) && value.length > 0
+                ));
+                if (Array.isArray(firstFieldError)) {
+                    return String(firstFieldError[0]);
+                }
+            }
+        } catch {
+            // Response body may not be JSON.
+        }
+
+        return `Request failed with status ${res.status}`;
+    };
 
     const handleChange = (field: string, value: any) => {
             setFormData(prev => ({ ...prev, [field]: value }));
         };
+
+    const handleFileSelected = (file: File | null) => {
+        if (!file) {
+            setSupportingDocFile(null);
+            return;
+        }
+
+        setSupportingDocFile(file);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragOver(false);
+        const file = e.dataTransfer.files?.[0] || null;
+        handleFileSelected(file);
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragOver(true);
+    };
+
+    const handleDragLeave = () => {
+        setIsDragOver(false);
+    };
     
     const resetForm = () => {
         setFormData({
@@ -60,24 +115,41 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
             supporting_docs: '',
             endorsement_complete: false
         });
+        setSupportingDocFile(null);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const authToken = localStorage.getItem('authToken');
+        if (!authToken) {
+            toast.error('Session expired. Please login again.');
+            return;
+        }
+
         setIsSubmitting(true);
-        // 🔍 LOG ONLY (NO POST)
-        console.log('=== DEBUG: Transaction Payload ===');
-        console.log(JSON.stringify(formData, null, 2));
-        console.table(formData);
+
+        const payload = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+            if (value === null || value === undefined) return;
+            payload.append(key, String(value));
+        });
+
+        if (supportingDocFile) {
+            payload.append('supporting_doc_file', supportingDocFile);
+        }
 
         try {
         const res = await fetch(`${API_BASE}/api/v1/transactions/`, {
             method: 'POST',
-            headers: getAuthHeader(),
-            body: JSON.stringify(formData),
+            headers: getAuthHeader(false),
+            body: payload,
         });
 
-        if (!res.ok) throw new Error('Failed to save transaction');
+        if (!res.ok) {
+            const message = await getErrorMessageFromResponse(res);
+            throw new Error(message);
+        }
 
         toast.success('Transaction saved successfully!');
 
@@ -214,6 +286,68 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
                                 value={formData.funding_account}
                                 onChange={(value) => handleChange('funding_account', value)}
                             />
+                        </div>
+
+                        <div className="transaction-form-detail-row">
+                            <label className="transaction-form-detail-label">Supporting Document</label>
+                            <div
+                                className={`transaction-upload-dropzone ${isDragOver ? 'is-drag-over' : ''}`}
+                                onDrop={handleDrop}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onClick={() => fileInputRef.current?.click()}
+                                role="button"
+                                tabIndex={0}
+                                onKeyDown={e => {
+                                    if (e.key === 'Enter' || e.key === ' ') {
+                                        e.preventDefault();
+                                        fileInputRef.current?.click();
+                                    }
+                                }}
+                            >
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    className="transaction-upload-file-input"
+                                    onChange={e => handleFileSelected(e.target.files?.[0] || null)}
+                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+                                />
+                                <svg
+                                    className="transaction-upload-icon"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    aria-hidden="true"
+                                >
+                                    <path
+                                        d="M7 18a4 4 0 0 1-.7-7.94A5.5 5.5 0 0 1 17 9.5h.5a3.5 3.5 0 1 1 0 7H15"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                    <path
+                                        d="M12 18V11"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                    />
+                                    <path
+                                        d="M9.5 13.5 12 11l2.5 2.5"
+                                        stroke="currentColor"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                                <p className="transaction-upload-title">Drag and drop file here</p>
+                                <p className="transaction-upload-subtitle">or click to browse</p>
+                                {supportingDocFile && (
+                                    <p className="transaction-upload-filename">
+                                        Selected: {supportingDocFile.name}
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </div>
 
