@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE,getAuthHeader } from '../config/api';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
-import { type Transaction } from '../types/Transaction';
+import { type Transaction } from '../types/transaction';
 import { mapTransactionFromAPI } from '../utils/transactionMapper';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

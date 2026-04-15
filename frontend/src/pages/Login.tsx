@@ -1,4 +1,4 @@
-import { API_BASE, getAuthHeader} from '../config/api';
+import { API_BASE, getAuthHeader } from '../config/api';
 import { useState, useEffect } from 'react'
 import type { FormEvent, ChangeEvent } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
@@ -103,35 +103,43 @@ function Login() {
                 localStorage.setItem('refreshToken', data.refresh);
                 localStorage.setItem('user', JSON.stringify(data.user));
 
-                const role =
-                data.user?.role?.code !== 'DAM'
-                    ? data.user?.role?.code ?? ''
-                    :`${data.user?.role?.code ?? ''} ${data.user?.companies[0]?.company_code ?? ''}`.trim() ;
+                const roleCode = (data.user?.role?.code || '').trim();
+                const role = roleCode !== 'DAM'
+                    ? roleCode
+                    : (data.user?.companies || [])
+                        .map((company: any) => `${roleCode} ${String(company?.company_code || '').trim().toUpperCase()}`.trim())
+                        .filter(Boolean)
+                        .join(' | ');
 
-                console.log('Determined role:', role);  
+                console.log('Determined role:', role);
 
-                localStorage.setItem('userRole', role );
+                localStorage.setItem('userRole', role);
                 localStorage.setItem('userRoleName', data.user.role.name || '');
                 localStorage.setItem('userName', data.user.full_name || '');
                 localStorage.setItem('company_id', String(data.user.companies[0]?.id || ''));
                 localStorage.setItem('companyCode', data.user.companies[0]?.company_code || '');
+                const companiesCode = (data.user.companies || [])
+                    .map((c: any) => c.company_code)
+                    .filter(Boolean)
+                    .join(' | ');
 
+                localStorage.setItem('companiesCode', companiesCode);
                 // Handle multi-company scenario
                 if (data.user.companies.length === 1) {
                     localStorage.setItem('selectedCompany', JSON.stringify(data.user.companies[0]));
                 } else {
-                    navigate('/select-company'); // redirect to a company selection page
+                    navigate('/dashboard'); // redirect to a company selection page
                     return;
                 }
 
                 toast.success('Login successful! Redirecting...');
                 setTimeout(() => navigate('/dashboard'), 1000);
             } else {
-                const errorMsg = 
+                const errorMsg =
                     data?.non_field_errors?.[0] ||
                     data?.detail ||
                     'Login failed. Check credentials.';
-                 toast.error(errorMsg);
+                toast.error(errorMsg);
             }
         } catch (err) {
             console.error('Login error:', err);
