@@ -2,7 +2,6 @@ import React,{useState} from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/AddTransactionForm.css';
-
 import SelectCurrency from './SelectCurrency';
 import SelectPayee from './SelectPayee';
 import SelectCategory from './SelectCategory';
@@ -10,14 +9,10 @@ import SelectVesselPrincipal from './SelectVesselPrincipal';
 import SelectTransactionBatch from './SelectTransactionBatch';
 import SelectMCBranchIssuance from './SelectMCBranchIssuance';
 import SelectFundingAccount from './SelectFundingAccount';
-
 import { API_BASE, getAuthHeader } from '../config/api';
 
-interface AddTransactionFormProps {
-    onSuccess?: () => void;
-}
 
-const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) => {
+const AddTransactionForm: React.FC = () => {
     const [formData, setFormData] = useState({
             company: Number(localStorage.getItem('company_id')),
             transaction_ref: '',
@@ -41,26 +36,6 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
     const handleChange = (field: string, value: any) => {
             setFormData(prev => ({ ...prev, [field]: value }));
         };
-    
-    const resetForm = () => {
-        setFormData({
-            company: Number(localStorage.getItem('company_id')),
-            transaction_ref: '',
-            category: '',
-            payee: '',
-            particulars: '',
-            vessel_principal: '',
-            etd: '',
-            currency: '',
-            transaction_amount: '',
-            reference_erfp: '',
-            batch: '',
-            mc_branch_issuance: '',
-            funding_account: '',
-            supporting_docs: '',
-            endorsement_complete: false
-        });
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -81,15 +56,27 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
 
         toast.success('Transaction saved successfully!');
 
-        resetForm();
-
-        // Redirect handled by parent
-        onSuccess?.();
-
+        setFormData({
+            company: Number(localStorage.getItem('company_id')),
+            category: '',
+            transaction_ref: '',
+            payee: '',
+            particulars: '',
+            vessel_principal: '',
+            etd: '',
+            currency: '',
+            transaction_amount: '',
+            reference_erfp: '',
+            batch: '',
+            mc_branch_issuance: '',
+            funding_account: '',
+            supporting_docs: '',
+            endorsement_complete: false
+        });
         } catch (err: any) {
-            toast.error(err.message || 'Error saving transaction');
+        toast.error(err.message || 'Error saving transaction');
         } finally {
-            setIsSubmitting(false);
+        setIsSubmitting(false);
         }
         
     }; 
@@ -223,7 +210,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
                             className="transaction-form-save-button"
                             disabled={isSubmitting}
                         >
-                          {isSubmitting ? 'Saving...' : 'Add Transaction'}
+                           Add Transaction
                         </button>
                     </div>
                 </div>
