@@ -18,10 +18,12 @@ import Transactions from './pages/Transactions'
 import AddTransaction from './pages/AddTransaction'
 import EditTransaction from './pages/EditTransaction';
 
-import ArchivesTable from './pages/Archives'
-import CorpInventory from './pages/CorpInventory'
 import RFPMonitoring from './pages/RFPMonitoring'
 import AddRfpMonitoring from './pages/AddRfpMonitoring'
+// import EditRfpMonitoring from './pages/EditRfpMonitoring'
+
+import ArchivesTable from './pages/Archives'
+import CorpInventory from './pages/CorpInventory'
 import ProtectedRoute from './components/ProtectedRoute'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -55,11 +57,18 @@ function App() {
         <Route path="/transactions/new" element={<ProtectedRoute><AddTransaction /></ProtectedRoute>} />
         <Route path="/transactions/:id/edit" element={<ProtectedRoute><EditTransaction /></ProtectedRoute>} />  
 
-        <Route path="/archives" element={<ProtectedRoute><ArchivesTable /></ProtectedRoute>} />
-        <Route path="/corp-inventory" element={<ProtectedRoute><CorpInventory /></ProtectedRoute>} />
+         {/* RFP Monitoring */}
         <Route path="/rfp-monitoring" element={<ProtectedRoute><RFPMonitoring /></ProtectedRoute>} />
         <Route path="/add-rfp" element={<ProtectedRoute><AddRfpMonitoring /></ProtectedRoute>} />
         <Route path="/edit-rfp/:expectedSeries" element={<ProtectedRoute><AddRfpMonitoring /></ProtectedRoute>} />
+
+        {/* <Route path="/rfps" element={<ProtectedRoute><RFPMonitoring /></ProtectedRoute>} />
+        <Route path="/rfps/new" element={<ProtectedRoute><AddRfpMonitoring /></ProtectedRoute>} />
+        <Route path="/rfps/:id/edit" element={<ProtectedRoute><EditRfpMonitoring /></ProtectedRoute>} /> */}
+
+        <Route path="/archives" element={<ProtectedRoute><ArchivesTable /></ProtectedRoute>} />
+        <Route path="/corp-inventory" element={<ProtectedRoute><CorpInventory /></ProtectedRoute>} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
       <ToastContainer position="top-center" theme="colored" limit={3} newestOnTop closeOnClick pauseOnHover={false} />

@@ -46,6 +46,8 @@ const EditTransactionForm: React.FC<Props> = ({
                         <div className="transaction-form-detail-row">
                             <label>Transaction Ref</label>
                             <input
+                                type="text"
+                                className="transaction-form-detail-value"
                                 value={formData.transaction_ref}
                                 onChange={e => onChange('transaction_ref', e.target.value)}
                             />
@@ -64,8 +66,10 @@ const EditTransactionForm: React.FC<Props> = ({
                         <div className="transaction-form-detail-row">
                             <label>Particulars</label>
                             <textarea
+                                className="transaction-form-detail-value"
                                 value={formData.particulars}
                                 onChange={e => onChange('particulars', e.target.value)}
+                                rows={3}
                             />
                         </div>
 
@@ -83,6 +87,7 @@ const EditTransactionForm: React.FC<Props> = ({
                             <label>ETD</label>
                             <input
                                 type="date"
+                                className="transaction-form-detail-value"
                                 value={formData.etd}
                                 onChange={e => onChange('etd', e.target.value)}
                             />
@@ -102,8 +107,20 @@ const EditTransactionForm: React.FC<Props> = ({
                             <label>Amount</label>
                             <input
                                 type="number"
+                                className="transaction-form-detail-value"
                                 value={formData.transaction_amount}
                                 onChange={e => onChange('transaction_amount', Number(e.target.value))}
+                            />
+                        </div>
+
+                        <div className="transaction-form-detail-row">
+                            <label className="transaction-form-detail-label">Reference / eRFP</label>
+                            <input
+                                type="text"
+                                className="transaction-form-detail-value"
+                                value={formData.reference_erfp}
+                                onChange={e => onChange('reference_erfp', e.target.value)}
+                                placeholder="Enter reference or eRFP"
                             />
                         </div>
 
@@ -136,7 +153,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* EXTRA FIELDS (EDIT ONLY) */}
                         <div className="transaction-form-detail-row">
-                            <label>Status</label>
+                            <label className="transaction-form-detail-label">Status</label>
                             <select
                                 value={formData.status}
                                 onChange={e => onChange('status', e.target.value)}
@@ -150,6 +167,8 @@ const EditTransactionForm: React.FC<Props> = ({
                         <div className="transaction-form-detail-row">
                             <label>Supporting Documents</label>
                             <input
+                                type="text"
+                                className="transaction-form-detail-value"
                                 value={formData.drive_file_link || ''}
                                 onChange={e => onChange('supporting_docs', e.target.value)}
                             />

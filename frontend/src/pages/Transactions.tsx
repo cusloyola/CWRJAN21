@@ -156,7 +156,7 @@ const Transactions: React.FC = () => {
                             </div>
 
                             <Link 
-                                    to="/add-transaction" 
+                                    to="/transactions/new" 
                                     className="wpsi-add-button" 
                                     style={{ textDecoration: 'none' }}
                             >
