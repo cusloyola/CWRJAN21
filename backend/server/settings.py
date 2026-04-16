@@ -252,8 +252,8 @@ AWS_SECRET_ACCESS_KEY = "test"
 AWS_STORAGE_BUCKET_NAME = "cwr-bucket"
 AWS_S3_REGION_NAME = "ap-southeast-1"
 
-# LocalStack endpoint
-AWS_S3_ENDPOINT_URL = "http://localstack:4566"
+# MinIO endpoint
+AWS_S3_ENDPOINT_URL = "http://minio:9000"
 
 AWS_S3_ADDRESSING_STYLE = "path"
 
