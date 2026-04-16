@@ -23,7 +23,15 @@ const Sidebar = () => {
   useEffect(() => {
     localStorage.setItem('sidebarCollapsed', JSON.stringify(sidebarCollapsed));
   }, [sidebarCollapsed]);
-  const userRoles = parseStoredRoles(localStorage.getItem('userRole'));
+  const parsedRoles = parseStoredRoles(localStorage.getItem('userRole'));
+  const userRaw = localStorage.getItem('user');
+  const parsedUser = userRaw ? JSON.parse(userRaw) : null;
+  const derivedDamRoles = parsedUser?.role?.code === 'DAM'
+    ? (parsedUser?.companies || [])
+      .map((company: any) => `DAM ${String(company?.company_code || '').trim().toUpperCase()}`.trim())
+      .filter(Boolean)
+    : [];
+  const userRoles = [...new Set([...parsedRoles, ...derivedDamRoles])];
   const assignedDamTabs = getDamTabsForRoles(userRoles);
   const isDAM = assignedDamTabs.length > 0;
   const isWorker = userRoles.includes(ROLES.MAKER);

@@ -48,17 +48,18 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     const userRoles = parseStoredRoles(storedRole);
     const userStr = localStorage.getItem('user');
     const user = userStr ? JSON.parse(userStr) : null;
-    const selectedCompany = localStorage.getItem('selectedCompany');
-
+   /*  const selectedCompany = localStorage.getItem('selectedCompany');
+  */
     // --- Authentication Check ---
     if (!authToken || !user) {
         return <Navigate to="/login" replace state={{ message: 'Please login first to access this page' }} />;
     }
 
     // --- Multi-Company Handling ---
-    if (user.companies?.length > 1 && !selectedCompany) {
-        return <Navigate to="/select-company" replace />;
-    }
+/*     if (user.companies?.length > 1 && !selectedCompany) {
+        console.log(user.companies);
+        return <Navigate to="/dashboard" replace />;
+    } */
 
     // --- Authorization Check ---
     const allowedRoutes = [...new Set(userRoles.flatMap((role) => ROLE_PERMISSIONS[role] || []))];

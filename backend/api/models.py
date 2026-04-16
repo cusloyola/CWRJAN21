@@ -588,35 +588,7 @@ class TransactionApprovalHistory(models.Model):
         return f"{self.transaction} | {self.action} | Step {self.step_order}"
 
 
-# -------------------------
-# RFP Monitoring Log
-# -------------------------
-class LogRFPMonitoring(models.Model):
-    ACTION_CREATE = "CREATE"
-    ACTION_UPDATE = "UPDATE"
-    ACTION_DELETE = "DELETE"
-    ACTION_CHOICES = (
-        (ACTION_CREATE, "Create"),
-        (ACTION_UPDATE, "Update"),
-        (ACTION_DELETE, "Delete"),
-    )
 
-    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    rfp_monitoring = models.ForeignKey("RFPMonitoring", on_delete=models.SET_NULL, related_name="logs", null=True, blank=True)
-    rfp_series = models.IntegerField(null=True, blank=True)
-    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
-    changes = JSONField(null=True, blank=True)
-    date_created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = "RFP Monitoring Log"
-        verbose_name_plural = "Logs - RFP Monitoring"
-        ordering = ["-date_created"]
-
-    def __str__(self):
-        return f"{self.action} | RFP {self.rfp_series or self.rfp_monitoring}"
-    
 # -------------------------
 # RFP Record
 # -------------------------
@@ -711,6 +683,38 @@ class RFPMonitoring(models.Model):
     
     def __str__(self):
         return f"{self.expected_series}"
+    
+# -------------------------
+# RFP Monitoring Log
+# -------------------------
+class LogRFPMonitoring(models.Model):
+    ACTION_CREATE = "CREATE"
+    ACTION_UPDATE = "UPDATE"
+    ACTION_DELETE = "DELETE"
+    ACTION_CHOICES = (
+        (ACTION_CREATE, "Create"),
+        (ACTION_UPDATE, "Update"),
+        (ACTION_DELETE, "Delete"),
+    )
+
+    log_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    rfp_monitoring = models.ForeignKey("RFPMonitoring", on_delete=models.SET_NULL, related_name="logs", null=True, blank=True)
+    rfp_series = models.IntegerField(null=True, blank=True)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES, default=ACTION_CREATE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    changes = JSONField(null=True, blank=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "RFP Monitoring Log"
+        verbose_name_plural = "Logs - RFP Monitoring"
+        ordering = ["-date_created"]
+
+    def __str__(self):
+        return f"{self.action} | RFP {self.rfp_series or self.rfp_monitoring}"
+    
+
+
     
 # -------------------------
 # Corp Cheque Inventory

@@ -1,7 +1,8 @@
 // API service for RFP monitoring backend integration
+import { API_BASE } from '../config/api';
 import type { RfpMonitoringRecord, RfpFormData, Payee, VesselPrincipal, Port } from '../types/rfp';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_URL || `${API_BASE}/api/v1`;
 
 // JWT Token management
 class TokenManager {
