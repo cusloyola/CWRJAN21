@@ -178,6 +178,8 @@ class TransactionSerializer(serializers.ModelSerializer):
             'batch',
             'batch_name',
             'supporting_docs',
+            'supporting_doc_error',
+            'supporting_doc_status',
             'endorsement_complete',
             'date_created'
         ]

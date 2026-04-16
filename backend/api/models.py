@@ -442,6 +442,8 @@ class Transaction (models.Model):
     funding_account = models.ForeignKey(FundingAccount,on_delete=models.PROTECT)
     batch = models.ForeignKey(TransactionBatch,on_delete=models.PROTECT,default=get_default_batch)
     supporting_docs = models.CharField(max_length=500,blank=True,unique=False)
+    supporting_doc_error = models.CharField(max_length=500, blank=True, default="")
+    supporting_doc_status = models.CharField(max_length=100, blank=True, default="")
     date_created = models.DateTimeField(auto_now_add=True)
     endorsement_complete = models.BooleanField(default=False)
 
