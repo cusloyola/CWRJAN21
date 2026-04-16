@@ -243,12 +243,7 @@ GOOGLE_DRIVE_UPLOAD_LOOKBACK_MINUTES = int(
 )
 GOOGLE_DRIVE_UPLOAD_PAGE_SIZE = int(os.getenv("GOOGLE_DRIVE_UPLOAD_PAGE_SIZE", "100"))
 
-CELERY_BEAT_SCHEDULE = {
-    "sync-supporting-docs-from-drive-uploads": {
-        "task": "api.sync_supporting_docs_from_drive_uploads",
-        "schedule": timedelta(seconds=GOOGLE_DRIVE_UPLOAD_POLL_SECONDS),
-    }
-}
+CELERY_BEAT_SCHEDULE = {}
 
 # AWS S3 Configuration for LocalStack
 

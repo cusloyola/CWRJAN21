@@ -167,10 +167,16 @@ const EditTransactionForm: React.FC<Props> = ({
                         <div className="transaction-form-detail-row">
                             <label>Supporting Documents</label>
                             <input
-                                type="text"
-                                className="transaction-form-detail-value"
-                                value={formData.drive_file_link || ''}
-                                onChange={e => onChange('supporting_docs', e.target.value)}
+                                value={formData.supporting_docs || ''}
+                                readOnly
+                            />
+                        </div>
+
+                        <div className="transaction-form-detail-row">
+                            <label>Google Drive Link</label>
+                            <input
+                                value={formData.google_drive_link || ''}
+                                readOnly
                             />
                         </div>
 

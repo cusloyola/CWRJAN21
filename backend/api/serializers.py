@@ -152,6 +152,18 @@ class TransactionSerializer(serializers.ModelSerializer):
     currency_code = serializers.CharField(source='currency.currency_code', read_only=True)
     batch_name = serializers.CharField(source='batch.batch_name', read_only=True)
     branch_name = serializers.CharField(source='mc_branch_issuance.branch_name', read_only=True)
+    drive_file_link = serializers.CharField(source='google_drive_link', read_only=True)
+    supporting_doc_file_name = serializers.CharField(source='supporting_doc_file.name', read_only=True)
+    supporting_doc_file_url = serializers.SerializerMethodField()
+
+    def get_supporting_doc_file_url(self, obj):
+        if not obj.supporting_doc_file:
+            return ''
+
+        try:
+            return obj.supporting_doc_file.url
+        except Exception:
+            return ''
 
     class Meta:
         model = Transaction
@@ -177,11 +189,28 @@ class TransactionSerializer(serializers.ModelSerializer):
             'funding_acct_name',
             'batch',
             'batch_name',
+            'supporting_doc_file',
+            'supporting_doc_file_name',
+            'supporting_doc_file_url',
+            'supporting_doc_status',
+            'supporting_doc_error',
             'supporting_docs',
+            'google_drive_link',
+            'drive_file_link',
             'endorsement_complete',
             'date_created'
         ]
-        read_only_fields = ['transaction_id', 'date_created']
+        read_only_fields = [
+            'transaction_id',
+            'date_created',
+            'supporting_doc_file_name',
+            'supporting_doc_file_url',
+            'supporting_doc_status',
+            'supporting_doc_error',
+            'supporting_docs',
+            'google_drive_link',
+            'drive_file_link',
+        ]
 
 # -------------------------
 # Payee Serializer

@@ -126,6 +126,58 @@
     width: 100%;
 }
 
+.transaction-upload-file-input {
+    display: none;
+}
+
+.transaction-upload-dropzone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.transaction-upload-dropzone:hover {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.transaction-upload-dropzone.is-drag-over {
+    border-color: #2563eb;
+    background: #dbeafe;
+}
+
+.transaction-upload-icon {
+    width: 2.1rem;
+    height: 2.1rem;
+    color: #2563eb;
+    margin: 0 auto 0.45rem;
+    display: block;
+}
+
+.transaction-upload-title {
+    margin: 0;
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.transaction-upload-subtitle {
+    margin: 0.3rem 0 0;
+    color: #475569;
+    font-size: 0.85rem;
+}
+
+.transaction-upload-filename {
+    margin: 0.6rem 0 0;
+    color: #0f172a;
+    font-size: 0.85rem;
+    word-break: break-word;
+}
+
 /* Smoother interactions for form controls */
 .transaction-form-detail-value {
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
