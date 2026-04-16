@@ -247,8 +247,8 @@ CELERY_BEAT_SCHEDULE = {}
 
 # AWS S3 Configuration for LocalStack
 
-AWS_ACCESS_KEY_ID = "test"
-AWS_SECRET_ACCESS_KEY = "test"
+AWS_ACCESS_KEY_ID = "minioadmin"
+AWS_SECRET_ACCESS_KEY = "minioadmin123"
 AWS_STORAGE_BUCKET_NAME = "cwr-bucket"
 AWS_S3_REGION_NAME = "ap-southeast-1"
 

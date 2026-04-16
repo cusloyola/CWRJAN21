@@ -105,7 +105,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       sleep 5;
-      mc alias set local http://minio:9000 test test;
+      mc alias set local http://minio:9000 minioadmin minioadmin123;
       mc mb -p local/cwr-bucket || true;
       exit 0;
       "
@@ -125,8 +125,8 @@ services:
       - "9000:9000"   # S3 API
       - "9001:9001"   # Web Console
     environment:
-      MINIO_ROOT_USER: test
-      MINIO_ROOT_PASSWORD: test
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
     volumes:
       - minio_data:/data
     networks:
@@ -192,10 +192,10 @@ services:
     environment:
       DB_HOST: db   # override host for Docker
       ENVIRONMENT: dev
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin123
       AWS_STORAGE_BUCKET_NAME: cwr-bucket
-      AWS_S3_ENDPOINT_URL: http://localstack:4566      
+      AWS_S3_ENDPOINT_URL: http://minio:9000     
     command: sh -c "python3 manage.py migrate --noinput; python3 manage.py runserver 0.0.0.0:8000"
     depends_on:
       db:
@@ -225,8 +225,8 @@ services:
     environment:
       DB_HOST: db
       ENVIRONMENT: dev
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin123
       AWS_STORAGE_BUCKET_NAME: cwr-bucket
       AWS_S3_ENDPOINT_URL: http://minio:9000
     volumes:
