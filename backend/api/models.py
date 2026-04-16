@@ -1,6 +1,7 @@
 
 import uuid
 import json
+from pathlib import Path
 from django.db import models
 from django.contrib.auth.models import User
 from decimal import Decimal
@@ -420,6 +421,14 @@ class LogTransactionBatch(models.Model):
 # ------------------------------------------------
 # Transactions
 # ------------------------------------------------
+
+
+def transaction_supporting_doc_upload_to(instance, filename):
+    safe_name = Path(filename).name
+    transaction_ref = getattr(instance, "transaction_ref", "transaction") or "transaction"
+    return f"transactions/{transaction_ref}/supporting-docs/{safe_name}"
+
+
 class Transaction (models.Model):
     def get_default_currency():
         return Currency.objects.get(currency_code="PHP").pk
@@ -441,9 +450,11 @@ class Transaction (models.Model):
     mc_branch_issuance = models.ForeignKey(MCBranchIssuance,on_delete=models.PROTECT)
     funding_account = models.ForeignKey(FundingAccount,on_delete=models.PROTECT)
     batch = models.ForeignKey(TransactionBatch,on_delete=models.PROTECT,default=get_default_batch)
-    supporting_docs = models.CharField(max_length=500,blank=True,unique=False)
-    supporting_doc_error = models.CharField(max_length=500, blank=True, default="")
-    supporting_doc_status = models.CharField(max_length=100, blank=True, default="")
+    supporting_doc_file = models.FileField(upload_to=transaction_supporting_doc_upload_to, blank=True, null=True)
+    supporting_doc_status = models.CharField(max_length=20, default="PENDING")
+    supporting_doc_error = models.TextField(blank=True, default="")
+    supporting_docs = models.URLField(max_length=500, blank=True, null=True)
+    google_drive_link = models.URLField(max_length=500, blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     endorsement_complete = models.BooleanField(default=False)
 

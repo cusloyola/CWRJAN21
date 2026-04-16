@@ -1,5 +1,6 @@
 env/
 .env.staging
+.env.development
 media_data/
 node_modules_cache/
 report_service/

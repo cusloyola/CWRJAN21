@@ -113,6 +113,8 @@ services:
     volumes:
       - localstack_data:/var/lib/localstack
       # - /var/run/docker.sock:/var/run/docker.sock
+      - ./localstack/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh
+      - ../docker_dev/localstack/init-s3.sh:/etc/localstack/init/ready.d/init-s3.sh
     networks:
       - app_network
   
