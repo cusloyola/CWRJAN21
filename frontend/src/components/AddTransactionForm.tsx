@@ -11,8 +11,12 @@ import SelectMCBranchIssuance from './SelectMCBranchIssuance';
 import SelectFundingAccount from './SelectFundingAccount';
 import { API_BASE, getAuthHeader } from '../config/api';
 
+interface AddTransactionFormProps {
+  onSuccess?: () => void;
+}
 
-const AddTransactionForm: React.FC = () => {
+
+const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) => {
     const [formData, setFormData] = useState({
             company: Number(localStorage.getItem('company_id')),
             transaction_ref: '',
@@ -92,26 +96,26 @@ const AddTransactionForm: React.FC = () => {
         setIsDragOver(false);
     };
     
-    const resetForm = () => {
-        setFormData({
-            company: Number(localStorage.getItem('company_id')),
-            transaction_ref: '',
-            category: '',
-            payee: '',
-            particulars: '',
-            vessel_principal: '',
-            etd: '',
-            currency: '',
-            transaction_amount: '',
-            reference_erfp: '',
-            batch: '',
-            mc_branch_issuance: '',
-            funding_account: '',
-            supporting_docs: '',
-            endorsement_complete: false
-        });
-        setSupportingDocFile(null);
-    };
+    // const resetForm = () => {
+    //     setFormData({
+    //         company: Number(localStorage.getItem('company_id')),
+    //         transaction_ref: '',
+    //         category: '',
+    //         payee: '',
+    //         particulars: '',
+    //         vessel_principal: '',
+    //         etd: '',
+    //         currency: '',
+    //         transaction_amount: '',
+    //         reference_erfp: '',
+    //         batch: '',
+    //         mc_branch_issuance: '',
+    //         funding_account: '',
+    //         supporting_docs: '',
+    //         endorsement_complete: false
+    //     });
+    //     setSupportingDocFile(null);
+    // };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -147,6 +151,7 @@ const AddTransactionForm: React.FC = () => {
         }
 
         toast.success('Transaction saved successfully!');
+        onSuccess?.();
 
         setFormData({
             company: Number(localStorage.getItem('company_id')),
