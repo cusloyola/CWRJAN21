@@ -41,6 +41,7 @@ export interface RfpMonitoringRecord {
 // API form data interface for submissions
 export interface RfpFormData {
   expected_series?: number;
+  company?: number;
   cwr_processed?: number;
   cwr_usage: number;
   trampsys_status: RfpStatus;

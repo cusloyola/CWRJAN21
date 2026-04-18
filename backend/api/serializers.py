@@ -302,6 +302,7 @@ class FundingAccountSerializer(serializers.ModelSerializer):
 # RFP Record Serializer
 # -------------------------
 class RFPMonitoringSerializer(serializers.ModelSerializer):
+    company_name = serializers.CharField(source='company.company_name', read_only=True)
     payee_name = serializers.CharField(source='payee.payee_name', read_only=True)
     vessel_principal_name = serializers.CharField(source='vessel_principal.vessel_principal_name', read_only=True)
     port_name = serializers.CharField(source='port.port_name', read_only=True)
@@ -320,6 +321,8 @@ class RFPMonitoringSerializer(serializers.ModelSerializer):
             'remarks_cwr',
             'etd',
             'eta',
+            'company',
+            'company_name',
             'payee',
             'payee_name',
             'vessel_principal',

@@ -612,6 +612,7 @@ class RFPMonitoring(models.Model):
     remarks_cwr = models.CharField(max_length=1000, null=True, blank=True)
     etd = models.DateField()
     eta = models.DateField()
+    company = models.ForeignKey(Company, on_delete=models.PROTECT)
     payee = models.ForeignKey(Payee,on_delete=models.PROTECT)
     vessel_principal = models.ForeignKey(VesselPrincipal,on_delete=models.PROTECT)
     voy = models.CharField(max_length=100, null=True, blank=True)
