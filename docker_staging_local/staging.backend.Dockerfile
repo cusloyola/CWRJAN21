@@ -9,8 +9,10 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     zlib1g-dev \
-    fonts-dejavu-core \    
+    fonts-dejavu-core \
     && rm -rf /var/lib/apt/lists/*
+
+RUN python -m pip install --upgrade pip
 
 COPY ../backend/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt 
