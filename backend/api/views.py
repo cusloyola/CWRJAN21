@@ -221,15 +221,15 @@ class TransactionAPIView(APIView):
             transaction = serializer.save()
 
             if transaction.supporting_doc_file:
-                localstack_link = ''
+                storage_link = ''
                 try:
-                    localstack_link = transaction.supporting_doc_file.url
+                    storage_link = transaction.supporting_doc_file.url
                 except Exception:
-                    localstack_link = ''
+                    storage_link = ''
 
                 transaction.supporting_doc_status = 'QUEUED'
                 transaction.supporting_doc_error = ''
-                transaction.supporting_docs = localstack_link
+                transaction.supporting_docs = storage_link
                 transaction.google_drive_link = ''
                 transaction.save(update_fields=['supporting_doc_status', 'supporting_doc_error', 'supporting_docs', 'google_drive_link'])
                 upload_transaction_supporting_doc.delay(str(transaction.transaction_id))
@@ -960,15 +960,15 @@ class TransactionDetailAPIView(APIView):
         updated_transaction = serializer.save()
 
         if updated_transaction.supporting_doc_file and request.FILES.get('supporting_doc_file'):
-            localstack_link = ''
+            storage_link = ''
             try:
-                localstack_link = updated_transaction.supporting_doc_file.url
+                storage_link = updated_transaction.supporting_doc_file.url
             except Exception:
-                localstack_link = ''
+                storage_link = ''
 
             updated_transaction.supporting_doc_status = 'QUEUED'
             updated_transaction.supporting_doc_error = ''
-            updated_transaction.supporting_docs = localstack_link
+            updated_transaction.supporting_docs = storage_link
             updated_transaction.google_drive_link = ''
             updated_transaction.save(update_fields=['supporting_doc_status', 'supporting_doc_error', 'supporting_docs', 'google_drive_link'])
             upload_transaction_supporting_doc.delay(str(updated_transaction.transaction_id))
@@ -1004,15 +1004,15 @@ class TransactionDetailAPIView(APIView):
         updated_transaction = serializer.save()
 
         if updated_transaction.supporting_doc_file and request.FILES.get('supporting_doc_file'):
-            localstack_link = ''
+            storage_link = ''
             try:
-                localstack_link = updated_transaction.supporting_doc_file.url
+                storage_link = updated_transaction.supporting_doc_file.url
             except Exception:
-                localstack_link = ''
+                storage_link = ''
 
             updated_transaction.supporting_doc_status = 'QUEUED'
             updated_transaction.supporting_doc_error = ''
-            updated_transaction.supporting_docs = localstack_link
+            updated_transaction.supporting_docs = storage_link
             updated_transaction.google_drive_link = ''
             updated_transaction.save(update_fields=['supporting_doc_status', 'supporting_doc_error', 'supporting_docs', 'google_drive_link'])
             upload_transaction_supporting_doc.delay(str(updated_transaction.transaction_id))

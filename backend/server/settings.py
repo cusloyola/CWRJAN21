@@ -245,17 +245,17 @@ GOOGLE_DRIVE_UPLOAD_PAGE_SIZE = int(os.getenv("GOOGLE_DRIVE_UPLOAD_PAGE_SIZE", "
 
 CELERY_BEAT_SCHEDULE = {}
 
-# AWS S3 Configuration for LocalStack
+# AWS S3 Configuration for MinIO
 
-AWS_ACCESS_KEY_ID = "minioadmin"
-AWS_SECRET_ACCESS_KEY = "minioadmin123"
-AWS_STORAGE_BUCKET_NAME = "cwr-bucket"
-AWS_S3_REGION_NAME = "ap-southeast-1"
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "minioadmin")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "minioadmin123")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "cwr-bucket")
+AWS_S3_REGION_NAME = os.getenv("AWS_S3_REGION_NAME", "ap-southeast-1")
 
 # MinIO endpoint
-AWS_S3_ENDPOINT_URL = "http://minio:9000"
+AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL", "http://minio:9000")
 
-AWS_S3_ADDRESSING_STYLE = "path"
+AWS_S3_ADDRESSING_STYLE = os.getenv("AWS_S3_ADDRESSING_STYLE", "path")
 
 AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = False
