@@ -426,7 +426,7 @@ class LogTransactionBatch(models.Model):
 def transaction_supporting_doc_upload_to(instance, filename):
     safe_name = Path(filename).name
     transaction_ref = getattr(instance, "transaction_ref", "transaction") or "transaction"
-    return f"transactions/{transaction_ref}/supporting-docs/{safe_name}"
+    return f"transactions/{transaction_ref}_{safe_name}"
 
 
 class Transaction (models.Model):
@@ -612,6 +612,7 @@ class RFPMonitoring(models.Model):
     remarks_cwr = models.CharField(max_length=1000, null=True, blank=True)
     etd = models.DateField()
     eta = models.DateField()
+    company = models.ForeignKey(Company, on_delete=models.PROTECT)
     payee = models.ForeignKey(Payee,on_delete=models.PROTECT)
     vessel_principal = models.ForeignKey(VesselPrincipal,on_delete=models.PROTECT)
     voy = models.CharField(max_length=100, null=True, blank=True)
