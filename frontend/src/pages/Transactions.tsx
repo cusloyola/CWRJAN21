@@ -203,11 +203,12 @@ const Transactions: React.FC = () => {
                             <table className="transactions-table table">
                                 <colgroup>
                                     {/* New checkbox column */}
-                                    <col style={{ width: '40px' }} />
+                                    <col style={{ width: '6%' }} />
                                     <col style={{ width: '18%' }} />
-                                    <col style={{ width: isMobile ? '50%' : '44%' }} />
-                                    {!isMobile && <col style={{ width: '16%' }} />}
-                                    <col style={{ width: '16%' }} />
+                                    <col style={{ width: isMobile ? '34%' : '26%' }} />
+                                    {!isMobile && <col style={{ width: '20%' }} />}
+                                    <col style={{ width: '15%' }} />
+                                    <col style={{ width: '15%' }} />
                                 </colgroup>
                                 <thead>
                                     <tr>
@@ -222,19 +223,20 @@ const Transactions: React.FC = () => {
                                         <th>Payee / Particulars</th>
                                         {!isMobile && <th>Vessel</th>}
                                         <th>Amount</th>
+                                        <th>Attachment</th>
                                     </tr>
                                 </thead>
                                 <tbody className="odd:bg-gray-50 even:bg-white">
                                     {isLoadingTransactions ? (
                                         <tr>
                                             {/* Adjusted colSpan: Checkbox(1) + Ref(1) + Payee(1) + Vessel(if !isMobile) + Amount(1) */}
-                                            <td colSpan={isMobile ? 4 : 5} className="transactions-table-empty">
+                                            <td colSpan={isMobile ? 5 : 6} className="transactions-table-empty">
                                                 <div className="transactions-loading-spinner" />
                                             </td>
                                         </tr>
                                     ) : paginatedTransactions.length === 0 ? (
                                         <tr>
-                                            <td colSpan={isMobile ? 4 : 5} className="transactions-table-empty">
+                                            <td colSpan={isMobile ? 5 : 6} className="transactions-table-empty">
                                                 No transactions found
                                             </td>
                                         </tr>
@@ -243,6 +245,10 @@ const Transactions: React.FC = () => {
                                             // Cast ID to string to ensure compatibility with selectedIds (string[])
                                             const tId = String(transaction.transactionId);
                                             const isSelected = selectedIds.includes(tId);
+                                            const attachmentUrl = transaction.googleDriveLink || transaction.driveFileLink || '';
+                                            const attachmentName = transaction.supportingDocFileName
+                                                || attachmentUrl.split('/').pop()
+                                                || '';
 
                                             return (
                                                 <tr
@@ -276,6 +282,37 @@ const Transactions: React.FC = () => {
                                                             style: 'currency',
                                                             currency: transaction.currency || 'USD'
                                                         }).format(transaction.amount || 0)}
+                                                    </td>
+
+                                                    <td onClick={(e) => e.stopPropagation()}>
+                                                        {attachmentUrl ? (
+                                                            <a
+                                                                href={attachmentUrl}
+                                                                target="_blank"
+                                                                rel="noreferrer"
+                                                                title={attachmentName || 'Open attachment'}
+                                                                aria-label={attachmentName || 'Open attachment'}
+                                                                style={{ display: 'inline-flex', alignItems: 'center' }}
+                                                            >
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    width="18"
+                                                                    height="18"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    strokeWidth="2"
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    aria-hidden="true"
+                                                                >
+                                                                    <path d="M21.44 11.05 12.25 20.25a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.19 9.19a2 2 0 1 1-2.83-2.83l8.49-8.49" />
+                                                                </svg>
+                                                                <span style={{ marginLeft: '0.35rem' }}>View</span>
+                                                            </a>
+                                                        ) : (
+                                                            <span>-</span>
+                                                        )}
                                                     </td>
                                                 </tr>
                                             );

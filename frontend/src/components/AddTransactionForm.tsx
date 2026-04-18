@@ -76,6 +76,21 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
             return;
         }
 
+        const maxSizeBytes = 20 * 1024 * 1024;
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+        if (!isPdf) {
+            toast.error('Only PDF files are allowed.');
+            setSupportingDocFile(null);
+            return;
+        }
+
+        if (file.size > maxSizeBytes) {
+            toast.error('File size must be 20MB or less.');
+            setSupportingDocFile(null);
+            return;
+        }
+
         setSupportingDocFile(file);
     };
 
@@ -322,7 +337,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
                                     type="file"
                                     className="transaction-upload-file-input"
                                     onChange={e => handleFileSelected(e.target.files?.[0] || null)}
-                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+                                    accept=".pdf,application/pdf"
                                 />
                                 <svg
                                     className="transaction-upload-icon"
