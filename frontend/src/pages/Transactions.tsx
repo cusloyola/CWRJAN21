@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { API_BASE,getAuthHeader } from '../config/api';
+import { API_BASE, getAuthHeader } from '../config/api';
 import Sidebar from './Sidebar';
 import '../styles/TransactionTable.css';
 import { type Transaction } from '../types/transaction';
@@ -12,21 +12,41 @@ import CurrencySelect from '../components/SelectCurrencyFilter';
 
 const Transactions: React.FC = () => {
     const navigate = useNavigate();
+    // For Checkbox
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    // Helper to toggle a single row
+    const toggleSelectRow = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+        );
+    };
 
+    const toggleSelectAll = () => {
+        // Ensure these are mapped as strings
+        const currentPageIds = paginatedTransactions.map(t => String(t.transactionId));
+        const allSelected = currentPageIds.every(id => selectedIds.includes(id));
+
+        if (allSelected) {
+            setSelectedIds(prev => prev.filter(id => !currentPageIds.includes(id)));
+        } else {
+            setSelectedIds(prev => [...new Set([...prev, ...currentPageIds])]);
+        }
+    };
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [categoryFilter, setCategoryFilter] = useState<string>('All');
     const [currencyFilter, setCurrencyFilter] = useState<string>('All');
     const [dateFilter] = useState<string>('All');
-    
+
     const [currentPage, setCurrentPage] = useState<number>(1);
     const itemsPerPage = 6;
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);  
+    const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
 
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
-    const [isVerySmall, setIsVerySmall] = useState(window.innerWidth <= 390);
-   
+    // const [isVerySmall, setIsVerySmall] = useState(window.innerWidth <= 390);
+
     // =========================
     // FETCH TRANSACTIONS
     // =========================    
@@ -67,7 +87,7 @@ const Transactions: React.FC = () => {
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth <= 640);
-            setIsVerySmall(window.innerWidth <= 390);
+            // setIsVerySmall(window.innerWidth <= 390);
         };
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
@@ -103,7 +123,7 @@ const Transactions: React.FC = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = Math.min(startIndex + itemsPerPage, filteredTransactions.length);
     const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex);
- 
+
     const handlePageChange = (page: number) => {
         if (page < 1 || page > totalPages) return;
         setCurrentPage(page);
@@ -117,7 +137,7 @@ const Transactions: React.FC = () => {
     const handleRowClick = (transaction: Transaction) => {
         navigate(`/transactions/${transaction.transactionId}/edit`);
     };
-    
+
     return (
         <>
             <Sidebar />
@@ -139,7 +159,7 @@ const Transactions: React.FC = () => {
                                     value={searchQuery}
                                     onChange={e => setSearchQuery(e.target.value)}
                                     className="wpsi-search-input"
-                                    style={{ paddingLeft: '2.5rem'/* , maxWidth: '500px'  */}}
+                                    style={{ paddingLeft: '2.5rem'/* , maxWidth: '500px'  */ }}
                                 />
                                 <svg
                                     className="wpsi-search-icon"
@@ -155,10 +175,10 @@ const Transactions: React.FC = () => {
                                 </svg>
                             </div>
 
-                            <Link 
-                                    to="/transactions/new" 
-                                    className="wpsi-add-button" 
-                                    style={{ textDecoration: 'none' }}
+                            <Link
+                                to="/transactions/new"
+                                className="wpsi-add-button"
+                                style={{ textDecoration: 'none' }}
                             >
                                 + Add
                             </Link>
@@ -182,61 +202,84 @@ const Transactions: React.FC = () => {
                         <div className="transactions-table-container">
                             <table className="transactions-table table">
                                 <colgroup>
+                                    {/* New checkbox column */}
+                                    <col style={{ width: '40px' }} />
+                                    <col style={{ width: '18%' }} />
+                                    <col style={{ width: isMobile ? '50%' : '44%' }} />
+                                    {!isMobile && <col style={{ width: '16%' }} />}
                                     <col style={{ width: '16%' }} />
-                                    <col style={{ width: isMobile ? '36%' : '26%' }} />
-                                    {!isMobile && <col style={{ width: '14%' }} />}
-                                    {!isVerySmall && <col style={{ width: isMobile ? '18%' : '16%' }} />}
-                                    {!isVerySmall && <col style={{ width: isMobile ? '14%' : '12%' }} />}
-                                    <col style={{ width: isMobile ? '16%' : '16%' }} />
                                 </colgroup>
                                 <thead>
                                     <tr>
+                                        <th>
+                                            <input
+                                                type="checkbox"
+                                                onChange={toggleSelectAll}
+                                                checked={paginatedTransactions.length > 0 && paginatedTransactions.every(t => selectedIds.includes(t.transactionId))}
+                                            />
+                                        </th>
                                         <th>Transaction Ref</th>
                                         <th>Payee / Particulars</th>
-                                        <th>Batch</th>
                                         {!isMobile && <th>Vessel</th>}
-                                        {!isVerySmall && <th>Date</th>}
                                         <th>Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody className="odd:bg-gray-50 even:bg-white">
                                     {isLoadingTransactions ? (
                                         <tr>
-                                            <td colSpan={isVerySmall ? 3 : isMobile ? 5 : 6} className="transactions-table-empty">
+                                            {/* Adjusted colSpan: Checkbox(1) + Ref(1) + Payee(1) + Vessel(if !isMobile) + Amount(1) */}
+                                            <td colSpan={isMobile ? 4 : 5} className="transactions-table-empty">
                                                 <div className="transactions-loading-spinner" />
                                             </td>
                                         </tr>
                                     ) : paginatedTransactions.length === 0 ? (
                                         <tr>
-                                            <td colSpan={
-                                                isVerySmall ? 3 : isMobile ? 5 : 6
-                                            } className="transactions-table-empty">
+                                            <td colSpan={isMobile ? 4 : 5} className="transactions-table-empty">
                                                 No transactions found
                                             </td>
                                         </tr>
                                     ) : (
-                                        paginatedTransactions.map(transaction => (
-                                            <tr
-                                                key={transaction.transactionId}
-                                                onClick={() => handleRowClick(transaction)}
-                                                className="cursor-pointer hover:bg-gray-50 transition-colors"
-                                            >
-                                                <td>{transaction.transactionRef}</td>
-                                                <td>
-                                                    <div className='rfp-primary-text'>{transaction.payee}</div>
-                                                    <div className='rfp-secondary-text'>
-                                                        {transaction.particulars}
-                                                    </div>
-                                                </td>
-                                                <td>{transaction.batch}</td>
-                                                {!isMobile && <td>{transaction.vesselPrincipal}</td>}
-                                                {!isVerySmall && <td>{transaction.dateCreated}</td>}
-                                                <td>
-                                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: transaction.currency || 'USD' })
-                                                        .format(transaction.amount || 0)}
-                                                </td>
-                                            </tr>
-                                        ))
+                                        paginatedTransactions.map(transaction => {
+                                            // Cast ID to string to ensure compatibility with selectedIds (string[])
+                                            const tId = String(transaction.transactionId);
+                                            const isSelected = selectedIds.includes(tId);
+
+                                            return (
+                                                <tr
+                                                    key={tId}
+                                                    onClick={() => handleRowClick(transaction)}
+                                                    className={`cursor-pointer hover:bg-gray-50 transition-colors ${isSelected ? 'bg-blue-50' : ''
+                                                        }`}
+                                                >
+                                                    {/* Checkbox Cell - stopPropagation prevents row click navigation */}
+                                                    <td onClick={(e) => e.stopPropagation()}>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={(e) => toggleSelectRow(tId, e as any)}
+                                                        />
+                                                    </td>
+
+                                                    <td>{transaction.transactionRef}</td>
+
+                                                    <td>
+                                                        <div className='rfp-primary-text'>{transaction.payee}</div>
+                                                        <div className='rfp-secondary-text'>
+                                                            {transaction.particulars}
+                                                        </div>
+                                                    </td>
+
+                                                    {!isMobile && <td>{transaction.vesselPrincipal}</td>}
+
+                                                    <td>
+                                                        {new Intl.NumberFormat('en-US', {
+                                                            style: 'currency',
+                                                            currency: transaction.currency || 'USD'
+                                                        }).format(transaction.amount || 0)}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
                                     )}
                                 </tbody>
                             </table>

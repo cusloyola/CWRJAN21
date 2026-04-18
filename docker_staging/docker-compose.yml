@@ -91,8 +91,6 @@ services:
     build:
       context: ..
       dockerfile: docker_staging/staging.frontend.Dockerfile
-      args:
-        VITE_API_BASE_URL: https://stagingcwr.local
     container_name: cwr_frontend_staging
     working_dir: /app
     volumes:
