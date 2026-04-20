@@ -6,6 +6,8 @@ ENV TZ=Asia/Manila
 # Create custom redis config
 COPY docker_staging_remote/redis/redis.conf /usr/local/etc/redis/redis.conf
 
+VOLUME /data
+
 # Expose redis port
 EXPOSE 6379
 
