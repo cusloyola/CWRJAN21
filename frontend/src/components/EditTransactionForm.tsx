@@ -8,19 +8,24 @@ import SelectVesselPrincipal from './SelectVesselPrincipal';
 import SelectTransactionBatch from './SelectTransactionBatch';
 import SelectMCBranchIssuance from './SelectMCBranchIssuance';
 import SelectFundingAccount from './SelectFundingAccount';
+import SupportingDocumentUpload from './SupportingDocumentUpload';
 
 interface Props {
     formData: any;
     onChange: (field: string, value: any) => void;
     onSubmit: () => void;
     isSubmitting: boolean;
+    supportingDocFile: File | null;
+    onSupportingDocFileChange: (file: File | null) => void;
 }
 
 const EditTransactionForm: React.FC<Props> = ({
     formData,
     onChange,
     onSubmit,
-    isSubmitting
+    isSubmitting,
+    supportingDocFile,
+    onSupportingDocFileChange
 }) => {
     return (
         <div className="transaction-form-container">
@@ -35,7 +40,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* Category */}
                         <div className="transaction-form-detail-row">
-                            <label>Category</label>
+                            <label className="transaction-form-detail-label">Category</label>
                             <SelectCategory
                                 value={formData.category}
                                 onChange={(v) => onChange('category', v)}
@@ -44,7 +49,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* Ref */}
                         <div className="transaction-form-detail-row">
-                            <label>Transaction Ref</label>
+                            <label className = "transaction-form-detail-label">Transaction Ref</label>
                             <input
                                 type="text"
                                 className="transaction-form-detail-value"
@@ -55,7 +60,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* Payee */}
                         <div className="transaction-form-detail-row">
-                            <label>Payee</label>
+                            <label className = "transaction-form-detail-label">Payee</label>
                             <SelectPayee
                                 value={formData.payee}
                                 onChange={(v) => onChange('payee', v)}
@@ -64,7 +69,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* Particulars */}
                         <div className="transaction-form-detail-row">
-                            <label>Particulars</label>
+                            <label className = "transaction-form-detail-label">Particulars</label>
                             <textarea
                                 className="transaction-form-detail-value"
                                 value={formData.particulars}
@@ -75,7 +80,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* Vessel */}
                         <div className="transaction-form-detail-row">
-                            <label>Vessel / Principal</label>
+                            <label className = "transaction-form-detail-label">Vessel / Principal</label>
                             <SelectVesselPrincipal
                                 value={formData.vessel_principal}
                                 onChange={(v) => onChange('vessel_principal', v)}
@@ -84,7 +89,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* ETD */}
                         <div className="transaction-form-detail-row">
-                            <label>ETD</label>
+                            <label className = "transaction-form-detail-label">ETD</label>
                             <input
                                 type="date"
                                 className="transaction-form-detail-value"
@@ -95,7 +100,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* Currency */}
                         <div className="transaction-form-detail-row">
-                            <label>Currency</label>
+                            <label className = "transaction-form-detail-label">Currency</label>
                             <SelectCurrency
                                 value={formData.currency}
                                 onChange={(v) => onChange('currency', v)}
@@ -104,7 +109,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* Amount */}
                         <div className="transaction-form-detail-row">
-                            <label>Amount</label>
+                            <label className = "transaction-form-detail-label">Amount</label>
                             <input
                                 type="number"
                                 className="transaction-form-detail-value"
@@ -126,7 +131,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* Batch */}
                         <div className="transaction-form-detail-row">
-                            <label>Batch</label>
+                            <label className = "transaction-form-detail-label">Batch</label>
                             <SelectTransactionBatch
                                 value={formData.batch}
                                 onChange={(v) => onChange('batch', v)}
@@ -135,7 +140,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* MC Branch */}
                         <div className="transaction-form-detail-row">
-                            <label>MC Branch Issuance</label>
+                            <label className = "transaction-form-detail-label">MC Branch Issuance</label>
                             <SelectMCBranchIssuance
                                 value={formData.mc_branch_issuance}
                                 onChange={(v) => onChange('mc_branch_issuance', v)}
@@ -144,7 +149,7 @@ const EditTransactionForm: React.FC<Props> = ({
 
                         {/* Funding */}
                         <div className="transaction-form-detail-row">
-                            <label>Funding Account</label>
+                            <label className = "transaction-form-detail-label">Funding Account</label>
                             <SelectFundingAccount
                                 value={formData.funding_account}
                                 onChange={(v) => onChange('funding_account', v)}
@@ -152,7 +157,7 @@ const EditTransactionForm: React.FC<Props> = ({
                         </div>
 
                         {/* EXTRA FIELDS (EDIT ONLY) */}
-                        <div className="transaction-form-detail-row">
+ {/*                        <div className="transaction-form-detail-row">
                             <label className="transaction-form-detail-label">Status</label>
                             <select
                                 value={formData.status}
@@ -162,23 +167,24 @@ const EditTransactionForm: React.FC<Props> = ({
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
                             </select>
-                        </div>
+                        </div> */}
 
                         <div className="transaction-form-detail-row">
-                            <label>Supporting Documents</label>
-                            <input
-                                value={formData.supporting_docs || ''}
-                                readOnly
+                            <label className="transaction-form-detail-label">Supporting Documents</label>
+                            <SupportingDocumentUpload
+                                selectedFile={supportingDocFile}
+                                currentFileName={formData.supporting_docs || ''}
+                                onFileSelected={onSupportingDocFileChange}
                             />
                         </div>
 
-                        <div className="transaction-form-detail-row">
+{/*                         <div className="transaction-form-detail-row">
                             <label>Google Drive Link</label>
                             <input
                                 value={formData.google_drive_link || ''}
                                 readOnly
                             />
-                        </div>
+                        </div> */}
 
                     </div>
 

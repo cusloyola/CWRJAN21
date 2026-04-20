@@ -21,6 +21,37 @@
     gap: 1rem;
 }
 
+.transactions-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.transactions-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    width: 100%;
+    flex-wrap: wrap;
+    width: 100%;
+}
+.transactions-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+.transactions-actions-row .wpsi-add-button,
+.transactions-actions-row .transactions-action-button {
+    flex: 1 1 0;
+    text-align: center;
+}
+
 .corp-inventory-main {
     padding: min(30px, 7%);
     width: 100%;
@@ -537,6 +568,180 @@
     /* Slightly darker accent */
     color: white;
     box-shadow: 0 2px 8px rgba(0, 28, 119, 0.12);
+}
+
+.transactions-action-button {
+    background-color: var(--base-clr);
+    color: var(--text-clr);
+    border: 1px solid rgba(66, 67, 74, 0.15);
+    border-radius: 0.5em;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: auto;
+}
+
+.transactions-action-button:hover:not(:disabled) {
+    background-color: var(--hover-clr);
+    border-color: var(--accent-clr);
+    color: var(--accent-clr);
+}
+
+.transactions-action-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.endorse-modal {
+    max-width: 500px;
+}
+
+.endorse-modal .transaction-modal-header {
+    padding: 0.55rem 0.9rem;
+}
+
+.endorse-modal .transaction-modal-content {
+    padding: 0.8rem 0.9rem 0.9rem;
+}
+
+.endorse-modal .transaction-modal-title {
+    font-size: 1.05rem;
+}
+
+.endorse-modal-meta {
+    margin: 0 0 0.6rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.55rem;
+    background: #f8fafc;
+    text-align: center;
+}
+
+.endorse-modal-summary {
+    margin: 0;
+    color: #1f2937;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.endorse-modal-refs {
+    margin: 0.22rem 0 0;
+    color: #64748b;
+    font-size: 0.82rem;
+}
+
+.endorse-modal-ref-wrapper {
+    margin-top: 0.35rem;
+}
+
+.endorse-modal-refs-title {
+    margin: 0 0 0.3rem;
+    color: #475569;
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.endorse-modal-ref-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    max-height: 5.25rem;
+    overflow-y: auto;
+    justify-content: center;
+    padding-right: 0.2rem;
+}
+
+.endorse-modal-ref-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.14rem 0.45rem;
+    border-radius: 999px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.1;
+}
+
+.endorse-modal-label {
+    display: block;
+    margin: 0 0 0.4rem;
+    color: #475569;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.endorse-target-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.45rem;
+    margin-bottom: 0.75rem;
+}
+
+.endorse-target-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    min-height: 66px;
+    padding: 0.55rem 0.45rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.6rem;
+    background: #ffffff;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.endorse-target-card:hover:not(:disabled) {
+    border-color: #93c5fd;
+    background: #f8fbff;
+}
+
+.endorse-target-card.is-selected {
+    border-color: #2563eb;
+    background: #eff6ff;
+    color: #1d4ed8;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.endorse-target-card:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.endorse-target-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: currentColor;
+}
+
+.endorse-target-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.endorse-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 0.35rem;
+}
+
+@media (max-width: 640px) {
+    .endorse-modal {
+        max-width: 95%;
+    }
+
+    .endorse-target-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 
