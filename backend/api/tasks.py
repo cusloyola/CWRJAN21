@@ -1,12 +1,15 @@
 import logging
 import mimetypes
+import mimetypes
 from pathlib import Path
 
 from celery import shared_task
 from django.conf import settings
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaIoBaseUpload
 from googleapiclient.http import MediaIoBaseUpload
 
 from .models import Transaction
