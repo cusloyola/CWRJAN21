@@ -277,6 +277,28 @@ const AddRfpMonitoring = () => {
         }
       } else {
         // Create new record
+        const selectedCompanyId = (() => {
+          const storedSelected = localStorage.getItem('selectedCompany');
+          if (storedSelected) {
+            try {
+              const parsed = JSON.parse(storedSelected) as { id?: number | string };
+              if (parsed?.id !== undefined && parsed?.id !== null && String(parsed.id).trim() !== '') {
+                return Number(parsed.id);
+              }
+            } catch {
+              if (String(storedSelected).trim() !== '') {
+                return Number(storedSelected);
+              }
+            }
+          }
+
+          const storedCompanyId = localStorage.getItem('company_id');
+          if (storedCompanyId && storedCompanyId.trim() !== '') {
+            return Number(storedCompanyId);
+          }
+
+          return null;
+        })();
         const selectedPayeeId = getSelectedPayeeId();
         const selectedVesselId = getSelectedVesselId();
         const selectedPortId = getSelectedPortId();
@@ -297,6 +319,14 @@ const AddRfpMonitoring = () => {
           etd: record.etd || '',
           voy: record.voy || undefined,
         };
+
+        if (selectedCompanyId) {
+          formData.company = selectedCompanyId;
+        } else {
+          toast.error('Please select a company before saving.');
+          setIsSubmitting(false);
+          return;
+        }
 
         // Only add foreign keys if they have valid values
         // Add required foreign keys (payee and vessel_principal are required in Django model)

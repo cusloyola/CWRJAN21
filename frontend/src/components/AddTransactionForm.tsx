@@ -12,9 +12,8 @@ import SelectFundingAccount from './SelectFundingAccount';
 import { API_BASE, getAuthHeader } from '../config/api';
 
 interface AddTransactionFormProps {
-  onSuccess?: () => void;
+    onSuccess?: () => void;
 }
-
 
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -77,6 +76,21 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
             return;
         }
 
+        const maxSizeBytes = 20 * 1024 * 1024;
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+        if (!isPdf) {
+            toast.error('Only PDF files are allowed.');
+            setSupportingDocFile(null);
+            return;
+        }
+
+        if (file.size > maxSizeBytes) {
+            toast.error('File size must be 20MB or less.');
+            setSupportingDocFile(null);
+            return;
+        }
+
         setSupportingDocFile(file);
     };
 
@@ -96,26 +110,26 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
         setIsDragOver(false);
     };
     
-    // const resetForm = () => {
-    //     setFormData({
-    //         company: Number(localStorage.getItem('company_id')),
-    //         transaction_ref: '',
-    //         category: '',
-    //         payee: '',
-    //         particulars: '',
-    //         vessel_principal: '',
-    //         etd: '',
-    //         currency: '',
-    //         transaction_amount: '',
-    //         reference_erfp: '',
-    //         batch: '',
-    //         mc_branch_issuance: '',
-    //         funding_account: '',
-    //         supporting_docs: '',
-    //         endorsement_complete: false
-    //     });
-    //     setSupportingDocFile(null);
-    // };
+/*     const resetForm = () => {
+        setFormData({
+            company: Number(localStorage.getItem('company_id')),
+            transaction_ref: '',
+            category: '',
+            payee: '',
+            particulars: '',
+            vessel_principal: '',
+            etd: '',
+            currency: '',
+            transaction_amount: '',
+            reference_erfp: '',
+            batch: '',
+            mc_branch_issuance: '',
+            funding_account: '',
+            supporting_docs: '',
+            endorsement_complete: false
+        });
+        setSupportingDocFile(null);
+    }; */
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -151,8 +165,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
         }
 
         toast.success('Transaction saved successfully!');
-        onSuccess?.();
-
+        
         setFormData({
             company: Number(localStorage.getItem('company_id')),
             category: '',
@@ -170,6 +183,8 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
             supporting_docs: '',
             endorsement_complete: false
         });
+        setSupportingDocFile(null);
+        onSuccess?.();
         } catch (err: any) {
         toast.error(err.message || 'Error saving transaction');
         } finally {
@@ -322,7 +337,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
                                     type="file"
                                     className="transaction-upload-file-input"
                                     onChange={e => handleFileSelected(e.target.files?.[0] || null)}
-                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+                                    accept=".pdf,application/pdf"
                                 />
                                 <svg
                                     className="transaction-upload-icon"
