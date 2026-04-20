@@ -179,6 +179,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://devcwr.local', 
     'https://stagingcwr.local',
     'https://stagingcwr.wallem.net.ph',
+    'http://stagingcwr.wallem.net.ph',
     'https://devcwr.wallem.net.ph'
 ]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
