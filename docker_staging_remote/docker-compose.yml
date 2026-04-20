@@ -1,4 +1,4 @@
-name: cwr_v1_staging
+name: cwr_v1_staging_remote
 
 services:
   # --------------------------
@@ -7,7 +7,7 @@ services:
   redis:
     build:
       context: ..
-      dockerfile: docker_staging/staging.redis.Dockerfile
+      dockerfile: docker_staging_remote/staging.redis.Dockerfile
     container_name: cwr_redis_staging
     restart: always
     volumes:
@@ -21,7 +21,7 @@ services:
   celery_worker:
     build:
       context: ..
-      dockerfile: docker_staging/staging.backend.Dockerfile
+      dockerfile: docker_staging_remote/staging.backend.Dockerfile
     container_name: cwr_celery_worker_staging
     command: python -m celery -A server.celery:app worker --loglevel=info
     env_file:
@@ -44,7 +44,7 @@ services:
   celery_beat:
     build:
       context: ..
-      dockerfile: docker_staging/staging.backend.Dockerfile
+      dockerfile: docker_staging_remote/staging.backend.Dockerfile
     container_name: cwr_celery_beat_staging
     command: python -m celery -A server.celery:app beat --loglevel=info --schedule /tmp/celerybeat-schedule
     env_file:
@@ -67,7 +67,7 @@ services:
   db:
     build:
       context: ..
-      dockerfile: docker_staging/staging.db.Dockerfile
+      dockerfile: docker_staging_remote/staging.db.Dockerfile
     image: cwr_v1_staging_mariadb:latest
     container_name: cwr_db_staging
     restart: always
@@ -107,13 +107,13 @@ services:
       - app_network
 
 
-  # --------------------------
+  # -----------------------------------
   # MinIO - S3-Compatible Storage
-  # --------------------------
+  # ----------------------------------
   minio:
     build:
       context: ..
-      dockerfile: docker_dev/dev.minio.Dockerfile
+      dockerfile: docker_staging_remote/staging.minio.Dockerfile
     container_name: cwr_minio_dev
     ports:
       - "9000:9000"   # S3 API
@@ -133,18 +133,17 @@ services:
   frontend:
     build:
       context: ..
-      dockerfile: docker_staging/staging.frontend.Dockerfile
+      dockerfile: docker_staging_remote/staging.frontend.Dockerfile
       args:
-        VITE_API_BASE_URL: https://stagingcwr.local
+        VITE_API_BASE_URL: http://stagingcwr.local
     container_name: cwr_frontend_staging
     working_dir: /app
     volumes:
       - ../media_data:/usr/share/nginx/html/media
       - ../backend/staticfiles:/usr/share/nginx/html/static  # <- serve static
-      - ../docker_staging/certs:/etc/nginx/ssl  # <-- mount certs
+
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - backend
     networks:
@@ -157,7 +156,7 @@ services:
   backend:
     build:
       context: ..
-      dockerfile: docker_staging/staging.backend.Dockerfile
+      dockerfile: docker_staging_remote/staging.backend.Dockerfile
     env_file:
       - ../backend/.env.staging
     container_name: cwr_backend_staging
@@ -185,3 +184,4 @@ volumes:
   node_modules_cache:
   db_data:
   redis_data:
+  minio_data:

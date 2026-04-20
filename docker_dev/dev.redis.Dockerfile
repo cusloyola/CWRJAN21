@@ -4,7 +4,7 @@ FROM redis:7-alpine
 ENV TZ=Asia/Manila
 
 # Create custom redis config
-COPY docker_dev/redis/redis.conf /usr/local/etc/redis/redis.conf
+COPY docker_staging_remote/redis/redis.conf /usr/local/etc/redis/redis.conf
 
 # Expose redis port
 EXPOSE 6379
