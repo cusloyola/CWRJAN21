@@ -214,7 +214,7 @@
 - Running Docker container 
   - Change to staging docker folder
     ```
-    cd docker_staging
+    cd docker_staging_remote
     ```
   - Create the Dockerfile
     ```
@@ -227,16 +227,16 @@
 - Setup Django Admin portal
   - Migrate Database:
       ```
-      docker compose exec backend python manage.py makemigrations
-      docker compose exec backend python manage.py migrate
+      docker compose exec backend python3 manage.py makemigrations
+      docker compose exec backend python3 manage.py migrate
       ```
    - Collect static files:
       ```
-      docker compose exec backend python manage.py collectstatic
+      docker compose exec backend python3 manage.py collectstatic
      ```
   - Create superuser (admin account):
       ```
-      docker compose exec backend python manage.py createsuperuser
+      docker compose exec backend python3 manage.py createsuperuser
       ```
   - Super User
       ```
