@@ -105,7 +105,7 @@ const EndorseTransactionsModal: React.FC<EndorseTransactionsModalProps> = ({
             <div className="transaction-detail-modal endorse-modal">
                 <div className="transaction-modal-header">
                     <h3 className="transaction-modal-title">Endorse Transactions</h3>
-                    <button
+{/*                     <button
                         type="button"
                         className="transaction-modal-close"
                         onClick={onClose}
@@ -113,7 +113,7 @@ const EndorseTransactionsModal: React.FC<EndorseTransactionsModalProps> = ({
                         aria-label="Close endorse modal"
                     >
                         X
-                    </button>
+                    </button> */}
                 </div>
 
                 <div className="transaction-modal-content">

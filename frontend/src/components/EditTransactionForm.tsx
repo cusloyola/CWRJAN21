@@ -114,7 +114,13 @@ const EditTransactionForm: React.FC<Props> = ({
                                 type="number"
                                 className="transaction-form-detail-value"
                                 value={formData.transaction_amount}
-                                onChange={e => onChange('transaction_amount', Number(e.target.value))}
+                                onChange={e => {
+                                    const nextValue = e.target.value;
+                                    onChange(
+                                        'transaction_amount',
+                                        nextValue === '' ? '' : Number(nextValue)
+                                    );
+                                }}
                             />
                         </div>
 

@@ -12,17 +12,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # choose env file
 ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
 
-env_file = BASE_DIR / f".env.{ENVIRONMENT}"
-
-if env_file.exists():
-    load_dotenv(env_file, override=True)
+if ENVIRONMENT == "staging":
+    load_dotenv(BASE_DIR / ".env.staging")
 else:
-    raise FileNotFoundError(f"Missing environment file: {env_file}")
-
-# if ENVIRONMENT == "staging":
-#     load_dotenv(BASE_DIR / ".env.staging")
-# else:
-#     load_dotenv(BASE_DIR / ".env.dev")
+    load_dotenv(BASE_DIR / ".env.dev")
 
 # load_dotenv(BASE_DIR / ".env")
 
@@ -186,10 +179,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://devcwr.local', 
     'https://stagingcwr.local',
     'https://stagingcwr.wallem.net.ph',
-    'http://stagingcwr.wallem.net.ph',
-    'https://devcwr.wallem.net.ph',
-    'http://cwr.wallem.com.ph',
-    'https://cwr.wallem.net.ph'
+    'https://devcwr.wallem.net.ph'
 ]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
