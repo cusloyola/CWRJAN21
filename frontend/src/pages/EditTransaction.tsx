@@ -12,6 +12,7 @@ const EditTransaction: React.FC = () => {
     const [formData, setFormData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [supportingDocFile, setSupportingDocFile] = useState<File | null>(null);
 
     // =========================
     // FETCH TRANSACTION
@@ -63,6 +64,30 @@ const EditTransaction: React.FC = () => {
         setFormData((prev: any) => ({ ...prev, [field]: value }));
     };
 
+    const handleSupportingDocFileSelected = (file: File | null) => {
+        if (!file) {
+            setSupportingDocFile(null);
+            return;
+        }
+
+        const maxSizeBytes = 20 * 1024 * 1024;
+        const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+
+        if (!isPdf) {
+            toast.error('Only PDF files are allowed.');
+            setSupportingDocFile(null);
+            return;
+        }
+
+        if (file.size > maxSizeBytes) {
+            toast.error('File size must be 20MB or less.');
+            setSupportingDocFile(null);
+            return;
+        }
+
+        setSupportingDocFile(file);
+    };
+
     // =========================
     // UPDATE TRANSACTION
     // =========================
@@ -70,10 +95,20 @@ const EditTransaction: React.FC = () => {
         setIsSubmitting(true);
 
         try {
+            const payload = new FormData();
+            Object.entries(formData).forEach(([key, value]) => {
+                if (value === null || value === undefined) return;
+                payload.append(key, String(value));
+            });
+
+            if (supportingDocFile) {
+                payload.append('supporting_doc_file', supportingDocFile);
+            }
+
             const res = await fetch(`${API_BASE}/api/v1/transactions/${id}/`, {
                 method: 'PUT',
-                headers: getAuthHeader(),
-                body: JSON.stringify(formData)
+                headers: getAuthHeader(false),
+                body: payload
             });
 
             if (!res.ok) throw new Error();
@@ -88,7 +123,21 @@ const EditTransaction: React.FC = () => {
         }
     };
 
-    if (isLoading) return <div className="p-4">Loading...</div>;
+    if (isLoading) {
+        return (
+            <div
+                style={{
+                    position: 'fixed',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+            >
+                <div className="transactions-loading-spinner" />
+            </div>
+        );
+    }
     if (!formData) return null;
 
     return (
@@ -102,6 +151,8 @@ const EditTransaction: React.FC = () => {
                         onChange={handleChange}
                         onSubmit={handleSubmit}
                         isSubmitting={isSubmitting}
+                        supportingDocFile={supportingDocFile}
+                        onSupportingDocFileChange={handleSupportingDocFileSelected}
                     />
                 </div>
             </div>

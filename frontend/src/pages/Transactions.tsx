@@ -9,11 +9,13 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CategorySelect from '../components/SelectCategoryFilter';
 import CurrencySelect from '../components/SelectCurrencyFilter';
+import EndorseTransactionsModal from '../components/EndorseTransactionsModal';
 
 const Transactions: React.FC = () => {
     const navigate = useNavigate();
     // For Checkbox
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const hasSelection = selectedIds.length > 0;
     // Helper to toggle a single row
     const toggleSelectRow = (id: string, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -43,6 +45,8 @@ const Transactions: React.FC = () => {
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
+    const [isEndorseModalOpen, setIsEndorseModalOpen] = useState(false);
+    const [isSubmittingEndorse, setIsSubmittingEndorse] = useState(false);
 
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
     // const [isVerySmall, setIsVerySmall] = useState(window.innerWidth <= 390);
@@ -116,6 +120,11 @@ const Transactions: React.FC = () => {
         });
     }, [transactions, searchQuery, categoryFilter, currencyFilter, dateFilter]);
 
+    const selectedTransactions = useMemo(
+        () => transactions.filter((t) => selectedIds.includes(String(t.transactionId))),
+        [transactions, selectedIds]
+    );
+
     // =========================
     // PAGINATION
     // =========================
@@ -138,6 +147,34 @@ const Transactions: React.FC = () => {
         navigate(`/transactions/${transaction.transactionId}/edit`);
     };
 
+    const openEndorseModal = () => {
+        if (!hasSelection) return;
+        setIsEndorseModalOpen(true);
+    };
+
+    const closeEndorseModal = () => {
+        if (isSubmittingEndorse) return;
+        setIsEndorseModalOpen(false);
+    };
+
+    const handleConfirmEndorse = async (target: 'DAM' | 'Deputy' | 'Approver') => {
+        try {
+            setIsSubmittingEndorse(true);
+
+            // TODO: replace with actual endorse API call
+            toast.success(
+                `Endorsed ${selectedIds.length} transaction${selectedIds.length > 1 ? 's' : ''} to ${target}.`
+            );
+
+            setIsEndorseModalOpen(false);
+            setSelectedIds([]);
+        } catch {
+            toast.error('Failed to endorse transactions');
+        } finally {
+            setIsSubmittingEndorse(false);
+        }
+    };
+
     return (
         <>
             <Sidebar />
@@ -151,50 +188,70 @@ const Transactions: React.FC = () => {
                     <div className="transactions-page-wrapper">
 
                         {/* Controls */}
-                        <div className="wpsi-controls">
-                            <div className="wpsi-search-container">
-                                <input
-                                    type="text"
-                                    placeholder="Search transactions..."
-                                    value={searchQuery}
-                                    onChange={e => setSearchQuery(e.target.value)}
-                                    className="wpsi-search-input"
-                                    style={{ paddingLeft: '2.5rem'/* , maxWidth: '500px'  */ }}
-                                />
-                                <svg
-                                    className="wpsi-search-icon"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="18"
-                                    height="18"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-                                    <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" strokeWidth="2" />
-                                </svg>
+                        <div className="transactions-controls">
+                            <div className="transactions-controls-row">
+                                <div className="wpsi-search-container">
+                                    <input
+                                        type="text"
+                                        placeholder="Search transactions..."
+                                        value={searchQuery}
+                                        onChange={e => setSearchQuery(e.target.value)}
+                                        className="wpsi-search-input"
+                                        style={{ paddingLeft: '2.5rem'/* , maxWidth: '500px'  */ }}
+                                    />
+                                    <svg
+                                        className="wpsi-search-icon"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="18"
+                                        height="18"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+                                        <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" strokeWidth="2" />
+                                    </svg>
+                                </div>
+
+                                {/* CATEGORY Filter*/}
+                                <div className="wpsi-dropdown-container">
+                                    <CategorySelect
+                                        value={categoryFilter}
+                                        onChange={setCategoryFilter}
+                                    />
+                                </div>
+                                {/* CURRENCY Filter*/}
+                                <div className="wpsi-dropdown-container">
+                                    <CurrencySelect
+                                        value={currencyFilter}
+                                        onChange={setCurrencyFilter}
+                                    />
+                                </div>
                             </div>
 
-                            <Link
-                                to="/transactions/new"
-                                className="wpsi-add-button"
-                                style={{ textDecoration: 'none' }}
-                            >
-                                + Add
-                            </Link>
-                            {/* CATEGORY Filter*/}
-                            <div className="wpsi-dropdown-container">
-                                <CategorySelect
-                                    value={categoryFilter}
-                                    onChange={setCategoryFilter}
-                                />
-                            </div>
-                            {/* CURRENCY Filter*/}
-                            <div className="wpsi-dropdown-container">
-                                <CurrencySelect
-                                    value={currencyFilter}
-                                    onChange={setCurrencyFilter}
-                                />
+                            <div className="transactions-actions-row">
+                                <Link
+                                    to="/transactions/new"
+                                    className="wpsi-add-button"
+                                    style={{ textDecoration: 'none' }}
+                                >
+                                    + Add
+                                </Link>
+                                <button
+                                    type="button"
+                                    className="transactions-action-button"
+                                    disabled={!hasSelection}
+                                    onClick={openEndorseModal}
+                                >
+                                    Endorse
+                                </button>
+                                <button
+                                    type="button"
+                                    className="transactions-action-button"
+                                    disabled={!hasSelection}
+                                >
+                                    Archive
+                                </button>
                             </div>
                         </div>
 
@@ -375,6 +432,14 @@ const Transactions: React.FC = () => {
                     </div>
                 </main>
             </div>
+            <EndorseTransactionsModal
+                isOpen={isEndorseModalOpen}
+                selectedCount={selectedIds.length}
+                selectedRefs={selectedTransactions.map((t) => t.transactionRef)}
+                isSubmitting={isSubmittingEndorse}
+                onClose={closeEndorseModal}
+                onConfirm={handleConfirmEndorse}
+            />
 
         </>
     );
