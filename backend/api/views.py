@@ -1,13 +1,16 @@
 import json
+import logging
+import uuid
+from pathlib import Path
+
+import boto3
+from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework import status
 from django.utils import timezone
-import logging
-import json
-import uuid
 
 
 # Helper function to make data JSON serializable
@@ -77,10 +80,82 @@ from .serializers import (
     FundingAccountSerializer,
     TransactionBatchSerializer,
 )
-from .tasks import upload_transaction_supporting_doc
+from .tasks import upload_transaction_supporting_doc, _build_drive_client
 
 # Get logger for this module
 logger = logging.getLogger('api.views')
+
+# ----------------------------------------------------
+# Renaming PDF on Google Drive on Transaction Ref Edit
+# ----------------------------------------------------
+
+
+def _rename_supporting_doc_in_minio(transaction, old_key):
+    if not old_key:
+        return
+
+    suffix = Path(old_key).suffix
+    new_key = f"transactions/{transaction.transaction_ref}{suffix}"
+
+    if old_key == new_key:
+        return
+
+    s3 = boto3.client(
+        "s3",
+        endpoint_url=settings.AWS_S3_ENDPOINT_URL,
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_S3_REGION_NAME,
+    )
+
+    bucket = settings.AWS_STORAGE_BUCKET_NAME
+    s3.copy_object(Bucket=bucket, Key=new_key, CopySource={"Bucket": bucket, "Key": old_key})
+    s3.delete_object(Bucket=bucket, Key=old_key)
+
+    transaction.supporting_doc_file.name = new_key
+    transaction.save(update_fields=["supporting_doc_file"])
+
+
+def _rename_drive_file_by_name(old_name, new_name):
+    if not old_name or old_name == new_name:
+        return
+
+    try:
+        supports_all_drives = str(getattr(settings, "GOOGLE_DRIVE_SUPPORTS_ALL_DRIVES", "True")).lower() == "true"
+        include_items_from_all_drives = str(
+            getattr(settings, "GOOGLE_DRIVE_INCLUDE_ITEMS_FROM_ALL_DRIVES", "True")
+        ).lower() == "true"
+
+        drive_service = _build_drive_client()
+        parent_folder_id = getattr(settings, "GOOGLE_DRIVE_PARENT_FOLDER_ID", "")
+
+        safe_old_name = old_name.replace("'", "\\'")
+        query_parts = ["trashed = false", f"name = '{safe_old_name}'"]
+        if parent_folder_id:
+            query_parts.append(f"'{parent_folder_id}' in parents")
+
+        response = (
+            drive_service.files()
+            .list(
+                q=" and ".join(query_parts),
+                fields="files(id, name)",
+                supportsAllDrives=supports_all_drives,
+                includeItemsFromAllDrives=include_items_from_all_drives,
+            )
+            .execute()
+        )
+
+        files = response.get("files", [])
+        if not files:
+            return
+
+        drive_service.files().update(
+            fileId=files[0]["id"],
+            body={"name": new_name},
+            supportsAllDrives=supports_all_drives,
+        ).execute()
+    except Exception:
+        logger.exception("Failed to rename Google Drive file from %s to %s", old_name, new_name)
 
 
 # -------------------------
@@ -948,6 +1023,9 @@ class TransactionDetailAPIView(APIView):
     def put(self, request, pk):
         transaction = self.get_object(pk, request)
 
+        old_ref = transaction.transaction_ref
+        old_supporting_doc_key = transaction.supporting_doc_file.name if transaction.supporting_doc_file else ""
+
         old_data = TransactionSerializer(transaction).data
 
         data = request.data.copy()
@@ -958,6 +1036,15 @@ class TransactionDetailAPIView(APIView):
         serializer = TransactionSerializer(transaction, data=data)
         serializer.is_valid(raise_exception=True)
         updated_transaction = serializer.save()
+
+        if (
+            old_ref != updated_transaction.transaction_ref
+            and old_supporting_doc_key
+            and not request.FILES.get('supporting_doc_file')
+        ):
+            _rename_supporting_doc_in_minio(updated_transaction, old_supporting_doc_key)
+            if updated_transaction.google_drive_link:
+                _rename_drive_file_by_name(old_ref, updated_transaction.transaction_ref)
 
         if updated_transaction.supporting_doc_file and request.FILES.get('supporting_doc_file'):
             storage_link = ''
@@ -992,6 +1079,9 @@ class TransactionDetailAPIView(APIView):
     def patch(self, request, pk):
         transaction = self.get_object(pk, request)
 
+        old_ref = transaction.transaction_ref
+        old_supporting_doc_key = transaction.supporting_doc_file.name if transaction.supporting_doc_file else ""
+
         old_data = TransactionSerializer(transaction).data
 
         data = request.data.copy()
@@ -1002,6 +1092,15 @@ class TransactionDetailAPIView(APIView):
         serializer = TransactionSerializer(transaction, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
         updated_transaction = serializer.save()
+
+        if (
+            old_ref != updated_transaction.transaction_ref
+            and old_supporting_doc_key
+            and not request.FILES.get('supporting_doc_file')
+        ):
+            _rename_supporting_doc_in_minio(updated_transaction, old_supporting_doc_key)
+            if updated_transaction.google_drive_link:
+                _rename_drive_file_by_name(old_ref, updated_transaction.transaction_ref)
 
         if updated_transaction.supporting_doc_file and request.FILES.get('supporting_doc_file'):
             storage_link = ''
