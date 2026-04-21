@@ -34,7 +34,8 @@ def _build_drive_client():
 
 def _build_drive_file_metadata(transaction, source_file_name):
     parent_folder_id = getattr(settings, "GOOGLE_DRIVE_PARENT_FOLDER_ID", "")
-    drive_file_name = Path(source_file_name).name
+    # Google Drive File Name
+    drive_file_name = transaction.transaction_ref
 
     metadata = {"name": drive_file_name}
     if parent_folder_id:

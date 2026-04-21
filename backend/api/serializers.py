@@ -1,3 +1,5 @@
+import boto3
+from django.conf import settings
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
@@ -161,7 +163,23 @@ class TransactionSerializer(serializers.ModelSerializer):
             return ''
 
         try:
-            return obj.supporting_doc_file.url
+            endpoint_url = getattr(settings, "AWS_S3_PUBLIC_ENDPOINT_URL", "") or settings.AWS_S3_ENDPOINT_URL
+            # BOTO3 AWS SDK
+            s3 = boto3.client(
+                "s3",
+                endpoint_url=endpoint_url,
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                region_name=settings.AWS_S3_REGION_NAME,
+            )
+            return s3.generate_presigned_url(
+                "get_object",
+                Params={
+                    "Bucket": settings.AWS_STORAGE_BUCKET_NAME,
+                    "Key": obj.supporting_doc_file.name,
+                },
+                ExpiresIn=86400,
+            )
         except Exception:
             return ''
 

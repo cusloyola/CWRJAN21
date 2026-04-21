@@ -426,6 +426,7 @@ class LogTransactionBatch(models.Model):
 def transaction_supporting_doc_upload_to(instance, filename):
     safe_name = Path(filename).name
     transaction_ref = getattr(instance, "transaction_ref", "transaction") or "transaction"
+    # MinIO Filename
     return f"transactions/{transaction_ref}_{safe_name}"
 
 

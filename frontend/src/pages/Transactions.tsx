@@ -302,7 +302,12 @@ const Transactions: React.FC = () => {
                                             // Cast ID to string to ensure compatibility with selectedIds (string[])
                                             const tId = String(transaction.transactionId);
                                             const isSelected = selectedIds.includes(tId);
-                                            const attachmentUrl = transaction.googleDriveLink || transaction.driveFileLink || '';
+                                            const attachmentUrl =
+                                                transaction.googleDriveLink
+                                                || transaction.driveFileLink
+                                                || transaction.supportingDocFileUrl
+                                                || transaction.supportingDocs
+                                                || '';
                                             const attachmentName = transaction.supportingDocFileName
                                                 || attachmentUrl.split('/').pop()
                                                 || '';
