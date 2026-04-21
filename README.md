@@ -28,21 +28,22 @@ You don’t develop wearing a tuxedo.
 
 - [Initial Setup Guide](documentation/setup.md) 
 - [Cloning from Gitlab Repo for development](documentation/development.md)
-- [Staging Deployment with SSL](documentation/staging.md)
+- [Staging Deployment with SSL on Local PC](documentation/staging.md)
+- [Staging Deployment with Remote Server](documentation/staging_remote.md)
 
 ## 📂 Project Structure
 ```
 doc_route/
-├─ frontend/        # React + Vite + TypeScript + SWC PIN UI
-├─ backend/         # Django + DRF + JWT
-├─ docker_dev/      # Docker dev configuration
-|  └─ nginx         # Default Nginx config for dev
-├─ docker_staging/  # Docker staging configuration
-|  └─ nginx         # Default Nginx config for staging
-|  └─ certs         # Mkcert generated certificate
-├─ documentation/   # Documentation
-├─ env/             # Python environment
-└─ README.md        # Project overview
+├─ frontend/                    # React + Vite + TypeScript + SWC PIN UI
+├─ backend/                     # Django + DRF + JWT
+├─ docker_dev/                  # Docker dev configuration
+|  └─ nginx                     # Default Nginx config for dev
+├─ docker_staging_local_ssl/    # Docker staging configuration
+|  └─ nginx                     # Default Nginx config for staging
+|  └─ certs                     # Mkcert generated certificate
+├─ documentation/               # Documentation
+├─ env/                         # Python environment
+└─ README.md                    # Project overview
 ```
 ## 📜 License
 All Rights Reserved © 2026 by Wallem Shipping Philippines,Inc and its affliate companies
