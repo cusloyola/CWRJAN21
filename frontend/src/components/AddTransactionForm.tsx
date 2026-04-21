@@ -257,7 +257,13 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onSuccess }) =>
                                 step="1"
                                 className="transaction-form-detail-value"
                                 value={formData.transaction_amount}
-                                onChange={e => handleChange('transaction_amount', Number(e.target.value))}
+                                onChange={e => {
+                                    const nextValue = e.target.value;
+                                    handleChange(
+                                        'transaction_amount',
+                                        nextValue === '' ? '' : Number(nextValue)
+                                    );
+                                }}
                                 placeholder="0.00"
                                 required
                             />

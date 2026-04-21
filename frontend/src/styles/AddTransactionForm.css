@@ -246,6 +246,18 @@ textarea.transaction-form-detail-value {
     font-family: inherit;
 }
 
+/* Remove increment arrows for amount input field */
+.transaction-form-detail-value[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.transaction-form-detail-value[type="number"]::-webkit-outer-spin-button,
+.transaction-form-detail-value[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 /* Required Field Indicator */
 .transaction-form-detail-label:has(+ .transaction-form-detail-value[required])::after {
     content: " *";
